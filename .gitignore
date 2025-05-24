@@ -1,0 +1,17 @@
+*.o
+*.out
+*~
+mp3player
+bootstrap
+*\#*\#
+*.log
+private
+*.a
+*.gcda
+*.gcno
+*.zip
+unit_tests
+coding-style-reports.log
+FREE*
+.vscode/
+*.bin
