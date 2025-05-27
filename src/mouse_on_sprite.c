@@ -16,4 +16,3 @@ int mouse_on_sprite(app_t *app, sfSprite *sprite)
         return 1;
     return 0;
 }
-

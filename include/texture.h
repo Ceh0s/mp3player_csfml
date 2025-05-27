@@ -17,9 +17,9 @@ typedef struct menu_s {
 } menu_t;
 
 typedef struct plist_s {
-    sfTexture *texture[4];
-    sfSprite *sprite[4];
-    sfVector2f scale[4];
+    sfTexture *texture[5];
+    sfSprite *sprite[5];
+    sfVector2f scale[5];
     sfRectangleShape *rect;
 } plist_t;
 

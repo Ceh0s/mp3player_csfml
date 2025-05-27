@@ -17,7 +17,7 @@ static menu_t *init_start_button(menu_t *menu, window_t *win)
     sfSprite_setScale(menu->sprite[1], menu->scale[1]);
     sfSprite_setOrigin(menu->sprite[1], (sfVector2f){256, 256});
     sfSprite_setPosition(menu->sprite[1],
-      (sfVector2f){((float)win->width / 2), ((float)win->height / 2)});
+    (sfVector2f){((float)win->width / 2), ((float)win->height / 2)});
     return menu;
 }
 

@@ -51,6 +51,21 @@ static plist_t *init_back_button(plist_t *list, window_t *win)
     return list;
 }
 
+static plist_t *init_skip_button(plist_t *list, window_t *win)
+{
+    list->texture[4] = sfTexture_createFromFile(
+    "img/skip_button.png", NULL);
+    list->sprite[4] = sfSprite_create();
+    list->scale[4] = (sfVector2f){((float)win->width / 10240),
+    ((float)win->width / 10240)};
+    sfSprite_setTexture(list->sprite[4], list->texture[4], sfTrue);
+    sfSprite_setScale(list->sprite[4], list->scale[4]);
+    sfSprite_setOrigin(list->sprite[4], (sfVector2f){235, 203});
+    sfSprite_setPosition(list->sprite[4],
+    (sfVector2f){((float)win->width / 1.66), ((float)win->height / 1.1)});
+    return list;
+}
+
 static plist_t *init_background(plist_t *list, window_t *win)
 {
     list->texture[0] = sfTexture_createFromFile(
@@ -68,22 +83,25 @@ static plist_t *init_rect(plist_t *list, window_t *win)
 {
     sfVector2f size = (sfVector2f){((float)win->width / 1.2),
     ((float)win->height / 1.2)};
+
     list->rect = sfRectangleShape_create();
     sfRectangleShape_setSize(list->rect, size);
     sfRectangleShape_setFillColor(list->rect, (sfColor){255, 255, 255, 100});
     sfRectangleShape_setOrigin(list->rect, (sfVector2f){0.0, 0.0});
-    sfRectangleShape_setPosition(list->rect, (sfVector2f){size.x / 10, size.y / 10});
+    sfRectangleShape_setPosition(list->rect,
+    (sfVector2f){size.x / 10, size.y / 10});
     return list;
 }
 
 plist_t *init_playlist(window_t *win)
 {
     plist_t *list = malloc(sizeof(plist_t));
-    
+
     list = init_background(list, win);
     list = init_start_button(list, win);
     list = init_close_button(list, win);
     list = init_back_button(list, win);
+    list = init_skip_button(list, win);
     list = init_rect(list, win);
     return list;
 }

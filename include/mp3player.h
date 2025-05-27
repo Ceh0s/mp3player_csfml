@@ -11,7 +11,7 @@
     #define WINDOW_TITLE "MP3_PLAYER"
     #define FRAMERATE_LIMIT 60
     #define MENU_TEXTURES 3
-    #define LIST_TEXTURES 4
+    #define LIST_TEXTURES 5
 
     #include "app.h"
     #include <stdlib.h>
