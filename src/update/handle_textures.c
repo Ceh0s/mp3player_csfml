@@ -30,6 +30,4 @@ void handle_textures(app_t **app, sfEvent event)
         && event.mouseButton.button == sfMouseLeft &&
         mouse_on_sprite(*app, (*app)->tx->list->sprite[3]) == 1)
         change_state(app, 2);
-    if (event.type == sfEvtMouseButtonPressed)
-        printf("x=%d - y=%d\n", event.mouseButton.x, event.mouseButton.y);
 }

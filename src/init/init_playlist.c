@@ -17,7 +17,7 @@ static plist_t *init_start_button(plist_t *list, window_t *win)
     sfSprite_setScale(list->sprite[1], list->scale[1]);
     sfSprite_setOrigin(list->sprite[1], (sfVector2f){256, 256});
     sfSprite_setPosition(list->sprite[1],
-    (sfVector2f){((float)win->width / 2), ((float)win->height / 1.1)});
+    (sfVector2f){((float)win->width / 2), ((float)win->height / 1.087)});
     return list;
 }
 
@@ -32,7 +32,7 @@ static plist_t *init_close_button(plist_t *list, window_t *win)
     sfSprite_setScale(list->sprite[2], list->scale[2]);
     sfSprite_setOrigin(list->sprite[2], (sfVector2f){1024, 1024});
     sfSprite_setPosition(list->sprite[2],
-    (sfVector2f){((float)win->width / 32), ((float)win->height / 20)});
+    (sfVector2f){((float)win->width / 34), ((float)win->height / 24)});
     return list;
 }
 
@@ -47,7 +47,7 @@ static plist_t *init_back_button(plist_t *list, window_t *win)
     sfSprite_setScale(list->sprite[3], list->scale[3]);
     sfSprite_setOrigin(list->sprite[3], (sfVector2f){256, 256});
     sfSprite_setPosition(list->sprite[3],
-    (sfVector2f){((float)win->width / 12), ((float)win->height / 20)});
+    (sfVector2f){((float)win->width / 13), ((float)win->height / 24)});
     return list;
 }
 
@@ -62,7 +62,7 @@ static plist_t *init_skip_button(plist_t *list, window_t *win)
     sfSprite_setScale(list->sprite[4], list->scale[4]);
     sfSprite_setOrigin(list->sprite[4], (sfVector2f){235, 203});
     sfSprite_setPosition(list->sprite[4],
-    (sfVector2f){((float)win->width / 1.66), ((float)win->height / 1.1)});
+    (sfVector2f){((float)win->width / 1.66), ((float)win->height / 1.087)});
     return list;
 }
 
@@ -81,15 +81,23 @@ static plist_t *init_background(plist_t *list, window_t *win)
 
 static plist_t *init_rect(plist_t *list, window_t *win)
 {
-    sfVector2f size = (sfVector2f){((float)win->width / 1.2),
+    sfVector2f size = (sfVector2f){((float)win->width / 1.1),
     ((float)win->height / 1.2)};
 
-    list->rect = sfRectangleShape_create();
-    sfRectangleShape_setSize(list->rect, size);
-    sfRectangleShape_setFillColor(list->rect, (sfColor){255, 255, 255, 100});
-    sfRectangleShape_setOrigin(list->rect, (sfVector2f){0.0, 0.0});
-    sfRectangleShape_setPosition(list->rect,
-    (sfVector2f){size.x / 10, size.y / 10});
+    list->rect[0] = sfRectangleShape_create();
+    sfRectangleShape_setSize(list->rect[0], size);
+    sfRectangleShape_setFillColor(list->rect[0], (sfColor){255, 255, 255, 100});
+    sfRectangleShape_setOrigin(list->rect[0], (sfVector2f){0.0, 0.0});
+    sfRectangleShape_setPosition(list->rect[0],
+    (sfVector2f){size.x / 20, size.y / 10});
+    size = (sfVector2f){(float)win->width, ((float)win->height / 7)};
+    list->rect[1] = sfRectangleShape_create();
+    sfRectangleShape_setSize(list->rect[1], size);
+    sfRectangleShape_setFillColor(list->rect[1], (sfColor){70, 70, 70, 255});
+    sfRectangleShape_setOrigin(list->rect[1],
+    (sfVector2f){((float)win->width / 2), ((float)win->height / 14)});
+    sfRectangleShape_setPosition(list->rect[1],
+    (sfVector2f){((float)win->width / 2), size.y / 0.154});
     return list;
 }
 

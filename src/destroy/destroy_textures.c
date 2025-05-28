@@ -26,8 +26,9 @@ void destroy_playlist(plist_t *list)
     for (int i = 0; i < LIST_TEXTURES; i++)
         if (list->sprite[i])
             sfSprite_destroy(list->sprite[i]);
-    if (list->rect)
-        sfRectangleShape_destroy(list->rect);
+    for (int i = 0; i < 2; i++)
+        if (list->rect[i])
+            sfRectangleShape_destroy(list->rect[i]);
     free(list);
 }
 

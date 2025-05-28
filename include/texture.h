@@ -20,7 +20,7 @@ typedef struct plist_s {
     sfTexture *texture[5];
     sfSprite *sprite[5];
     sfVector2f scale[5];
-    sfRectangleShape *rect;
+    sfRectangleShape *rect[2];
 } plist_t;
 
 typedef struct texture_s {

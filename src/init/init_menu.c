@@ -32,7 +32,7 @@ static menu_t *init_close_button(menu_t *menu, window_t *win)
     sfSprite_setScale(menu->sprite[2], menu->scale[2]);
     sfSprite_setOrigin(menu->sprite[2], (sfVector2f){1024, 1024});
     sfSprite_setPosition(menu->sprite[2],
-    (sfVector2f){((float)win->width / 32), ((float)win->height / 20)});
+    (sfVector2f){((float)win->width / 34), ((float)win->height / 24)});
     return menu;
 }
 

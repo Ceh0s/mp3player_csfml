@@ -23,7 +23,7 @@ SRC	=	main.c\
 
 OBJ	=	$(SRC:.c=.o)
 
-NAME	=	mp3player
+NAME	=	MP3player
 
 FLAG	=	-g -W -Wall -Wextra
 
