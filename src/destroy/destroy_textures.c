@@ -7,7 +7,7 @@
 
 #include "../../include/mp3player.h"
 
-void destroy_menu(menu_t *menu)
+static void destroy_menu(menu_t *menu)
 {
     for (int i = 0; i < MENU_TEXTURES; i++)
         if (menu->texture[i])
@@ -18,7 +18,7 @@ void destroy_menu(menu_t *menu)
     free(menu);
 }
 
-void destroy_playlist(plist_t *list)
+static void destroy_playlist(plist_t *list)
 {
     for (int i = 0; i < LIST_TEXTURES; i++)
         if (list->texture[i])
@@ -32,6 +32,19 @@ void destroy_playlist(plist_t *list)
     free(list);
 }
 
+static void destroy_music(music_t *music)
+{
+    isfreeable(music->music, NULL);
+    if (music->font)
+        sfFont_destroy(music->font);
+    for (int i = 0; i < music->nb; i++)
+        if (music->text[i])
+            sfText_destroy(music->text[i]);
+    if (music->text)
+        free(music->text);
+    free(music);
+}
+
 void destroy_textures(texture_t *tx, state_t state)
 {
     if (!tx)
@@ -39,8 +52,11 @@ void destroy_textures(texture_t *tx, state_t state)
     if (state == MENU)
         if (tx->menu)
             destroy_menu(tx->menu);
-    if (state == PLAYLIST)
+    if (state == PLAYLIST) {
         if (tx->list)
             destroy_playlist(tx->list);
+        if (tx->music)
+            destroy_music(tx->music);
+    }
     free(tx);
 }

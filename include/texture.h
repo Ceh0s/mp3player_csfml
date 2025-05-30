@@ -8,6 +8,7 @@
 #ifndef TEXTURE_H_
     #define TEXTURE_H_
 
+    #include "music.h"
     #include <SFML/Graphics.h>
 
 typedef struct menu_s {
@@ -26,6 +27,7 @@ typedef struct plist_s {
 typedef struct texture_s {
     menu_t *menu;
     plist_t *list;
+    music_t *music;
 } texture_t;
 
 #endif

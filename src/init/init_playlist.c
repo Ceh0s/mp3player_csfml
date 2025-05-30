@@ -86,7 +86,8 @@ static plist_t *init_rect(plist_t *list, window_t *win)
 
     list->rect[0] = sfRectangleShape_create();
     sfRectangleShape_setSize(list->rect[0], size);
-    sfRectangleShape_setFillColor(list->rect[0], (sfColor){255, 255, 255, 100});
+    sfRectangleShape_setFillColor(list->rect[0],
+    (sfColor){255, 255, 255, 100});
     sfRectangleShape_setOrigin(list->rect[0], (sfVector2f){0.0, 0.0});
     sfRectangleShape_setPosition(list->rect[0],
     (sfVector2f){size.x / 20, size.y / 10});

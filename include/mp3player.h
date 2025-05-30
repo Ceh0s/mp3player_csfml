@@ -21,6 +21,8 @@
     #include <stdbool.h>
     #include <stdio.h>
     #include <errno.h>
+    #include <sys/types.h>
+    #include <dirent.h>
     #include <SFML/Graphics.h>
     #include <SFML/System.h>
     #include <SFML/Window.h>
@@ -40,12 +42,13 @@ void destroy_window(window_t *win);
 // src/display
 void draw_all(app_t *app);
 
-// src/ini
+// src/init
 app_t *init_all(void);
 texture_t *init_textures(texture_t *tx, state_t state, window_t *win);
 menu_t *init_menu(window_t *window);
 plist_t *init_playlist(window_t *window);
 window_t *init_window(void);
+music_t *init_music(window_t *window);
 
 // src/update
 int handle_events(app_t **app, sfEvent *event);

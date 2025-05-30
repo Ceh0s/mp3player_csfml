@@ -10,6 +10,7 @@
 
     #include "texture.h"
     #include "window.h"
+    #include "music.h"
     #include <SFML/Window.h>
 
 typedef enum state_s {

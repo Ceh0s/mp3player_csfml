@@ -13,9 +13,11 @@ texture_t *init_textures(texture_t *tx, state_t state, window_t *win)
     if (state == MENU) {
         tx->menu = init_menu(win);
         tx->list = NULL;
+        tx->music = NULL;
     }
     if (state == PLAYLIST) {
         tx->list = init_playlist(win);
+        tx->music = init_music(win);
         tx->menu = NULL;
     }
     return tx;
