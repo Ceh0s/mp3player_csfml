@@ -7,7 +7,7 @@
 
 #include "../../include/mp3player.h"
 
-static plist_t *init_start_button(plist_t *list, window_t *win)
+static plist_t *init_play_button(plist_t *list, window_t *win)
 {
     list->texture[1] = sfTexture_createFromFile("img/playlogo.png", NULL);
     list->sprite[1] = sfSprite_create();
@@ -107,7 +107,7 @@ plist_t *init_playlist(window_t *win)
     plist_t *list = malloc(sizeof(plist_t));
 
     list = init_background(list, win);
-    list = init_start_button(list, win);
+    list = init_play_button(list, win);
     list = init_close_button(list, win);
     list = init_back_button(list, win);
     list = init_skip_button(list, win);

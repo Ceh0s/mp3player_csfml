@@ -93,10 +93,30 @@ static music_t *init_text(music_t *music, window_t *win)
         music->text[i] = sfText_create();
         sfText_setFont(music->text[i], music->font);
         sfText_setString(music->text[i], music->music[i]);
-        sfText_setCharacterSize(music->text[i], win->width / 71);
+        sfText_setCharacterSize(music->text[i], win->width / 65);
         sfText_setFillColor(music->text[i], sfWhite);
+        sfText_setPosition(music->text[i],
+        (sfVector2f){((float)win->width / 15),
+        ((float)win->width / 15)});
     }
     music->text[i] = NULL;
+    return music;
+}
+
+static music_t *create_music(music_t *music)
+{
+    int i = 0;
+    char *path = NULL;
+
+    music->mus = malloc(sizeof(sfMusic *) * (music->nb + 1));
+    for (; music->music[i]; i++) {
+        path = malloc(sizeof(char) * (strlen(music->music[i] + 7)));
+        path = strdup("music/");
+        path = strcat(path, music->music[i]);
+        music->mus[i] = sfMusic_createFromFile(path);
+        free(path);
+    }
+    music->mus[i] = NULL;
     return music;
 }
 
@@ -107,7 +127,9 @@ music_t *init_music(window_t *win)
     music->music = music_to_array(&music);
     music->font = sfFont_createFromFile(
     "./src/fonts/BourgeoisW00Medium.ttf");
-    if (music->nb > 0)
+    if (music->nb > 0) {
         music = init_text(music, win);
+        music = create_music(music);
+    }
     return music;
 }

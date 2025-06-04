@@ -37,11 +37,16 @@ static void destroy_music(music_t *music)
     isfreeable(music->music, NULL);
     if (music->font)
         sfFont_destroy(music->font);
-    for (int i = 0; i < music->nb; i++)
+    for (int i = 0; i < music->nb; i++) {
         if (music->text[i])
             sfText_destroy(music->text[i]);
+        if (music->mus[i])
+            sfMusic_destroy(music->mus[i]);
+    }
     if (music->text)
         free(music->text);
+    if (music->mus)
+        free(music->mus);
     free(music);
 }
 

@@ -1,7 +1,7 @@
 *.o
 *.out
 *~
-mp3player
+MP3player
 bootstrap
 *\#*\#
 *.log

@@ -54,5 +54,6 @@ music_t *init_music(window_t *window);
 int handle_events(app_t **app, sfEvent *event);
 void handle_textures(app_t **app, sfEvent event);
 int handle_window(app_t **app, sfEvent event);
+void update_music(app_t **app, sfEvent event);
 
 #endif

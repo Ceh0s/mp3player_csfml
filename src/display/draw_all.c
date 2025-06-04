@@ -26,10 +26,16 @@ static void draw_skip_buttons(plist_t *list, window_t *win)
     (sfVector2f){((float)win->width / 1.66), ((float)win->height / 1.087)});
 }
 
-static void draw_playlist(plist_t *list, window_t *win)
+static void draw_music(music_t *music, window_t *win)
+{
+    sfRenderWindow_drawText(win->window, music->text[0], NULL);
+}
+
+static void draw_playlist(plist_t *list, music_t *music, window_t *win)
 {
     sfRenderWindow_drawSprite(win->window, list->sprite[0], NULL);
     sfRenderWindow_drawRectangleShape(win->window, list->rect[0], NULL);
+    draw_music(music, win);
     sfRenderWindow_drawRectangleShape(win->window, list->rect[1], NULL);
     sfRenderWindow_drawSprite(win->window, list->sprite[1], NULL);
     sfRenderWindow_drawSprite(win->window, list->sprite[2], NULL);
@@ -42,5 +48,5 @@ void draw_all(app_t *app)
     if (app->state == MENU)
         draw_menu(app->tx->menu, app->win);
     if (app->state == PLAYLIST)
-        draw_playlist(app->tx->list, app->win);
+        draw_playlist(app->tx->list, app->tx->music, app->win);
 }

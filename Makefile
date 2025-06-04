@@ -12,6 +12,7 @@ SRC	=	main.c\
 		src/update/handle_window.c\
 		src/update/handle_events.c\
 		src/update/handle_textures.c\
+		src/update/update_music.c\
                 src/init/init_all.c\
 		src/init/init_menu.c\
                 src/init/init_textures.c\
