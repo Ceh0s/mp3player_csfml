@@ -8,6 +8,7 @@
 SRC	=	main.c\
 		src/isfreeable.c\
 		src/mouse_on_sprite.c\
+		src/remove_mp3_tag.c\
 		src/init/init_music.c\
 		src/update/handle_window.c\
 		src/update/handle_events.c\

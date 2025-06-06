@@ -28,7 +28,8 @@ static void draw_skip_buttons(plist_t *list, window_t *win)
 
 static void draw_music(music_t *music, window_t *win)
 {
-    sfRenderWindow_drawText(win->window, music->text[0], NULL);
+    for (int i = 0; music->text[i]; i++)
+        sfRenderWindow_drawText(win->window, music->text[i], NULL);
 }
 
 static void draw_playlist(plist_t *list, music_t *music, window_t *win)

@@ -33,6 +33,8 @@
 // src
 void isfreeable(char **arr, char *str);
 int mouse_on_sprite(app_t *app, sfSprite *sprite);
+int mouse_on_text(app_t *app, sfText *text);
+char *remove_mp3_tag(char *sample);
 
 // src/destroy
 int destroy_all(app_t *app, int rtn_value);

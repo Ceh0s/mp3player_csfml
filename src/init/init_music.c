@@ -87,17 +87,22 @@ static char **music_to_array(music_t **music)
 static music_t *init_text(music_t *music, window_t *win)
 {
     int i = 0;
+    int offset = win->width / 68;
+    char *str = NULL;
 
     music->text = malloc(sizeof(sfText *) * (music->nb + 1));
     for (; music->music[i]; i++) {
+        str = remove_mp3_tag(music->music[i]);
         music->text[i] = sfText_create();
         sfText_setFont(music->text[i], music->font);
-        sfText_setString(music->text[i], music->music[i]);
-        sfText_setCharacterSize(music->text[i], win->width / 65);
+        sfText_setString(music->text[i], str);
+        sfText_setCharacterSize(music->text[i], win->width / 55);
         sfText_setFillColor(music->text[i], sfWhite);
         sfText_setPosition(music->text[i],
         (sfVector2f){((float)win->width / 15),
-        ((float)win->width / 15)});
+        ((float)(win->width / 15) + offset)});
+        offset += win->width / 54;
+        free(str);
     }
     music->text[i] = NULL;
     return music;
@@ -110,9 +115,8 @@ static music_t *create_music(music_t *music)
 
     music->mus = malloc(sizeof(sfMusic *) * (music->nb + 1));
     for (; music->music[i]; i++) {
-        path = malloc(sizeof(char) * (strlen(music->music[i] + 7)));
-        path = strdup("music/");
-        path = strcat(path, music->music[i]);
+        path = malloc(sizeof(char) *(strlen(music->music[i]) + 7));
+        sprintf(path, "music/%s", music->music[i]);
         music->mus[i] = sfMusic_createFromFile(path);
         free(path);
     }

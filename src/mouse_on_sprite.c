@@ -16,3 +16,13 @@ int mouse_on_sprite(app_t *app, sfSprite *sprite)
         return 1;
     return 0;
 }
+
+int mouse_on_text(app_t *app, sfText *text)
+{
+    sfFloatRect rect = sfText_getGlobalBounds(text);
+    sfVector2i mousepos = sfMouse_getPositionRenderWindow(app->win->window);
+
+    if (sfFloatRect_contains(&rect, (float)mousepos.x, (float)mousepos.y))
+        return 1;
+    return 0;
+}
