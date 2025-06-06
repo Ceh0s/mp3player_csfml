@@ -12,15 +12,15 @@
     #include <SFML/Graphics.h>
 
 typedef struct menu_s {
-    sfTexture *texture[3];
-    sfSprite *sprite[3];
-    sfVector2f scale[3];
+    sfTexture *texture[MENU_TEXTURES];
+    sfSprite *sprite[MENU_TEXTURES];
+    sfVector2f scale[MENU_TEXTURES];
 } menu_t;
 
 typedef struct plist_s {
-    sfTexture *texture[5];
-    sfSprite *sprite[5];
-    sfVector2f scale[5];
+    sfTexture *texture[LIST_TEXTURES];
+    sfSprite *sprite[LIST_TEXTURES];
+    sfVector2f scale[LIST_TEXTURES];
     sfRectangleShape *rect[2];
 } plist_t;
 

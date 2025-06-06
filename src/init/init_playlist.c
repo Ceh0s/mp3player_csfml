@@ -21,6 +21,21 @@ static plist_t *init_play_button(plist_t *list, window_t *win)
     return list;
 }
 
+static plist_t *init_pause_button(plist_t *list, window_t *win)
+{
+    list->texture[5] = sfTexture_createFromFile(
+    "img/pause_button.png", NULL);
+    list->sprite[5] = sfSprite_create();
+    list->scale[5] = (sfVector2f){((float)win->width / 8533),
+    ((float)win->width / 8533)};
+    sfSprite_setTexture(list->sprite[5], list->texture[5], sfTrue);
+    sfSprite_setScale(list->sprite[5], list->scale[5]);
+    sfSprite_setOrigin(list->sprite[5], (sfVector2f){256, 256});
+    sfSprite_setPosition(list->sprite[5],
+    (sfVector2f){((float)win->width / 2), ((float)win->height / 1.087)});
+    return list;
+}
+
 static plist_t *init_close_button(plist_t *list, window_t *win)
 {
     list->texture[2] = sfTexture_createFromFile(
@@ -108,6 +123,7 @@ plist_t *init_playlist(window_t *win)
 
     list = init_background(list, win);
     list = init_play_button(list, win);
+    list = init_pause_button(list, win);
     list = init_close_button(list, win);
     list = init_back_button(list, win);
     list = init_skip_button(list, win);

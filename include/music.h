@@ -17,6 +17,7 @@ typedef struct music_s {
     sfFont *font;
     sfText **text;
     sfMusic **mus;
+    int paused;
 } music_t;
 
 #endif

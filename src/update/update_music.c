@@ -7,14 +7,17 @@
 
 #include "../../include/mp3player.h"
 
-static void music_state(sfMusic *new, sfMusic *old)
+static void music_state(sfMusic *new, sfMusic *old, app_t **app)
 {
     if (old)
         sfMusic_stop(old);
-    if (sfMusic_getStatus(new) == sfPlaying)
+    if (sfMusic_getStatus(new) == sfPlaying) {
         sfMusic_pause(new);
-    else
+        (*app)->tx->music->paused = 1;
+    } else {
         sfMusic_play(new);
+        (*app)->tx->music->paused = 0;
+    }
 }
 
 static int is_text_clicked(app_t *app, music_t *music)
@@ -44,19 +47,18 @@ static void locate_click(app_t **app)
 
     if (idx != -1) {
         if (is_playing == -1)
-            music_state((*app)->tx->music->mus[idx], NULL);
+            music_state((*app)->tx->music->mus[idx], NULL, app);
         else
             music_state((*app)->tx->music->mus[idx],
-            (*app)->tx->music->mus[is_playing]);
+            (*app)->tx->music->mus[is_playing], app);
     } else if (mouse_on_sprite((*app), (*app)->tx->list->sprite[1])
         && is_playing != -1)
-        music_state((*app)->tx->music->mus[is_playing], NULL);
+                music_state((*app)->tx->music->mus[is_playing], NULL, app);
 }
 
 void update_music(app_t **app, sfEvent event)
 {
     if (event.type == sfEvtMouseButtonReleased && (*app)->state == PLAYLIST
-        && event.mouseButton.button == sfMouseLeft) {
+        && event.mouseButton.button == sfMouseLeft)
         locate_click(app);
-    }
 }

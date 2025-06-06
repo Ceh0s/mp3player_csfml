@@ -38,7 +38,10 @@ static void draw_playlist(plist_t *list, music_t *music, window_t *win)
     sfRenderWindow_drawRectangleShape(win->window, list->rect[0], NULL);
     draw_music(music, win);
     sfRenderWindow_drawRectangleShape(win->window, list->rect[1], NULL);
-    sfRenderWindow_drawSprite(win->window, list->sprite[1], NULL);
+    if (music->paused == 1)
+        sfRenderWindow_drawSprite(win->window, list->sprite[1], NULL);
+    else
+        sfRenderWindow_drawSprite(win->window, list->sprite[5], NULL);
     sfRenderWindow_drawSprite(win->window, list->sprite[2], NULL);
     sfRenderWindow_drawSprite(win->window, list->sprite[3], NULL);
     draw_skip_buttons(list, win);

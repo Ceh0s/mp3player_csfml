@@ -135,5 +135,6 @@ music_t *init_music(window_t *win)
         music = init_text(music, win);
         music = create_music(music);
     }
+    music->paused = 1;
     return music;
 }
