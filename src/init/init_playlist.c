@@ -66,7 +66,7 @@ static plist_t *init_back_button(plist_t *list, window_t *win)
     return list;
 }
 
-static plist_t *init_skip_button(plist_t *list, window_t *win)
+static plist_t *init_skip_left(plist_t *list, window_t *win)
 {
     list->texture[4] = sfTexture_createFromFile(
     "img/skip_button.png", NULL);
@@ -78,6 +78,22 @@ static plist_t *init_skip_button(plist_t *list, window_t *win)
     sfSprite_setOrigin(list->sprite[4], (sfVector2f){235, 203});
     sfSprite_setPosition(list->sprite[4],
     (sfVector2f){((float)win->width / 1.66), ((float)win->height / 1.087)});
+    return list;
+}
+
+static plist_t *init_skip_right(plist_t *list, window_t *win)
+{
+    list->texture[6] = sfTexture_createFromFile(
+    "img/skip_button.png", NULL);
+    list->sprite[6] = sfSprite_create();
+    list->scale[6] = (sfVector2f){((float)win->width / 10240),
+    ((float)win->width / 10240)};
+    sfSprite_setTexture(list->sprite[6], list->texture[6], sfTrue);
+    sfSprite_setScale(list->sprite[6], list->scale[6]);
+    sfSprite_setOrigin(list->sprite[6], (sfVector2f){235, 203});
+    sfSprite_setRotation(list->sprite[6], 180);
+    sfSprite_setPosition(list->sprite[6],
+    (sfVector2f){((float)win->width / 2.50), ((float)win->height / 1.087)});
     return list;
 }
 
@@ -126,7 +142,8 @@ plist_t *init_playlist(window_t *win)
     list = init_pause_button(list, win);
     list = init_close_button(list, win);
     list = init_back_button(list, win);
-    list = init_skip_button(list, win);
+    list = init_skip_left(list, win);
+    list = init_skip_right (list, win);
     list = init_rect(list, win);
     return list;
 }

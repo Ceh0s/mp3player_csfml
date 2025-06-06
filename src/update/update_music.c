@@ -7,15 +7,18 @@
 
 #include "../../include/mp3player.h"
 
-static void music_state(sfMusic *new, sfMusic *old, app_t **app)
+static void music_state(int new, int old, app_t **app)
 {
-    if (old)
-        sfMusic_stop(old);
-    if (sfMusic_getStatus(new) == sfPlaying) {
-        sfMusic_pause(new);
+    if (old >= 0) {
+        sfMusic_stop((*app)->tx->music->mus[old]);
+        sfText_setFillColor((*app)->tx->music->text[old], sfWhite);
+    }
+    if (sfMusic_getStatus((*app)->tx->music->mus[new]) == sfPlaying) {
+        sfMusic_pause((*app)->tx->music->mus[new]);
         (*app)->tx->music->paused = 1;
     } else {
-        sfMusic_play(new);
+        sfMusic_play((*app)->tx->music->mus[new]);
+        sfText_setFillColor((*app)->tx->music->text[new], sfYellow);
         (*app)->tx->music->paused = 0;
     }
 }
@@ -40,25 +43,37 @@ static int get_ongoing_music(music_t *music)
     return -1;
 }
 
-static void locate_click(app_t **app)
+static void skip_buttons(app_t **app, int is_playing)
 {
-    int idx = is_text_clicked((*app), (*app)->tx->music);
-    int is_playing = get_ongoing_music((*app)->tx->music);
+    if (mouse_on_sprite((*app), (*app)->tx->list->sprite[6])
+        && is_playing > 0) {
+        music_state(is_playing - 1, is_playing, app);
+    } else if (mouse_on_sprite((*app), (*app)->tx->list->sprite[4])
+        && (*app)->tx->music->nb - 1 != is_playing)
+        music_state(is_playing + 1, is_playing, app);
+}
 
+static void pause_resume(app_t **app, int idx, int is_playing)
+{
     if (idx != -1) {
         if (is_playing == -1)
-            music_state((*app)->tx->music->mus[idx], NULL, app);
+            music_state(idx, -1, app);
         else
-            music_state((*app)->tx->music->mus[idx],
-            (*app)->tx->music->mus[is_playing], app);
+            music_state(idx, is_playing, app);
     } else if (mouse_on_sprite((*app), (*app)->tx->list->sprite[1])
         && is_playing != -1)
-                music_state((*app)->tx->music->mus[is_playing], NULL, app);
+        music_state(is_playing, -1, app);
 }
 
 void update_music(app_t **app, sfEvent event)
 {
+    int idx = is_text_clicked((*app), (*app)->tx->music);
+    int is_playing = get_ongoing_music((*app)->tx->music);
+
     if (event.type == sfEvtMouseButtonReleased && (*app)->state == PLAYLIST
-        && event.mouseButton.button == sfMouseLeft)
-        locate_click(app);
+        && event.mouseButton.button == sfMouseLeft) {
+        pause_resume(app, idx, is_playing);
+        if (is_playing != -1)
+            skip_buttons(app, is_playing);
+    }
 }
