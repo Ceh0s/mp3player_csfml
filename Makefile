@@ -28,21 +28,19 @@ OBJ	=	$(SRC:.c=.o)
 
 NAME	=	MP3player
 
-FLAG	=	-g -W -Wall -Wextra
+CC	=	clang
 
-MAKEFLAGS	=	-j$(shell nproc)
-
-CFLAGS	+=	$(FLAG)
+FLAGS	=	-lcsfml-graphics -lcsfml-window \
+		-lcsfml-system -lcsfml-audio -lm
 
 all:	$(NAME)
 
 $(NAME):	$(OBJ)
-	@gcc -o $(NAME) $(OBJ) -lcsfml-graphics -lcsfml-window \
-	-lcsfml-system -lcsfml-audio -lm
+	@$(CC) $(FLAGS) -o $(NAME) $(OBJ)
 	@make clean -C ./ -s
 
 %.o:	%.c
-	@gcc $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJ)
@@ -50,4 +48,10 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 
+debug:	CC	=	epiclang
+debug:	CFLAGS +=	-g
+debug:	re
+
 re:	fclean all
+
+.PHONY: all %.o clean fclean debug re
