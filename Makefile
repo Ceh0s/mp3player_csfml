@@ -30,6 +30,8 @@ NAME	=	MP3player
 
 CC	=	clang
 
+CFLAGS	+=	-I include/
+
 FLAGS	=	-lcsfml-graphics -lcsfml-window \
 		-lcsfml-system -lcsfml-audio -lm
 
