@@ -1,24 +1,20 @@
 /*
-** EPITECH PROJECT, 2024
-** main.c
+** EPITECH PROJECT, 2025
+** mp3player
 ** File description:
-** main of wolf3d
+** main of the mp3 player
 */
 
-#include "include/mp3player.h"
+#include "mp3player.h"
 
 int main(void)
 {
-    app_t *app = init_all();
-    sfEvent event;
+    app_t *app = app_create();
 
-    if (!app->win->window)
-        return destroy_all(app, 84);
-    while (sfRenderWindow_isOpen(app->win->window)) {
-        if (handle_events(&app, &event) == 84)
-            return destroy_all(app, 84);
-        draw_all(app);
-        sfRenderWindow_display(app->win->window);
-    }
-    return destroy_all(app, 0);
+    if (!app)
+        return 84;
+    while (sfRenderWindow_isOpen(app->window))
+        if (loop_run(app) == 84)
+            return app_destroy(app, 84);
+    return app_destroy(app, 0);
 }
