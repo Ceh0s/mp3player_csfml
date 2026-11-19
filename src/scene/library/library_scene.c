@@ -58,7 +58,7 @@ static void click(app_t *app)
     if (id == LIB_CLOSE)
         sfRenderWindow_close(app->window);
     if (id == LIB_BACK)
-        app->next_scene = HOME;
+        scene_back(app);
     if (id == LIB_PLAY || id == LIB_PAUSE)
         player_toggle(app);
     if (id == LIB_PREV || id == LIB_NEXT)
@@ -71,6 +71,17 @@ static void click(app_t *app)
         player_play(app, row);
 }
 
+/*
+** shortcuts to the battle and rankings screens (widgets)
+*/
+static void shortcuts(app_t *app)
+{
+    if (widget_button(app, (float [4]){1330, 20, 230, 56}, "Battle"))
+        scene_open(app, BATTLE);
+    if (widget_button(app, (float [4]){1580, 20, 250, 56}, "Classements"))
+        scene_open(app, RANKING);
+}
+
 static void right_click(app_t *app)
 {
     int row = list_click(app);
@@ -78,7 +89,7 @@ static void right_click(app_t *app)
     if (row == -1)
         return;
     app->edit_song = app->lib->playlist[row];
-    app->next_scene = EDIT;
+    scene_open(app, EDIT);
 }
 
 void libscene_event(app_t *app, sfEvent *event)
@@ -93,6 +104,9 @@ void libscene_event(app_t *app, sfEvent *event)
         return;
     if (bar_seek(app) == 0)
         click(app);
+    app->wg->mode = WG_CLICK;
+    shortcuts(app);
+    app->wg->mode = WG_DRAW;
 }
 
 void libscene_update(app_t *app)
@@ -114,4 +128,6 @@ void libscene_draw(app_t *app)
     list_draw(app);
     bar_draw(app);
     ui_draw(app, app->libscene->ui);
+    app->wg->mode = WG_DRAW;
+    shortcuts(app);
 }

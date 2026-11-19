@@ -31,9 +31,13 @@ struct app_s {
     long tick_loop;
     scene_id_t scene;
     scene_id_t next_scene;
+    scene_id_t path[NB_SCENES];
+    int path_len;
     home_t *home;
     libscene_t *libscene;
     edit_t *edit;
+    battle_t *battle;
+    ranking_t *ranking;
     song_t *edit_song;
     widgets_t *wg;
     library_t *lib;

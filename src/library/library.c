@@ -94,8 +94,8 @@ library_t *library_load(void)
         library_destroy(lib);
         return NULL;
     }
+    db_load_elo(lib);
     tsv_touch(LISTENS_LOG, LISTENS_COLUMNS);
-    tsv_touch(ELO_DB, ELO_COLUMNS);
     tsv_touch(BATTLES_LOG, BATTLES_COLUMNS);
     db_save_all(lib);
     return lib;

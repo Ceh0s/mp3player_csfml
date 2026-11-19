@@ -21,7 +21,7 @@ int db_save_all(library_t *lib)
 {
     int ret = db_save_songs(lib);
 
-    if (db_save_tables(lib) == 84)
+    if (db_save_tables(lib) == 84 || db_save_elo(lib) == 84)
         ret = 84;
     return ret;
 }

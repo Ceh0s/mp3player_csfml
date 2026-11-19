@@ -23,6 +23,8 @@ typedef enum scene_id_e {
     HOME,
     LIBRARY,
     EDIT,
+    BATTLE,
+    RANKING,
     NB_SCENES
 } scene_id_t;
 
@@ -103,5 +105,37 @@ typedef struct edit_s {
     song_t *target;
     artist_t *artist;
 } edit_t;
+
+/*
+** pair : the two songs shown, has_pair : 0 if there are not two songs
+*/
+typedef struct battle_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    int category;
+    song_t *pair[2];
+    int has_pair;
+} battle_t;
+
+typedef enum ranking_tab_e {
+    TAB_TIERS,
+    TAB_BOARD
+} ranking_tab_t;
+
+/*
+** ranks : the songs having at least one battle in the category,
+** best first (rebuilt when the category changes)
+*/
+typedef struct ranking_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    int category;
+    ranking_tab_t tab;
+    rank_t *ranks;
+    int nb;
+    int scroll;
+} ranking_t;
 
 #endif

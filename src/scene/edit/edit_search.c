@@ -93,7 +93,7 @@ void edit_confirm(app_t *app)
     if (widget_button(app, (float [4]){130, y, 360, 56},
             "Confirmer la fusion")) {
         song_merge(app, edit->song, edit->target);
-        app->next_scene = LIBRARY;
+        scene_back(app);
         return;
     }
     if (widget_button(app, (float [4]){510, y, 260, 56}, "Annuler"))

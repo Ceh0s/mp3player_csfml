@@ -27,6 +27,8 @@ static void global_event(app_t *app, sfEvent *event)
         return;
     if (event->key.code == sfKeyF11)
         app->toggle_fullscreen = 1;
+    if (event->key.code == sfKeyEscape && app->scene != EDIT)
+        scene_back(app);
     if (event->key.code == sfKeySpace && app->scene != EDIT)
         player_toggle(app);
 }

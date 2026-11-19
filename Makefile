@@ -12,7 +12,11 @@ SRC_CORE	=	src/core/app_destroy.c\
 		src/core/view.c\
 		src/core/window.c
 
-SRC_SCENE	=	src/scene/scene_table.c\
+SRC_SCENE	=	src/scene/scene_nav.c\
+		src/scene/scene_table.c\
+		src/scene/battle/battle_scene.c\
+		src/scene/battle/battle_view.c\
+		src/scene/battle/battle_vote.c\
 		src/scene/edit/edit.c\
 		src/scene/edit/edit_artist.c\
 		src/scene/edit/edit_input.c\
@@ -25,12 +29,24 @@ SRC_SCENE	=	src/scene/scene_table.c\
 		src/scene/library/library_layout.c\
 		src/scene/library/library_list.c\
 		src/scene/library/library_scene.c\
-		src/scene/pages/artist_page.c
+		src/scene/pages/artist_page.c\
+		src/scene/pages/category_bar.c\
+		src/scene/ranking/ranking_board.c\
+		src/scene/ranking/ranking_build.c\
+		src/scene/ranking/ranking_scene.c\
+		src/scene/ranking/ranking_tiers.c\
+		src/scene/ranking/ranking_view.c
 
 SRC_UI	=	src/ui/ui_element.c\
 		src/ui/ui_hit.c\
 		src/ui/ui_shapes.c\
+		src/ui/widget_shapes.c\
 		src/ui/widgets.c
+
+SRC_ELO	=	src/elo/elo_categories.c\
+		src/elo/elo_pair.c\
+		src/elo/elo_rating.c\
+		src/elo/elo_score.c
 
 SRC_AUDIO	=	src/audio/listen_tracker.c\
 		src/audio/player.c
@@ -55,6 +71,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/songs/song_resolve.c
 
 SRC_DATA	=	src/data/db_all.c\
+		src/data/db_elo.c\
 		src/data/db_merge.c\
 		src/data/db_migrate.c\
 		src/data/db_songs.c\
@@ -70,6 +87,7 @@ SRC	=	main.c\
 		$(SRC_SCENE)\
 		$(SRC_UI)\
 		$(SRC_AUDIO)\
+		$(SRC_ELO)\
 		$(SRC_LIBRARY)\
 		$(SRC_DATA)\
 		$(SRC_UTILS)

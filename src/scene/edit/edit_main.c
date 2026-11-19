@@ -16,7 +16,7 @@ static void save(app_t *app)
     song_set_title(edit->song, edit->title);
     song_set_artists(app->lib, edit->song, edit->artists, edit->nb_artists);
     library_changed(app);
-    app->next_scene = LIBRARY;
+    scene_back(app);
 }
 
 static void header(app_t *app, edit_t *edit)
@@ -89,7 +89,7 @@ static void buttons(app_t *app, edit_t *edit)
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Enregistrer"))
         save(app);
     if (widget_button(app, (float [4]){410, y, 260, 56}, "Annuler"))
-        app->next_scene = LIBRARY;
+        scene_back(app);
     if (widget_button(app, (float [4]){690, y, 340, 56},
             "Fusionner avec...")) {
         edit->mode = EDIT_SEARCH;

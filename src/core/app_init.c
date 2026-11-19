@@ -22,6 +22,7 @@ static int load_shared(app_t *app)
     if (!app->wg)
         return 84;
     sfTexture_setSmooth(app->atlas, sfTrue);
+    srand(time(NULL));
     app->player->index = -1;
     return 0;
 }

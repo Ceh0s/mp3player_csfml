@@ -13,12 +13,17 @@ const scene_t scenes[NB_SCENES] = {
     {LIBRARY, &libscene_init, &libscene_event, &libscene_update,
         &libscene_draw, &libscene_layout, &libscene_destroy},
     {EDIT, &edit_init, &edit_event, NULL, &edit_draw, &edit_layout,
-        &edit_destroy}
+        &edit_destroy},
+    {BATTLE, &battle_init, &battle_event, NULL, &battle_draw,
+        &battle_layout, &battle_destroy},
+    {RANKING, &ranking_init, &ranking_event, NULL, &ranking_draw,
+        &ranking_layout, &ranking_destroy}
 };
 
 /*
 ** Only the resources of the displayed scene are loaded:
 ** the old scene is freed before the new one is created.
+** next_scene is set by scene_open / scene_back (scene_nav.c).
 */
 int scene_switch(app_t *app)
 {

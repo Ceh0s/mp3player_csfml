@@ -2,7 +2,8 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** home screen: a big play button to open the library
+** home screen: a big play button to open the library, and the menu
+** of the other screens
 */
 
 #include "mp3player.h"
@@ -31,6 +32,21 @@ int home_init(app_t *app)
     return 0;
 }
 
+/*
+** drawn with the widgets, under the play button (centered anchor)
+*/
+static void menu(app_t *app)
+{
+    float y = 740 + app->extra_h / 2;
+
+    if (widget_button(app, (float [4]){520, y, 280, 64}, "Bibliothèque"))
+        scene_open(app, LIBRARY);
+    if (widget_button(app, (float [4]){820, y, 280, 64}, "Battle"))
+        scene_open(app, BATTLE);
+    if (widget_button(app, (float [4]){1120, y, 280, 64}, "Classements"))
+        scene_open(app, RANKING);
+}
+
 void home_event(app_t *app, sfEvent *event)
 {
     int id = -1;
@@ -40,15 +56,20 @@ void home_event(app_t *app, sfEvent *event)
         return;
     id = ui_hit(app, app->home->ui);
     if (id == HOME_PLAY)
-        app->next_scene = LIBRARY;
+        scene_open(app, LIBRARY);
     if (id == HOME_CLOSE)
         sfRenderWindow_close(app->window);
+    app->wg->mode = WG_CLICK;
+    menu(app);
+    app->wg->mode = WG_DRAW;
 }
 
 void home_draw(app_t *app)
 {
     sfRenderWindow_drawSprite(app->window, app->home->bg, NULL);
     ui_draw(app, app->home->ui);
+    app->wg->mode = WG_DRAW;
+    menu(app);
 }
 
 void home_layout(app_t *app)

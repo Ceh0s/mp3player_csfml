@@ -59,6 +59,7 @@ void song_set_artists(library_t *lib, song_t *song,
 void library_changed(app_t *app)
 {
     library_refresh(app->lib);
+    db_load_elo(app->lib);
     player_resync(app);
     db_save_all(app->lib);
 }

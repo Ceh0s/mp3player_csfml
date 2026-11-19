@@ -8,6 +8,8 @@
 #ifndef SONG_H_
     #define SONG_H_
 
+    #include "elo.h"
+
 typedef enum role_e {
     ROLE_MAIN,
     ROLE_FEAT,
@@ -87,6 +89,7 @@ typedef struct library_s {
     fprint_t *fprints;
     artist_t *artists;
     link_t *links;
+    elo_t *elo;
     song_t **playlist;
     int nb;
     int next_song;

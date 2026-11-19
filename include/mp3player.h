@@ -56,6 +56,9 @@
     #define LIST_Y 132
     #define LIST_STEP 52
     #define PANEL_H 790
+    #define CONTENT_Y 280
+    #define CONTENT_BOTTOM 820
+    #define BOARD_STEP 46
 
     #include "app.h"
     #include <stdlib.h>
@@ -70,6 +73,7 @@
     #include <SFML/Audio.h>
 
 extern const scene_t scenes[NB_SCENES];
+extern const char *const elo_categories[NB_CATEGORIES];
 
 // src/core : app, main loop, window, view, signals
 app_t *app_create(void);
@@ -85,6 +89,8 @@ int signals_pending(void);
 
 // src/scene
 int scene_switch(app_t *app);
+void scene_open(app_t *app, scene_id_t id);
+void scene_back(app_t *app);
 
 // src/scene/home
 int home_init(app_t *app);
@@ -128,8 +134,31 @@ void edit_refresh_lists(app_t *app);
 void edit_propose(app_t *app);
 void edit_apply_proposal(app_t *app);
 
+// src/scene/battle
+int battle_init(app_t *app);
+void battle_event(app_t *app, sfEvent *event);
+void battle_draw(app_t *app);
+void battle_layout(app_t *app);
+void battle_destroy(app_t *app);
+void battle_view(app_t *app);
+void battle_next(app_t *app);
+void battle_vote(app_t *app, int side);
+
+// src/scene/ranking
+int ranking_init(app_t *app);
+void ranking_event(app_t *app, sfEvent *event);
+void ranking_draw(app_t *app);
+void ranking_layout(app_t *app);
+void ranking_destroy(app_t *app);
+void ranking_build(app_t *app);
+void ranking_view(app_t *app);
+void ranking_tiers(app_t *app);
+void ranking_board(app_t *app);
+void ranking_scroll(app_t *app, float delta);
+
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
+int category_bar(app_t *app, int *category, int nb, int random);
 
 // src/ui
 ui_t *ui_create(sfTexture *texture, ui_def_t const *defs, int nb);
@@ -151,6 +180,8 @@ void widget_text(app_t *app, char const *str, float const *pos,
 int widget_button(app_t *app, float const *rect, char const *label);
 int widget_field(app_t *app, float const *rect, char const *value,
     int focused);
+void widget_rect(app_t *app, float const *rect, sfColor const *color);
+float widget_text_width(app_t *app, char const *str, unsigned int size);
 
 // src/audio
 void player_play(app_t *app, int index);
@@ -214,6 +245,16 @@ int song_has_role(library_t *lib, int song_id, role_t role);
 void artist_stats(library_t *lib, int artist_id, artist_stats_t *stats);
 artist_part_t song_part(library_t *lib, link_t const *link);
 
+// src/elo : ratings, without any display
+int category_find(char const *name);
+char const *category_name(int category);
+elo_t *elo_find(library_t *lib, int song_id, int category);
+elo_t *elo_get(library_t *lib, int song_id, int category);
+void elo_battle(library_t *lib, int winner, int loser, int category);
+void elo_clear(library_t *lib);
+void elo_score(library_t *lib, song_t *song, int category, rank_t *out);
+int elo_pick_pair(library_t *lib, int category, song_t **pair);
+
 // src/data : save files
 int tsv_read(char const *path, tsv_fn_t fn, library_t *lib);
 FILE *tsv_create(char const *path, char const *columns);
@@ -230,6 +271,10 @@ int db_save_tables(library_t *lib);
 void db_merge(library_t *lib, song_t *scanned);
 void db_migrate(library_t *lib);
 void log_line(char const *path, char const *columns, char const *line);
+void db_load_elo(library_t *lib);
+int db_save_elo(library_t *lib);
+void battle_record(library_t *lib, song_t *winner, song_t *loser,
+    int category);
 
 // src/utils
 int utf8_encode(char *out, unsigned int code);

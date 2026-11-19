@@ -61,7 +61,7 @@ void edit_event(app_t *app, sfEvent *event)
         edit_text_entered(app, event->text.unicode);
     if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape) {
         if (edit->mode == EDIT_MAIN)
-            app->next_scene = LIBRARY;
+            scene_back(app);
         edit->mode = edit->mode == EDIT_CONFIRM ? EDIT_SEARCH : EDIT_MAIN;
     }
     if (event->type != sfEvtMouseButtonReleased
