@@ -127,10 +127,10 @@ void libscene_draw(app_t *app)
     sfRenderWindow_drawSprite(app->window, app->libscene->bg, NULL);
     sfRenderWindow_drawRectangleShape(app->window, app->libscene->panel,
         NULL);
+    app->wg->mode = WG_DRAW;
     list_draw(app);
     bar_draw(app);
     ui_draw(app, app->libscene->ui);
-    app->wg->mode = WG_DRAW;
     shortcuts(app);
     library_tabs(app);
 }

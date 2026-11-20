@@ -16,10 +16,13 @@ widgets_t *widgets_create(app_t *app)
         return NULL;
     wg->text = text_create(app, 24, 0, 0);
     wg->box = sfRectangleShape_create();
-    if (!wg->text || !wg->box) {
+    wg->picture = sfRectangleShape_create();
+    wg->circle = sfCircleShape_create();
+    if (!wg->text || !wg->box || !wg->picture || !wg->circle) {
         widgets_destroy(wg);
         return NULL;
     }
+    sfCircleShape_setPointCount(wg->circle, 64);
     return wg;
 }
 
@@ -31,6 +34,10 @@ void widgets_destroy(widgets_t *wg)
         sfText_destroy(wg->text);
     if (wg->box)
         sfRectangleShape_destroy(wg->box);
+    if (wg->picture)
+        sfRectangleShape_destroy(wg->picture);
+    if (wg->circle)
+        sfCircleShape_destroy(wg->circle);
     free(wg);
 }
 

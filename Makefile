@@ -38,17 +38,21 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/pages/artist_page.c\
 		src/scene/pages/board_bar.c\
 		src/scene/pages/category_bar.c\
+		src/scene/pages/image_box.c\
 		src/scene/playlist/pledit_scene.c\
 		src/scene/playlist/pledit_view.c\
 		src/scene/ranking/ranking_board.c\
 		src/scene/ranking/ranking_build.c\
 		src/scene/ranking/ranking_scene.c\
 		src/scene/ranking/ranking_tiers.c\
+		src/scene/ranking/ranking_tiles.c\
 		src/scene/ranking/ranking_view.c
 
-SRC_UI	=	src/ui/ui_element.c\
+SRC_UI	=	src/ui/image_cache.c\
+		src/ui/ui_element.c\
 		src/ui/ui_hit.c\
 		src/ui/ui_shapes.c\
+		src/ui/widget_image.c\
 		src/ui/widget_shapes.c\
 		src/ui/widgets.c
 
@@ -74,9 +78,13 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/file/fingerprint.c\
 		src/library/file/mp3_check.c\
 		src/library/file/scan_music.c\
+		src/library/id3/id3_cover.c\
 		src/library/id3/id3_frames.c\
 		src/library/id3/id3_read.c\
 		src/library/id3/id3_text.c\
+		src/library/images/image_path.c\
+		src/library/images/images.c\
+		src/library/images/thumbnail.c\
 		src/library/playlists/playlist_view.c\
 		src/library/playlists/playlists.c\
 		src/library/songs/fprints.c\

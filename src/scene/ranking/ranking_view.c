@@ -8,6 +8,9 @@
 
 #include "mp3player.h"
 
+/*
+** tier list or leaderboard, images or names in the tier list
+*/
 static void tabs(app_t *app, ranking_t *ranking)
 {
     int tiers = ranking->tab == TAB_TIERS;
@@ -18,6 +21,9 @@ static void tabs(app_t *app, ranking_t *ranking)
     if (widget_button(app, (float [4]){1520, CAT_BAR_Y, 260, 56},
             tiers ? "Leaderboard" : "> Leaderboard <"))
         ranking->tab = TAB_BOARD;
+    if (widget_button(app, (float [4]){700, CAT_BAR_Y, 300, 56},
+            app->show_images ? "Afficher les noms" : "Afficher les images"))
+        app->show_images = !app->show_images;
 }
 
 void ranking_view(app_t *app)

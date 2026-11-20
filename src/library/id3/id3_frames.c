@@ -10,7 +10,7 @@
 /*
 ** v2.3 frame sizes are plain big endian, v2.4 ones are synchsafe
 */
-static long frame_size(unsigned char const *b, int version)
+long id3_frame_size(unsigned char const *b, int version)
 {
     if (version == 4)
         return id3_synchsafe(b);
@@ -61,7 +61,7 @@ void id3_parse_frames(song_t *song, unsigned char const *tag, long size,
     long fsize = 0;
 
     while (pos + 10 <= size && tag[pos] != '\0') {
-        fsize = frame_size(tag + pos + 4, version);
+        fsize = id3_frame_size(tag + pos + 4, version);
         if (fsize <= 0 || pos + 10 + fsize > size)
             return;
         store_frame(song, (char const *)tag + pos, tag + pos + 10, fsize);

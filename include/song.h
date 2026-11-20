@@ -169,6 +169,16 @@ typedef struct artist_stats_s {
     int total_titles;
 } artist_stats_t;
 
+/*
+** an ID3v2 tag read from a file: the frames start at data + start
+*/
+typedef struct id3_tag_s {
+    unsigned char *data;
+    long size;
+    long start;
+    int version;
+} id3_tag_t;
+
 typedef void (*tsv_fn_t)(library_t *lib, char **fields, int nb);
 
 #endif

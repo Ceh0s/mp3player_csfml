@@ -82,6 +82,21 @@ static void aliases(app_t *app, edit_t *edit)
     }
 }
 
+/*
+** image of the song, at the top of the right column
+*/
+static void image(app_t *app, edit_t *edit)
+{
+    rank_t rank = {edit->song, NULL, 0, 0, 0};
+
+    widget_image(app, image_get(app, &rank, 0),
+        (float [4]){1260, 228, 150, 150}, 0);
+    edit->image.focused = edit->focus == FOCUS_IMAGE;
+    if (image_box(app, &rank, &edit->image,
+            (float [3]){1425, 228, 355}))
+        edit->focus = FOCUS_IMAGE;
+}
+
 static void buttons(app_t *app, edit_t *edit)
 {
     float y = 840 + app->extra_h;
@@ -103,6 +118,7 @@ void edit_main(app_t *app)
     edit_t *edit = app->edit;
 
     header(app, edit);
+    image(app, edit);
     widget_text(app, "Artistes", (float [3]){130, 400, 26}, &sfWhite);
     for (int i = 0; i < edit->nb_artists; i++)
         edit_artist_row(app, edit, i);

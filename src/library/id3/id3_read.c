@@ -22,34 +22,54 @@ static long extended_header_size(unsigned char const *tag, long size,
     return 4 + be32(tag);
 }
 
-static void parse_tag(song_t *song, unsigned char const *head,
-    unsigned char *tag, long size)
+static unsigned char *read_body(FILE *file, unsigned char const *head,
+    long *size)
 {
-    long skip = 0;
+    unsigned char *data = NULL;
+    size_t len = 0;
 
-    if (head[5] & 0x40)
-        skip = extended_header_size(tag, size, head[3]);
-    if (skip < 0 || skip >= size)
-        return;
-    id3_parse_frames(song, tag + skip, size - skip, head[3]);
+    if (memcmp(head, "ID3", 3) != 0 || (head[3] != 3 && head[3] != 4))
+        return NULL;
+    *size = id3_synchsafe(head + 6);
+    len = *size;
+    data = malloc(len);
+    if (data && fread(data, 1, len, file) != len) {
+        free(data);
+        return NULL;
+    }
+    return data;
+}
+
+/*
+** fills tag (tag->data is to free); returns 84 if the file has no
+** readable ID3v2.3 / v2.4 tag
+*/
+int id3_load(char const *path, id3_tag_t *tag)
+{
+    FILE *file = fopen(path, "rb");
+    unsigned char head[10] = {0};
+
+    tag->data = NULL;
+    if (!file)
+        return 84;
+    if (fread(head, 1, 10, file) == 10)
+        tag->data = read_body(file, head, &tag->size);
+    fclose(file);
+    tag->version = head[3];
+    tag->start = 0;
+    if (tag->data && (head[5] & 0x40))
+        tag->start = extended_header_size(tag->data, tag->size, head[3]);
+    return tag->data ? 0 : 84;
 }
 
 void id3_read(song_t *song, char const *path)
 {
-    FILE *file = fopen(path, "rb");
-    unsigned char head[10];
-    unsigned char *tag = NULL;
-    long size = 0;
+    id3_tag_t tag;
 
-    if (!file)
+    if (id3_load(path, &tag) == 84)
         return;
-    if (fread(head, 1, 10, file) == 10 && memcmp(head, "ID3", 3) == 0
-        && (head[3] == 3 || head[3] == 4)) {
-        size = id3_synchsafe(head + 6);
-        tag = malloc(size);
-    }
-    if (tag && fread(tag, 1, size, file) == (size_t)size)
-        parse_tag(song, head, tag, size);
-    free(tag);
-    fclose(file);
+    if (tag.start >= 0 && tag.start < tag.size)
+        id3_parse_frames(song, tag.data + tag.start, tag.size - tag.start,
+            tag.version);
+    free(tag.data);
 }

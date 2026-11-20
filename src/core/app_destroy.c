@@ -13,6 +13,8 @@ static void destroy_shared(app_t *app)
         sfFont_destroy(app->font);
     if (app->atlas)
         sfTexture_destroy(app->atlas);
+    if (app->no_cover)
+        sfTexture_destroy(app->no_cover);
     if (app->ticks)
         sfClock_destroy(app->ticks);
     if (app->delta)
@@ -37,6 +39,7 @@ int app_destroy(app_t *app, int rtn_value)
         free(app->player->queue);
     free(app->player);
     widgets_destroy(app->wg);
+    image_cache_clear(app);
     destroy_shared(app);
     free(app);
     return rtn_value;

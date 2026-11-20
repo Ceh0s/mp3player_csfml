@@ -26,7 +26,7 @@ const scene_t scenes[NB_SCENES] = {
 
 /*
 ** Only the resources of the displayed scene are loaded:
-** the old scene is freed before the new one is created.
+** the old scene and its images are freed before the new one is created.
 ** next_scene is set by scene_open / scene_back (scene_nav.c).
 */
 int scene_switch(app_t *app)
@@ -34,6 +34,7 @@ int scene_switch(app_t *app)
     if (app->next_scene == app->scene)
         return 0;
     scenes[app->scene].destroy(app);
+    image_cache_clear(app);
     app->scene = app->next_scene;
     if (scenes[app->scene].init(app) == 84)
         return 84;

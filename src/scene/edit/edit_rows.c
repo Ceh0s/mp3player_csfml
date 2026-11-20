@@ -24,6 +24,7 @@ static void name_and_time(app_t *app, edit_t *edit, int i, float y)
             edit->artists[i].name)) {
         edit->artist = known;
         edit->mode = EDIT_ARTIST;
+        edit->image.msg[0] = '\0';
     }
 }
 

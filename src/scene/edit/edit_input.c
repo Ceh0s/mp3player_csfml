@@ -10,6 +10,9 @@
 
 static char *focused_buffer(edit_t *edit)
 {
+    if (edit->focus == FOCUS_IMAGE && (edit->mode == EDIT_MAIN
+            || edit->mode == EDIT_ARTIST))
+        return edit->image.path;
     if (edit->mode == EDIT_SEARCH)
         return edit->search;
     if (edit->mode != EDIT_MAIN)
@@ -26,7 +29,7 @@ void edit_text_entered(app_t *app, sfUint32 code)
     edit_t *edit = app->edit;
     char *buf = focused_buffer(edit);
 
-    if (code == 9 && edit->mode == EDIT_MAIN)
+    if (code == 9 && edit->mode == EDIT_MAIN && edit->focus != FOCUS_IMAGE)
         edit->focus = edit->focus == FOCUS_TITLE ? FOCUS_ARTIST : FOCUS_TITLE;
     if (code == 13 && edit->mode == EDIT_MAIN && edit->focus == FOCUS_ARTIST)
         edit_add_artist(app, edit->input,

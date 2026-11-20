@@ -113,6 +113,7 @@ library_t *library_load(void)
         return NULL;
     }
     db_load_elo(lib);
+    images_from_covers(lib);
     tsv_touch(LISTENS_LOG, LISTENS_COLUMNS);
     tsv_touch(BATTLES_LOG, BATTLES_COLUMNS);
     db_save_all(lib);

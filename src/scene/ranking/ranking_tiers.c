@@ -3,7 +3,8 @@
 ** mp3player
 ** File description:
 ** tier list: S/A/B/C/D by percentile (10 / 25 / 30 / 25 / 10 %),
-** the titles of a tier are written one after the other in its row
+** the titles of a tier are written one after the other in its row,
+** or its images are shown (ranking_tiles.c)
 */
 
 #include "mp3player.h"
@@ -24,7 +25,7 @@ static const sfColor tier_colors[NB_TIERS] = {
 ** rank (0 = best) among nb songs: first tier whose cumulated
 ** percentage is above the position of the song
 */
-static int tier_of(int rank, int nb)
+int ranking_tier(int rank, int nb)
 {
     for (int t = 0; t < NB_TIERS; t++)
         if (rank * 100 < tier_cumul[t] * nb)
@@ -63,7 +64,7 @@ static int draw_titles(app_t *app, int tier, float const *row)
     int hidden = 0;
 
     for (int i = 0; i < ranking->nb; i++) {
-        if (tier_of(i, ranking->nb) != tier)
+        if (ranking_tier(i, ranking->nb) != tier)
             continue;
         if (!place_title(app, rank_name(&ranking->ranks[i]), pos, row))
             hidden++;
@@ -80,7 +81,10 @@ static void draw_row(app_t *app, int tier, float const *row)
         &tier_colors[tier]);
     widget_text(app, tier_names[tier],
         (float [3]){165, row[0] + row[1] / 2 - 30, 40}, &sfBlack);
-    hidden = draw_titles(app, tier, row);
+    if (app->show_images)
+        hidden = ranking_tiles(app, tier, row);
+    else
+        hidden = draw_titles(app, tier, row);
     if (hidden == 0)
         return;
     snprintf(more, sizeof(more), "+%d", hidden);

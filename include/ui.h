@@ -44,11 +44,33 @@ typedef enum wg_mode_e {
     WG_IDLE
 } wg_mode_t;
 
+    #define TIP_LEN 256
+
+/*
+** picture / circle : shapes drawing the images (square or round)
+** tip : text of the hovered element, drawn last by widget_tip_draw
+*/
 typedef struct widgets_s {
     sfText *text;
     sfRectangleShape *box;
+    sfRectangleShape *picture;
+    sfCircleShape *circle;
+    char tip[TIP_LEN];
     wg_mode_t mode;
 } widgets_t;
+
+/*
+** an image loaded for the screens (only those shown are loaded);
+** texture is NULL when there is no image file, so it is not looked for
+** again at each tick
+*/
+typedef struct image_s {
+    int artist;
+    int id;
+    int small;
+    sfTexture *texture;
+    struct image_s *next;
+} image_t;
 
 typedef struct ui_s {
     ui_def_t const *defs;

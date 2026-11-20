@@ -27,6 +27,9 @@ struct app_s {
     int toggle_fullscreen;
     sfFont *font;
     sfTexture *atlas;
+    sfTexture *no_cover;
+    image_t *images;
+    int show_images;
     sfVector2f mouse;
     sfClock *ticks;
     sfClock *delta;

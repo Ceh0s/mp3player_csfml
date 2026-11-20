@@ -20,6 +20,7 @@
     #define ATLAS_PATH "assets/atlas.png"
     #define BG_PATH "assets/background.jpg"
     #define BG_BLUR_PATH "assets/background_blurred.jpg"
+    #define NO_COVER_PATH "assets/no_cover.png"
     #define ATLAS_CELL 256
 
     #define MUSIC_DIR "music"
@@ -33,6 +34,10 @@
     #define MERGES_LOG "data/merges.log"
     #define ELO_DB "data/elo.tsv"
     #define BATTLES_LOG "data/battles.log"
+    #define IMAGES_DIR "data/images"
+    #define IMAGE_BIG 400
+    #define IMAGE_SMALL 120
+    #define PATH_LEN 256
     #define PLAYLISTS_DB "data/playlists.tsv"
     #define PLAYLIST_SONGS_DB "data/playlist_songs.tsv"
     #define BOARDS_DB "data/boards.tsv"
@@ -66,14 +71,21 @@
     #define TABS_Y 124
     #define TABS_RIGHT 1530
     #define LIST_STEP 52
+    #define LIST_THUMB 44
     #define PANEL_H 790
     #define BOARD_BAR_Y 190
     #define CAT_BAR_Y 260
     #define CONTENT_Y 350
     #define BATTLE_CARD_Y 340
-    #define BATTLE_CARD_H 420
+    #define BATTLE_CARD_H 450
     #define CONTENT_BOTTOM 820
     #define BOARD_STEP 46
+    #define TILES_X 250
+    #define TILES_RIGHT 1700
+    #define TILE_MAX 96
+    #define TILE_MIN 40
+    #define TILE_GAP 8
+    #define THUMB 38
     #define PL_ROWS_Y 330
     #define PL_ROW_STEP 52
     #define BOARDS_ROWS_Y 330
@@ -174,6 +186,8 @@ void ranking_destroy(app_t *app);
 void ranking_build(app_t *app);
 void ranking_view(app_t *app);
 void ranking_tiers(app_t *app);
+int ranking_tier(int rank, int nb);
+int ranking_tiles(app_t *app, int tier, float const *row);
 void ranking_board(app_t *app);
 void ranking_scroll(app_t *app, float delta);
 
@@ -206,6 +220,8 @@ void boards_add_column(app_t *app);
 void artist_page(app_t *app, artist_t *artist, int *back);
 int category_bar(app_t *app, int *category, int nb, int random);
 int board_bar(app_t *app, arena_t *arena);
+int image_box(app_t *app, rank_t const *rank, image_input_t *input,
+    float const *pos);
 
 // src/ui
 ui_t *ui_create(sfTexture *texture, ui_def_t const *defs, int nb);
@@ -229,6 +245,12 @@ int widget_field(app_t *app, float const *rect, char const *value,
     int focused);
 void widget_rect(app_t *app, float const *rect, sfColor const *color);
 float widget_text_width(app_t *app, char const *str, unsigned int size);
+void widget_image(app_t *app, sfTexture *texture, float const *rect,
+    int round);
+void widget_tip(app_t *app, float const *rect, char const *str);
+void widget_tip_draw(app_t *app);
+sfTexture *image_get(app_t *app, rank_t const *rank, int small);
+void image_cache_clear(app_t *app);
 
 // src/audio
 void player_play(app_t *app, int index);
@@ -257,6 +279,17 @@ void id3_read(song_t *song, char const *path);
 void id3_parse_frames(song_t *song, unsigned char const *tag, long size,
     int version);
 char *id3_decode_text(unsigned char const *data, long size);
+long id3_frame_size(unsigned char const *b, int version);
+int id3_load(char const *path, id3_tag_t *tag);
+unsigned char *id3_cover(char const *path, long *size);
+
+// src/library/images : images of the songs and artists
+void image_path(char *buf, rank_t const *rank, int small);
+int image_import(rank_t const *rank, char const *file);
+int image_from_cover(rank_t const *rank);
+void images_from_covers(library_t *lib);
+int thumbnail_save(sfImage *source, char const *big, char const *small);
+void path_clean(char const *in, char *out);
 
 // src/library/songs
 song_t *song_create(void);

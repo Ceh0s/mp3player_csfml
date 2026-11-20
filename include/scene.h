@@ -84,8 +84,19 @@ typedef enum edit_mode_e {
 typedef enum edit_focus_e {
     FOCUS_TITLE,
     FOCUS_ARTIST,
-    FOCUS_SEARCH
+    FOCUS_SEARCH,
+    FOCUS_IMAGE
 } edit_focus_t;
+
+/*
+** field where the path of an image is pasted, and the result of the
+** last import
+*/
+typedef struct image_input_s {
+    char path[NAME_LEN];
+    char msg[96];
+    int focused;
+} image_input_t;
 
 /*
 ** title / artists / nb_artists : working copy, saved with "Enregistrer"
@@ -93,6 +104,7 @@ typedef enum edit_focus_e {
 ** proposal : title and artists guessed from the ID3 title
 ** search / results / target : choice of the song to merge into
 ** artist : artist shown by the artist page
+** image : import of an image for the song or the artist shown
 */
 typedef struct edit_s {
     sfTexture *bg_texture;
@@ -116,6 +128,7 @@ typedef struct edit_s {
     int nb_results;
     song_t *target;
     artist_t *artist;
+    image_input_t image;
 } edit_t;
 
 /*

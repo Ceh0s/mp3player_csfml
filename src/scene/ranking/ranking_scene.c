@@ -45,6 +45,7 @@ void ranking_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     ranking_view(app);
+    widget_tip_draw(app);
 }
 
 void ranking_layout(app_t *app)

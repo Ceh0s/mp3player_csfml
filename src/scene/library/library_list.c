@@ -40,7 +40,7 @@ void list_update(app_t *app)
     int scroll = app->libscene->scroll;
     int rows = app->libscene->rows;
     sfColor hover = {200, 200, 255, 255};
-    sfVector2f pos = {LIST_X, 0};
+    sfVector2f pos = {LIST_X + LIST_THUMB + 18, 0};
 
     for (int i = scroll; titles[i] && i < scroll + rows; i++) {
         pos.y = LIST_Y + (i - scroll) * LIST_STEP;
@@ -55,12 +55,21 @@ void list_update(app_t *app)
     }
 }
 
+/*
+** each title has the small image of its song on its left
+*/
 void list_draw(app_t *app)
 {
-    sfText **titles = app->libscene->titles;
-    int scroll = app->libscene->scroll;
-    int rows = app->libscene->rows;
+    libscene_t *scene = app->libscene;
+    rank_t rank = {NULL, NULL, 0, 0, 0};
+    float y = 0;
 
-    for (int i = scroll; titles[i] && i < scroll + rows; i++)
-        sfRenderWindow_drawText(app->window, titles[i], NULL);
+    for (int i = scene->scroll; scene->titles[i]
+        && i < scene->scroll + scene->rows; i++) {
+        rank.song = scene->view[i];
+        y = LIST_Y + (i - scene->scroll) * LIST_STEP + 4;
+        widget_image(app, image_get(app, &rank, 1),
+            (float [4]){LIST_X, y, LIST_THUMB, LIST_THUMB}, 0);
+        sfRenderWindow_drawText(app->window, scene->titles[i], NULL);
+    }
 }

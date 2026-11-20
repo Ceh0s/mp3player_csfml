@@ -7,23 +7,36 @@
 
 #include "mp3player.h"
 
+/*
+** the textures are smoothed, as they are drawn scaled
+*/
+static int load_textures(app_t *app)
+{
+    app->atlas = sfTexture_createFromFile(ATLAS_PATH, NULL);
+    app->no_cover = sfTexture_createFromFile(NO_COVER_PATH, NULL);
+    if (!app->atlas || !app->no_cover)
+        return 84;
+    sfTexture_setSmooth(app->atlas, sfTrue);
+    sfTexture_setSmooth(app->no_cover, sfTrue);
+    return 0;
+}
+
 static int load_shared(app_t *app)
 {
     app->font = sfFont_createFromFile(FONT_PATH);
-    app->atlas = sfTexture_createFromFile(ATLAS_PATH, NULL);
     app->ticks = sfClock_create();
     app->delta = sfClock_create();
     app->player = calloc(1, sizeof(player_t));
     app->lib = library_load();
-    if (!app->font || !app->atlas || !app->ticks || !app->delta
-        || !app->player || !app->lib)
+    if (!app->font || !app->ticks || !app->delta || !app->player
+        || !app->lib || load_textures(app) == 84)
         return 84;
     app->wg = widgets_create(app);
     if (!app->wg)
         return 84;
-    sfTexture_setSmooth(app->atlas, sfTrue);
     srand(time(NULL));
     app->player->index = -1;
+    app->show_images = 1;
     return 0;
 }
 
