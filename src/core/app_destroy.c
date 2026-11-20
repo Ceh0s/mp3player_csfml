@@ -30,6 +30,7 @@ int app_destroy(app_t *app, int rtn_value)
     if (!app)
         return rtn_value;
     scenes[app->scene].destroy(app);
+    download_cancel(app);
     if (app->player && app->lib)
         player_stop(app, END_QUIT);
     if (app->lib && db_save_all(app->lib) == 84)

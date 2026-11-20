@@ -41,3 +41,14 @@ int signals_pending(void)
     return sigismember(&pending, SIGINT) || sigismember(&pending, SIGTERM)
         || sigismember(&pending, SIGHUP);
 }
+
+/*
+** for a child process (yt-dlp): it must be stoppable by these signals
+*/
+int signals_unblock(void)
+{
+    sigset_t set;
+
+    fill_set(&set);
+    return sigprocmask(SIG_UNBLOCK, &set, NULL);
+}

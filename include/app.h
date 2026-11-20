@@ -12,6 +12,7 @@
     #include "scene.h"
     #include "song.h"
     #include "player.h"
+    #include "download.h"
 
 /*
 ** arena : ranking, kind and category chosen in the battle and rankings
@@ -47,6 +48,7 @@ struct app_s {
     ranking_t *ranking;
     pledit_t *pledit;
     boards_t *boards;
+    dlscene_t *dlscene;
     song_t *edit_song;
     playlist_t *edit_playlist;
     int library_tab;
@@ -54,6 +56,7 @@ struct app_s {
     widgets_t *wg;
     library_t *lib;
     player_t *player;
+    download_t download;
 };
 
 #endif

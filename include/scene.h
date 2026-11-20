@@ -28,6 +28,7 @@ typedef enum scene_id_e {
     RANKING,
     PLAYLIST,
     BOARDS,
+    DOWNLOAD,
     NB_SCENES
 } scene_id_t;
 
@@ -208,5 +209,15 @@ typedef struct boards_s {
     int nb_results;
     int members;
 } boards_t;
+
+/*
+** url : address being typed (the download itself is app->download)
+*/
+typedef struct dlscene_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    char url[NAME_LEN];
+} dlscene_t;
 
 #endif

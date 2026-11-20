@@ -21,6 +21,8 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/boards/boards_edit.c\
 		src/scene/boards/boards_list.c\
 		src/scene/boards/boards_scene.c\
+		src/scene/download/download_scene.c\
+		src/scene/download/download_view.c\
 		src/scene/edit/edit.c\
 		src/scene/edit/edit_artist.c\
 		src/scene/edit/edit_input.c\
@@ -68,6 +70,7 @@ SRC_AUDIO	=	src/audio/listen_tracker.c\
 
 SRC_LIBRARY	=	src/library/library.c\
 		src/library/library_destroy.c\
+		src/library/library_rescan.c\
 		src/library/artists/artist_breakdown.c\
 		src/library/boards/board_members.c\
 		src/library/boards/board_rules.c\
@@ -94,6 +97,9 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/songs/song_merge.c\
 		src/library/songs/song_resolve.c
 
+SRC_DOWNLOAD	=	src/download/download_poll.c\
+		src/download/download_run.c
+
 SRC_DATA	=	src/data/db_all.c\
 		src/data/db_boards.c\
 		src/data/db_elo.c\
@@ -114,6 +120,7 @@ SRC	=	main.c\
 		$(SRC_SCENE)\
 		$(SRC_UI)\
 		$(SRC_AUDIO)\
+		$(SRC_DOWNLOAD)\
 		$(SRC_ELO)\
 		$(SRC_LIBRARY)\
 		$(SRC_DATA)\

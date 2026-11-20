@@ -116,6 +116,7 @@ void view_update(app_t *app);
 void view_mouse(app_t *app);
 int signals_block(void);
 int signals_pending(void);
+int signals_unblock(void);
 
 // src/scene
 int scene_switch(app_t *app);
@@ -216,6 +217,20 @@ void boards_count(app_t *app);
 void boards_text(app_t *app, sfUint32 code);
 void boards_add_column(app_t *app);
 
+// src/scene/download
+int dlscene_init(app_t *app);
+void dlscene_event(app_t *app, sfEvent *event);
+void dlscene_draw(app_t *app);
+void dlscene_layout(app_t *app);
+void dlscene_destroy(app_t *app);
+void dlscene_start(app_t *app);
+void dlscene_view(app_t *app);
+
+// src/download : audio download by yt-dlp
+int download_start(app_t *app, char const *url);
+void download_cancel(app_t *app);
+void download_poll(app_t *app);
+
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
 int category_bar(app_t *app, int *category, int nb, int random);
@@ -266,6 +281,7 @@ void listen_log(song_t const *song, long ms, end_reason_t reason);
 library_t *library_load(void);
 int library_refresh(library_t *lib);
 void library_destroy(library_t *lib);
+void library_rescan(app_t *app);
 
 // src/library/file : files on disk
 long id3_synchsafe(unsigned char const *bytes);

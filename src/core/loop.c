@@ -22,7 +22,8 @@ static void wait_tick(app_t *app)
 */
 static int typing(scene_id_t scene)
 {
-    return scene == EDIT || scene == PLAYLIST || scene == BOARDS;
+    return scene == EDIT || scene == PLAYLIST || scene == BOARDS
+        || scene == DOWNLOAD;
 }
 
 static void global_event(app_t *app, sfEvent *event)
@@ -62,6 +63,7 @@ static void update(app_t *app)
 {
     app->delta_us = sfTime_asMicroseconds(sfClock_restart(app->delta));
     player_update(app);
+    download_poll(app);
     if (scenes[app->scene].update)
         scenes[app->scene].update(app);
     autosave(app);

@@ -21,7 +21,9 @@ const scene_t scenes[NB_SCENES] = {
     {PLAYLIST, &pledit_init, &pledit_event, NULL, &pledit_draw,
         &pledit_layout, &pledit_destroy},
     {BOARDS, &boards_init, &boards_event, NULL, &boards_draw,
-        &boards_layout, &boards_destroy}
+        &boards_layout, &boards_destroy},
+    {DOWNLOAD, &dlscene_init, &dlscene_event, NULL, &dlscene_draw,
+        &dlscene_layout, &dlscene_destroy}
 };
 
 /*

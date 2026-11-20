@@ -77,6 +77,8 @@ static void click(app_t *app)
 */
 static void shortcuts(app_t *app)
 {
+    if (widget_button(app, (float [4]){1060, 20, 250, 56}, "Télécharger"))
+        scene_open(app, DOWNLOAD);
     if (widget_button(app, (float [4]){1330, 20, 230, 56}, "Battle"))
         scene_open(app, BATTLE);
     if (widget_button(app, (float [4]){1580, 20, 250, 56}, "Classements"))
