@@ -18,32 +18,8 @@ static char *focused_buffer(edit_t *edit)
 }
 
 /*
-** removes the last character (which may take several bytes in utf-8)
-*/
-static void erase_last(char *buf)
-{
-    int n = strlen(buf);
-
-    if (n == 0)
-        return;
-    n--;
-    while (n > 0 && ((unsigned char)buf[n] & 0xC0) == 0x80)
-        n--;
-    buf[n] = '\0';
-}
-
-static void append_code(char *buf, sfUint32 code)
-{
-    char utf8[5] = {0};
-    int len = utf8_encode(utf8, code);
-
-    if (strlen(buf) + len < NAME_LEN)
-        strcat(buf, utf8);
-}
-
-/*
 ** 9 = tab (switch field), 13 = enter (add the typed artist),
-** 8 = backspace, under 32 = other control keys (ignored)
+** the others are typed in the focused field (see text_input.c)
 */
 void edit_text_entered(app_t *app, sfUint32 code)
 {
@@ -55,13 +31,8 @@ void edit_text_entered(app_t *app, sfUint32 code)
     if (code == 13 && edit->mode == EDIT_MAIN && edit->focus == FOCUS_ARTIST)
         edit_add_artist(app, edit->input,
             edit->nb_artists > 0 ? ROLE_FEAT : ROLE_MAIN);
-    if (!buf || (code < 32 && code != 8) || code == 127)
-        return;
-    if (code == 8)
-        erase_last(buf);
-    else
-        append_code(buf, code);
-    edit_refresh_lists(app);
+    if (buf && text_input(buf, code))
+        edit_refresh_lists(app);
 }
 
 static int already_added(edit_t *edit, char const *name)

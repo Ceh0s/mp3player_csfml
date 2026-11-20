@@ -29,8 +29,12 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/library/library_layout.c\
 		src/scene/library/library_list.c\
 		src/scene/library/library_scene.c\
+		src/scene/library/library_tabs.c\
+		src/scene/library/library_view.c\
 		src/scene/pages/artist_page.c\
 		src/scene/pages/category_bar.c\
+		src/scene/playlist/pledit_scene.c\
+		src/scene/playlist/pledit_view.c\
 		src/scene/ranking/ranking_board.c\
 		src/scene/ranking/ranking_build.c\
 		src/scene/ranking/ranking_scene.c\
@@ -49,7 +53,8 @@ SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_score.c
 
 SRC_AUDIO	=	src/audio/listen_tracker.c\
-		src/audio/player.c
+		src/audio/player.c\
+		src/audio/player_queue.c
 
 SRC_LIBRARY	=	src/library/library.c\
 		src/library/library_destroy.c\
@@ -63,6 +68,8 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/id3/id3_frames.c\
 		src/library/id3/id3_read.c\
 		src/library/id3/id3_text.c\
+		src/library/playlists/playlist_view.c\
+		src/library/playlists/playlists.c\
 		src/library/songs/fprints.c\
 		src/library/songs/song.c\
 		src/library/songs/song_edit.c\
@@ -74,12 +81,14 @@ SRC_DATA	=	src/data/db_all.c\
 		src/data/db_elo.c\
 		src/data/db_merge.c\
 		src/data/db_migrate.c\
+		src/data/db_playlists.c\
 		src/data/db_songs.c\
 		src/data/db_tables.c\
 		src/data/logs.c\
 		src/data/tsv.c
 
 SRC_UTILS	=	src/utils/str_utils.c\
+		src/utils/text_input.c\
 		src/utils/utf8.c
 
 SRC	=	main.c\

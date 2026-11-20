@@ -84,16 +84,33 @@ typedef struct artist_role_s {
     role_t role;
 } artist_role_t;
 
+/*
+** songs : raw ids (resolved when used), in the order of the playlist
+*/
+typedef struct playlist_s {
+    int id;
+    char *name;
+    int *songs;
+    int nb;
+    struct playlist_s *next;
+} playlist_t;
+
+/*
+** present : the present songs sorted by title ("Tous les titres"),
+** nb songs
+*/
 typedef struct library_s {
     song_t *songs;
     fprint_t *fprints;
     artist_t *artists;
     link_t *links;
     elo_t *elo;
-    song_t **playlist;
+    playlist_t *playlists;
+    song_t **present;
     int nb;
     int next_song;
     int next_artist;
+    int next_playlist;
     int migrated;
 } library_t;
 

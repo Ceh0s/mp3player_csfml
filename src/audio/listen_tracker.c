@@ -47,6 +47,6 @@ void player_update(app_t *app)
     if (status != sfStopped)
         return;
     player_stop(app, END_COMPLETE);
-    if (next < app->lib->nb)
+    if (next < player->nb)
         player_play(app, next);
 }

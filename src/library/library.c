@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** the library: every song ever seen + the playlist of present ones
+** the library: every song ever seen + the array of the present ones
 */
 
 #include "mp3player.h"
@@ -16,24 +16,24 @@ static int compare_songs(void const *a, void const *b)
     return strcasecmp(song_title(first), song_title(second));
 }
 
-static int build_playlist(library_t *lib)
+static int build_present(library_t *lib)
 {
     int i = 0;
 
     lib->nb = 0;
     for (song_t *song = lib->songs; song; song = song->next)
         lib->nb += song->present;
-    free(lib->playlist);
-    lib->playlist = malloc(sizeof(song_t *) * (lib->nb + 1));
-    if (!lib->playlist)
+    free(lib->present);
+    lib->present = malloc(sizeof(song_t *) * (lib->nb + 1));
+    if (!lib->present)
         return 84;
     for (song_t *song = lib->songs; song; song = song->next)
         if (song->present) {
-            lib->playlist[i] = song;
+            lib->present[i] = song;
             i++;
         }
-    lib->playlist[i] = NULL;
-    qsort(lib->playlist, lib->nb, sizeof(song_t *), &compare_songs);
+    lib->present[i] = NULL;
+    qsort(lib->present, lib->nb, sizeof(song_t *), &compare_songs);
     return 0;
 }
 
@@ -77,10 +77,13 @@ int library_refresh(library_t *lib)
         attach_file(lib, fp, 1);
     for (song_t *song = lib->songs; song; song = song->next)
         song_build_artists(lib, song);
-    return build_playlist(lib);
+    return build_present(lib);
 }
 
-library_t *library_load(void)
+/*
+** empty library
+*/
+static library_t *library_new(void)
 {
     library_t *lib = calloc(1, sizeof(library_t));
 
@@ -88,6 +91,16 @@ library_t *library_load(void)
         return NULL;
     lib->next_song = 1;
     lib->next_artist = 1;
+    lib->next_playlist = 1;
+    return lib;
+}
+
+library_t *library_load(void)
+{
+    library_t *lib = library_new();
+
+    if (!lib)
+        return NULL;
     db_load_all(lib);
     db_merge(lib, scan_music(MUSIC_DIR));
     if (library_refresh(lib) == 84) {

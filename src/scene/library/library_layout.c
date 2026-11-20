@@ -8,7 +8,7 @@
 
 #include "mp3player.h"
 
-static void destroy_shapes(libscene_t *scene)
+static void destroy_shapes(app_t *app, libscene_t *scene)
 {
     sfRectangleShape *shapes[4] = {scene->panel, scene->bar,
         scene->progress_bg, scene->progress};
@@ -21,9 +21,7 @@ static void destroy_shapes(libscene_t *scene)
     for (int i = 0; i < 4; i++)
         if (texts[i])
             sfText_destroy(texts[i]);
-    for (int i = 0; scene->titles && scene->titles[i]; i++)
-        sfText_destroy(scene->titles[i]);
-    free(scene->titles);
+    list_free(app);
 }
 
 void libscene_layout(app_t *app)
@@ -34,7 +32,7 @@ void libscene_layout(app_t *app)
     background_layout(app, scene->bg);
     ui_layout(scene->ui, app->extra_h);
     sfRectangleShape_setSize(scene->panel, size);
-    scene->rows = (size.y - 2 * (LIST_Y - 110)) / LIST_STEP;
+    scene->rows = (110 + size.y - LIST_Y - 20) / LIST_STEP;
     list_scroll(app, 0);
     bar_layout(app);
 }
@@ -43,7 +41,7 @@ void libscene_destroy(app_t *app)
 {
     if (!app->libscene)
         return;
-    destroy_shapes(app->libscene);
+    destroy_shapes(app, app->libscene);
     if (app->libscene->bg)
         sfSprite_destroy(app->libscene->bg);
     if (app->libscene->bg_texture)

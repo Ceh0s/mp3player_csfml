@@ -33,6 +33,8 @@ int app_destroy(app_t *app, int rtn_value)
     if (app->lib && db_save_all(app->lib) == 84)
         rtn_value = 84;
     library_destroy(app->lib);
+    if (app->player)
+        free(app->player->queue);
     free(app->player);
     widgets_destroy(app->wg);
     destroy_shared(app);

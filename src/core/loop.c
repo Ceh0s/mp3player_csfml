@@ -17,6 +17,14 @@ static void wait_tick(app_t *app)
     sfClock_restart(app->ticks);
 }
 
+/*
+** the screens where text is typed handle escape and space themselves
+*/
+static int typing(scene_id_t scene)
+{
+    return scene == EDIT || scene == PLAYLIST;
+}
+
 static void global_event(app_t *app, sfEvent *event)
 {
     if (event->type == sfEvtClosed)
@@ -29,7 +37,7 @@ static void global_event(app_t *app, sfEvent *event)
         app->toggle_fullscreen = 1;
     if (event->key.code == sfKeyEscape && app->scene != EDIT)
         scene_back(app);
-    if (event->key.code == sfKeySpace && app->scene != EDIT)
+    if (event->key.code == sfKeySpace && !typing(app->scene))
         player_toggle(app);
 }
 

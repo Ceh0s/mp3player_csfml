@@ -24,7 +24,7 @@ int bar_create(app_t *app)
     scene->now_title = text_create(app, 30, 40, 952);
     scene->now_artist = text_create(app, 22, 40, 996);
     scene->time = text_create(app, 22, 1480, 932);
-    scene->hint = text_create(app, 22, 200, 34);
+    scene->hint = text_create(app, 20, 200, 34);
     if (!scene->bar || !scene->progress_bg || !scene->progress
         || !scene->now_title || !scene->now_artist || !scene->time
         || !scene->hint)
@@ -54,16 +54,16 @@ int bar_seek(app_t *app)
 static void update_labels(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    song_t *song = NULL;
+    song_t *song = app->player->song;
 
-    scene->shown = app->player->index;
-    if (scene->shown < 0) {
+    scene->shown = song;
+    scene->has_shown = 1;
+    if (!song) {
         text_set(scene->now_title, app->lib->nb > 0 ? "Aucune lecture"
             : "Aucune musique dans le dossier music/");
         text_set(scene->now_artist, "");
         return;
     }
-    song = app->lib->playlist[scene->shown];
     text_set(scene->now_title, song_title(song));
     text_set(scene->now_artist, song->artists ? song->artists : "");
 }
@@ -77,7 +77,7 @@ void bar_update(app_t *app)
     char buf[2][16];
     char label[40];
 
-    if (app->libscene->shown != app->player->index)
+    if (!app->libscene->has_shown || app->libscene->shown != app->player->song)
         update_labels(app);
     if (music) {
         now = sfTime_asMilliseconds(sfMusic_getPlayingOffset(music));

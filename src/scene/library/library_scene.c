@@ -39,7 +39,7 @@ int libscene_init(app_t *app)
     app->libscene = calloc(1, sizeof(libscene_t));
     if (!app->libscene)
         return 84;
-    app->libscene->shown = -2;
+    app->libscene->playlist_id = app->library_tab;
     app->libscene->bg = background_create(BG_BLUR_PATH,
         &app->libscene->bg_texture);
     app->libscene->ui = ui_create(app->atlas, lib_ui, 6);
@@ -65,7 +65,8 @@ static void click(app_t *app)
         player_skip(app, id == LIB_PREV ? -1 : 1);
     if (row == -1 || id != -1)
         return;
-    if (row == app->player->index)
+    player_queue(app, app->libscene->playlist_id);
+    if (app->libscene->view[row] == app->player->song)
         player_toggle(app);
     else
         player_play(app, row);
@@ -88,7 +89,7 @@ static void right_click(app_t *app)
 
     if (row == -1)
         return;
-    app->edit_song = app->lib->playlist[row];
+    app->edit_song = app->libscene->view[row];
     scene_open(app, EDIT);
 }
 
@@ -106,6 +107,7 @@ void libscene_event(app_t *app, sfEvent *event)
         click(app);
     app->wg->mode = WG_CLICK;
     shortcuts(app);
+    library_tabs(app);
     app->wg->mode = WG_DRAW;
 }
 
@@ -130,4 +132,5 @@ void libscene_draw(app_t *app)
     ui_draw(app, app->libscene->ui);
     app->wg->mode = WG_DRAW;
     shortcuts(app);
+    library_tabs(app);
 }

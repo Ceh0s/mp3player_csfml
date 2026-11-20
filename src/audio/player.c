@@ -32,9 +32,9 @@ void player_play(app_t *app, int index)
     player_t *player = app->player;
     song_t *song = NULL;
 
-    if (index < 0 || index >= app->lib->nb)
+    if (index < 0 || index >= player->nb)
         return;
-    song = app->lib->playlist[index];
+    song = player->queue[index];
     player_stop(app, END_SKIP);
     player->music = sfMusic_createFromFile(song->path);
     if (!player->music) {
@@ -67,22 +67,7 @@ void player_skip(app_t *app, int direction)
 {
     int target = app->player->index + direction;
 
-    if (!app->player->music || target < 0 || target >= app->lib->nb)
+    if (!app->player->music || target < 0 || target >= app->player->nb)
         return;
     player_play(app, target);
-}
-
-/*
-** the playlist was rebuilt (edit, merge): finds the current song again
-*/
-void player_resync(app_t *app)
-{
-    player_t *player = app->player;
-
-    player->index = -1;
-    for (int i = 0; player->song && i < app->lib->nb; i++)
-        if (app->lib->playlist[i] == player->song)
-            player->index = i;
-    if (player->index == -1)
-        player_stop(app, END_SKIP);
 }

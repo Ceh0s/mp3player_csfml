@@ -66,7 +66,7 @@ static void draw_pair(library_t *lib, int category, rank_t *ranks,
     int side = rand() % 2;
 
     for (int i = 0; i < lib->nb; i++)
-        elo_score(lib, lib->playlist[i], category, &ranks[i]);
+        elo_score(lib, lib->present[i], category, &ranks[i]);
     first = pick_first(ranks, lib->nb);
     pair[side] = ranks[first].song;
     pair[1 - side] = pick_opponent(ranks, lib->nb, first);

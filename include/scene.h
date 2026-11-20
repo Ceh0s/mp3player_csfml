@@ -25,6 +25,7 @@ typedef enum scene_id_e {
     EDIT,
     BATTLE,
     RANKING,
+    PLAYLIST,
     NB_SCENES
 } scene_id_t;
 
@@ -44,6 +45,11 @@ typedef struct home_s {
     ui_t *ui;
 } home_t;
 
+/*
+** playlist_id : tab shown (0 = "Tous les titres"), view / nb_view : its
+** present songs, titles : one text per song of the view
+** shown : song written in the bottom bar (has_shown = 0 before the 1st)
+*/
 typedef struct libscene_s {
     sfTexture *bg_texture;
     sfSprite *bg;
@@ -52,6 +58,9 @@ typedef struct libscene_s {
     sfRectangleShape *bar;
     sfRectangleShape *progress_bg;
     sfRectangleShape *progress;
+    int playlist_id;
+    song_t **view;
+    int nb_view;
     sfText **titles;
     sfText *now_title;
     sfText *now_artist;
@@ -59,7 +68,8 @@ typedef struct libscene_s {
     sfText *hint;
     int scroll;
     int rows;
-    int shown;
+    song_t *shown;
+    int has_shown;
 } libscene_t;
 
 typedef enum edit_mode_e {
@@ -137,5 +147,24 @@ typedef struct ranking_s {
     int nb;
     int scroll;
 } ranking_t;
+
+/*
+** edition of a playlist (app->edit_playlist, NULL = a new one)
+** found : present songs matching the search, each one can be checked
+** confirm : 1 while asking before removing the playlist
+*/
+typedef struct pledit_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    playlist_t *playlist;
+    char name[NAME_LEN];
+    char search[NAME_LEN];
+    int focus;
+    int confirm;
+    song_t **found;
+    int nb_found;
+    int scroll;
+} pledit_t;
 
 #endif

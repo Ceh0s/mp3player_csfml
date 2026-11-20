@@ -33,6 +33,8 @@
     #define MERGES_LOG "data/merges.log"
     #define ELO_DB "data/elo.tsv"
     #define BATTLES_LOG "data/battles.log"
+    #define PLAYLISTS_DB "data/playlists.tsv"
+    #define PLAYLIST_SONGS_DB "data/playlist_songs.tsv"
     #define SONGS_COLS_1 "id\tmerged_into\tfile\ttitle\talbum\tgenre\tyear"
     #define SONGS_COLS_2 "\tsrc_title\tsrc_artists\tduration_ms\tfirst_seen"
     #define SONGS_COLS_3 "\tlast_seen\tpresent\tlisten_ms\tplay_count"
@@ -47,18 +49,24 @@
     #define ELO_COLUMNS "song_id\tcategory\trating\tbattles\twins"
     #define BATTLES_COLS_1 "timestamp\tcategory\twinner\tloser"
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
+    #define PLAYLISTS_COLUMNS "id\tname"
+    #define PLAYLIST_SONGS_COLUMNS "playlist_id\tsong_id\tposition"
     #define TSV_MAX_FIELDS 20
     #define V1_FIELDS 14
     #define V2_FIELDS 16
     #define FPRINT_BYTES 262144
 
     #define LIST_X 130
-    #define LIST_Y 132
+    #define LIST_Y 196
+    #define TABS_Y 124
+    #define TABS_RIGHT 1530
     #define LIST_STEP 52
     #define PANEL_H 790
     #define CONTENT_Y 280
     #define CONTENT_BOTTOM 820
     #define BOARD_STEP 46
+    #define PL_ROWS_Y 330
+    #define PL_ROW_STEP 52
 
     #include "app.h"
     #include <stdlib.h>
@@ -116,6 +124,8 @@ int bar_seek(app_t *app);
 void bar_update(app_t *app);
 void bar_draw(app_t *app);
 void bar_layout(app_t *app);
+void list_free(app_t *app);
+void library_tabs(app_t *app);
 
 // src/scene/edit
 int edit_init(app_t *app);
@@ -156,6 +166,16 @@ void ranking_tiers(app_t *app);
 void ranking_board(app_t *app);
 void ranking_scroll(app_t *app, float delta);
 
+// src/scene/playlist
+int pledit_init(app_t *app);
+void pledit_event(app_t *app, sfEvent *event);
+void pledit_draw(app_t *app);
+void pledit_layout(app_t *app);
+void pledit_destroy(app_t *app);
+void pledit_search(app_t *app);
+void pledit_scroll(app_t *app, float delta);
+void pledit_view(app_t *app);
+
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
 int category_bar(app_t *app, int *category, int nb, int random);
@@ -190,6 +210,7 @@ void player_skip(app_t *app, int direction);
 void player_stop(app_t *app, end_reason_t reason);
 void player_update(app_t *app);
 void player_resync(app_t *app);
+void player_queue(app_t *app, int playlist_id);
 void listen_log(song_t const *song, long ms, end_reason_t reason);
 
 // src/library
@@ -245,6 +266,16 @@ int song_has_role(library_t *lib, int song_id, role_t role);
 void artist_stats(library_t *lib, int artist_id, artist_stats_t *stats);
 artist_part_t song_part(library_t *lib, link_t const *link);
 
+// src/library/playlists
+playlist_t *playlist_add(library_t *lib, int id, char const *name);
+playlist_t *playlist_by_id(library_t *lib, int id);
+void playlist_remove(library_t *lib, playlist_t *playlist);
+int playlist_has_song(library_t *lib, playlist_t const *playlist,
+    song_t const *song);
+int playlist_toggle(library_t *lib, playlist_t *playlist, song_t *song);
+int playlist_view(library_t *lib, playlist_t const *playlist,
+    song_t **view);
+
 // src/elo : ratings, without any display
 int category_find(char const *name);
 char const *category_name(int category);
@@ -270,6 +301,9 @@ void db_parse_link(library_t *lib, char **fields, int nb);
 int db_save_tables(library_t *lib);
 void db_merge(library_t *lib, song_t *scanned);
 void db_migrate(library_t *lib);
+void db_parse_playlist(library_t *lib, char **fields, int nb);
+void db_parse_playlist_song(library_t *lib, char **fields, int nb);
+int db_save_playlists(library_t *lib);
 void log_line(char const *path, char const *columns, char const *line);
 void db_load_elo(library_t *lib);
 int db_save_elo(library_t *lib);
@@ -283,6 +317,7 @@ char *str_lower(char const *str);
 char *str_or_null(char const *str);
 int str_contains(char const *hay, char const *needle);
 int split_tab(char *line, char **fields, int max);
+int text_input(char *buf, sfUint32 code);
 void format_time(char *buf, size_t size, long ms);
 
 #endif

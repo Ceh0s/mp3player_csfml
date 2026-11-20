@@ -31,7 +31,7 @@ void ranking_build(app_t *app)
         return;
     for (int i = 0; i < lib->nb; i++) {
         rank = &ranking->ranks[ranking->nb];
-        elo_score(lib, lib->playlist[i], ranking->category, rank);
+        elo_score(lib, lib->present[i], ranking->category, rank);
         if (rank->battles > 0)
             ranking->nb++;
     }

@@ -17,7 +17,9 @@ const scene_t scenes[NB_SCENES] = {
     {BATTLE, &battle_init, &battle_event, NULL, &battle_draw,
         &battle_layout, &battle_destroy},
     {RANKING, &ranking_init, &ranking_event, NULL, &ranking_draw,
-        &ranking_layout, &ranking_destroy}
+        &ranking_layout, &ranking_destroy},
+    {PLAYLIST, &pledit_init, &pledit_event, NULL, &pledit_draw,
+        &pledit_layout, &pledit_destroy}
 };
 
 /*

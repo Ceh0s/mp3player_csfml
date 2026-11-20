@@ -53,7 +53,7 @@ void song_set_artists(library_t *lib, song_t *song,
 }
 
 /*
-** to call after any change of the songs: rebuilds the playlist,
+** to call after any change of the songs: rebuilds the present songs,
 ** finds the current song again and saves everything
 */
 void library_changed(app_t *app)

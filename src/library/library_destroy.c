@@ -53,6 +53,7 @@ void library_destroy(library_t *lib)
     destroy_artists(lib->artists);
     destroy_links(lib->links);
     elo_clear(lib);
-    free(lib->playlist);
+    playlist_remove(lib, NULL);
+    free(lib->present);
     free(lib);
 }

@@ -38,7 +38,10 @@ struct app_s {
     edit_t *edit;
     battle_t *battle;
     ranking_t *ranking;
+    pledit_t *pledit;
     song_t *edit_song;
+    playlist_t *edit_playlist;
+    int library_tab;
     widgets_t *wg;
     library_t *lib;
     player_t *player;
