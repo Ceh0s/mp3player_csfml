@@ -50,6 +50,10 @@ l'auteur et commenté dans le code.
 Exemple : Ctrl+C est géré sans variable globale, en bloquant les signaux avec
 `sigprocmask` et en les relevant à chaque tick avec `sigpending` (`src/core/signals.c`).
 
+**Dépendance externe acceptée** : le téléchargement lance le programme `yt-dlp` (avec
+`ffmpeg`), installé à part (`sudo pacman -S yt-dlp`). Ce n'est pas une bibliothèque liée :
+sans lui, l'appli fonctionne et l'écran de téléchargement l'indique.
+
 ### Avant de rendre la main
 1. `make re` sans warning (`-Wall -Wextra`).
 2. `make debug` sans aucune remarque epiclang (puis `make fclean`).
@@ -76,12 +80,14 @@ src/scene/             table des scènes
     ranking/           tier list (noms ou images : ranking_tiles.c) et leaderboard
     playlist/          édition d'une playlist (nom, titres cochés, suppression)
     boards/            gestion des classements personnalisés (liste, règles, ajout)
+    download/          écran de téléchargement (adresse, progression, annulation)
     pages/             morceaux d'écran réutilisables (artist_page, category_bar,
                        board_bar : classement + musiques/artistes, image_box : import)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
                        widgets image / infobulle, cache des textures d'images
 src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires
 src/audio/             lecteur (un seul sfMusic ouvert), file de lecture, temps d'écoute
+src/download/          téléchargement audio par yt-dlp (lancement, suivi à chaque tick)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
     file/              fichiers sur disque : validation mp3, empreinte audio, scan du dossier
     id3/               lecture des tags ID3 et de la pochette (APIC)
@@ -118,6 +124,10 @@ Principes en place :
   puis dessinée en dernier (`widget_tip_draw`).
 - **Images** : chargées à la demande (`image_get`) et libérées à chaque changement de scène.
   Musiques carrées, artistes ronds (comme YT Music).
+- **Téléchargement** : `fork` + `execvp("yt-dlp")` dans son propre groupe de processus,
+  sortie lue sans attendre (tube `O_NONBLOCK`) et fin détectée par `waitpid(WNOHANG)` à
+  chaque tick : ni thread ni variable globale. À la fin, `library_rescan` ajoute le mp3
+  (titre, artiste et pochette viennent des tags écrits par yt-dlp). Annulé à la fermeture.
 - **Arène** (`app->arena`) : type (musiques/artistes) + classement + catégorie, partagée par
   les scènes battle et classements.
 
