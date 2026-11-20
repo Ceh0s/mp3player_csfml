@@ -65,7 +65,7 @@ static int draw_titles(app_t *app, int tier, float const *row)
     for (int i = 0; i < ranking->nb; i++) {
         if (tier_of(i, ranking->nb) != tier)
             continue;
-        if (!place_title(app, song_title(ranking->ranks[i].song), pos, row))
+        if (!place_title(app, rank_name(&ranking->ranks[i]), pos, row))
             hidden++;
     }
     return hidden;

@@ -10,24 +10,34 @@
 #include "mp3player.h"
 
 /*
-** fields: timestamp, category, winner, loser, winner_before, loser_before
+** fields: timestamp, kind, board, category, winner, loser,
+** winner_before, loser_before
 ** a battle between two songs merged since then is ignored, as well as a
-** category that does not exist anymore (the line stays in the log)
+** category or a ranking that does not exist anymore (the line stays in
+** the log); the id of a removed ranking is never given again
 */
 static void parse_battle(library_t *lib, char **fields, int nb)
 {
-    int category = 0;
-    song_t *winner = NULL;
-    song_t *loser = NULL;
+    arena_t arena;
+    int kind = 0;
+    int winner = 0;
+    int loser = 0;
 
-    if (nb < 4)
+    if (nb < 6)
         return;
-    category = category_find(fields[1]);
-    winner = song_resolve(lib, song_by_id(lib, atoi(fields[2])));
-    loser = song_resolve(lib, song_by_id(lib, atoi(fields[3])));
-    if (category < 0 || !winner || !loser || winner == loser)
+    kind = kind_find(fields[1]);
+    arena.kind = kind;
+    arena.board = atoi(fields[2]);
+    if (arena.board >= lib->next_board)
+        lib->next_board = arena.board + 1;
+    arena.category = category_find(fields[3]);
+    if (kind < 0 || arena.category < 0 || !board_by_id(lib, arena.board))
         return;
-    elo_battle(lib, winner->id, loser->id, category);
+    winner = subject_resolve(lib, arena.kind, atoi(fields[4]));
+    loser = subject_resolve(lib, arena.kind, atoi(fields[5]));
+    if (winner == 0 || loser == 0 || winner == loser)
+        return;
+    elo_battle(lib, &arena, winner, loser);
 }
 
 void db_load_elo(library_t *lib)
@@ -43,28 +53,29 @@ int db_save_elo(library_t *lib)
     if (!file)
         return 84;
     for (elo_t *elo = lib->elo; elo; elo = elo->next)
-        fprintf(file, "%d\t%s\t%.1f\t%d\t%d\n", elo->song_id,
-            elo_categories[elo->category], elo->rating, elo->battles,
-            elo->wins);
+        fprintf(file, "%s\t%d\t%d\t%s\t%.1f\t%d\t%d\n", kind_name(elo->kind),
+            elo->board, elo->subject, elo_categories[elo->category],
+            elo->rating, elo->battles, elo->wins);
     return tsv_commit(file, ELO_DB);
 }
 
 /*
-** the log keeps the song ids as they are: as it is replayed with the
+** the log keeps the ids as they are: as it is replayed with the
 ** resolved ids, a later merge or split also applies to this battle
 */
-void battle_record(library_t *lib, song_t *winner, song_t *loser,
-    int category)
+void battle_record(library_t *lib, arena_t const *arena,
+    rank_t const *winner, rank_t const *loser)
 {
     char line[160];
-    rank_t before[2];
+    rank_t before[2] = {*winner, *loser};
 
-    elo_score(lib, winner, category, &before[0]);
-    elo_score(lib, loser, category, &before[1]);
-    snprintf(line, sizeof(line), "%s\t%d\t%d\t%.1f\t%.1f",
-        elo_categories[category], winner->id, loser->id, before[0].rating,
-        before[1].rating);
+    elo_score(lib, arena, &before[0]);
+    elo_score(lib, arena, &before[1]);
+    snprintf(line, sizeof(line), "%s\t%d\t%s\t%d\t%d\t%.1f\t%.1f",
+        kind_name(arena->kind), arena->board,
+        elo_categories[arena->category], rank_id(winner), rank_id(loser),
+        before[0].rating, before[1].rating);
     log_line(BATTLES_LOG, BATTLES_COLUMNS, line);
-    elo_battle(lib, winner->id, loser->id, category);
+    elo_battle(lib, arena, rank_id(winner), rank_id(loser));
     db_save_elo(lib);
 }

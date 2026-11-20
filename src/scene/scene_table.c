@@ -19,7 +19,9 @@ const scene_t scenes[NB_SCENES] = {
     {RANKING, &ranking_init, &ranking_event, NULL, &ranking_draw,
         &ranking_layout, &ranking_destroy},
     {PLAYLIST, &pledit_init, &pledit_event, NULL, &pledit_draw,
-        &pledit_layout, &pledit_destroy}
+        &pledit_layout, &pledit_destroy},
+    {BOARDS, &boards_init, &boards_event, NULL, &boards_draw,
+        &boards_layout, &boards_destroy}
 };
 
 /*

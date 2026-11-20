@@ -90,6 +90,9 @@ static void song_rows(app_t *app, pledit_t *pl)
     }
 }
 
+/*
+** the rules of the rankings using the playlist are removed with it
+*/
 static void confirm(app_t *app, pledit_t *pl)
 {
     char line[NAME_LEN + 64];
@@ -99,9 +102,10 @@ static void confirm(app_t *app, pledit_t *pl)
         pl->playlist->name);
     widget_text(app, line, (float [3]){130, 115, 40}, &sfWhite);
     widget_text(app, "Les musiques et leurs statistiques ne sont pas "
-        "touchées.",
+        "touchées. Les règles de classement qui l'utilisent sont retirées.",
         (float [3]){130, 190, 24}, &gray);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Supprimer")) {
+        rules_forget(app->lib, RULE_PLAYLIST, pl->playlist->id);
         playlist_remove(app->lib, pl->playlist);
         pl->playlist = NULL;
         app->library_tab = 0;

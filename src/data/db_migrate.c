@@ -54,6 +54,31 @@ static void migrate_listens(library_t *lib)
     tsv_commit(out, LISTENS_LOG);
 }
 
+/*
+** a battles.log from before the rankings and the artist battles (no
+** kind nor board column) is kept as battles.log.v1.bak: every rating
+** starts again from 1500 with the new categories
+*/
+void db_migrate_battles(void)
+{
+    FILE *file = fopen(BATTLES_LOG, "r");
+    char *line = NULL;
+    size_t size = 0;
+    int old = 0;
+
+    if (!file)
+        return;
+    for (int i = 0; i < 2 && getline(&line, &size, file) != -1; i++)
+        old = strcmp(line, "#" BATTLES_COLUMNS "\n") != 0;
+    free(line);
+    fclose(file);
+    if (!old)
+        return;
+    fprintf(stderr, "Elo reset: the old battles are kept in "
+        BATTLES_LOG ".v1.bak\n");
+    rename(BATTLES_LOG, BATTLES_LOG ".v1.bak");
+}
+
 void db_migrate(library_t *lib)
 {
     fprintf(stderr, "Converting the save files to the new format "

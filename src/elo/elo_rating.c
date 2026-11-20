@@ -4,34 +4,38 @@
 ** File description:
 ** standard Elo: E_a = 1 / (1 + 10^((R_b - R_a) / 400)),
 ** R_a' = R_a + K * (S_a - E_a), K = 40 for the first 10 battles of a
-** song in a category, then 20
+** song (or artist) in a category of a ranking, then 20
 */
 
 #include "mp3player.h"
 #include <math.h>
 
-elo_t *elo_find(library_t *lib, int song_id, int category)
+elo_t *elo_find(library_t *lib, arena_t const *arena, int subject)
 {
     for (elo_t *elo = lib->elo; elo; elo = elo->next)
-        if (elo->song_id == song_id && elo->category == category)
+        if (elo->subject == subject && elo->kind == arena->kind
+            && elo->board == arena->board
+            && elo->category == arena->category)
             return elo;
     return NULL;
 }
 
 /*
-** a song without any battle in the category starts at 1500
+** a song or artist without any battle in the arena starts at 1500
 */
-elo_t *elo_get(library_t *lib, int song_id, int category)
+elo_t *elo_get(library_t *lib, arena_t const *arena, int subject)
 {
-    elo_t *elo = elo_find(lib, song_id, category);
+    elo_t *elo = elo_find(lib, arena, subject);
 
     if (elo)
         return elo;
     elo = calloc(1, sizeof(elo_t));
     if (!elo)
         return NULL;
-    elo->song_id = song_id;
-    elo->category = category;
+    elo->kind = arena->kind;
+    elo->board = arena->board;
+    elo->subject = subject;
+    elo->category = arena->category;
     elo->rating = ELO_START;
     elo->next = lib->elo;
     lib->elo = elo;
@@ -49,9 +53,10 @@ static double k_factor(elo_t const *elo)
 }
 
 /*
-** winner and loser are resolved song ids (song_resolve)
+** winner and loser are resolved ids (subject_resolve)
 */
-void elo_battle(library_t *lib, int winner, int loser, int category)
+void elo_battle(library_t *lib, arena_t const *arena, int winner,
+    int loser)
 {
     elo_t *win = NULL;
     elo_t *lose = NULL;
@@ -60,8 +65,8 @@ void elo_battle(library_t *lib, int winner, int loser, int category)
 
     if (winner == loser)
         return;
-    win = elo_get(lib, winner, category);
-    lose = elo_get(lib, loser, category);
+    win = elo_get(lib, arena, winner);
+    lose = elo_get(lib, arena, loser);
     if (!win || !lose)
         return;
     win_expected = expected(win->rating, lose->rating);

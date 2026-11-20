@@ -35,6 +35,8 @@
     #define BATTLES_LOG "data/battles.log"
     #define PLAYLISTS_DB "data/playlists.tsv"
     #define PLAYLIST_SONGS_DB "data/playlist_songs.tsv"
+    #define BOARDS_DB "data/boards.tsv"
+    #define RULES_DB "data/board_rules.tsv"
     #define SONGS_COLS_1 "id\tmerged_into\tfile\ttitle\talbum\tgenre\tyear"
     #define SONGS_COLS_2 "\tsrc_title\tsrc_artists\tduration_ms\tfirst_seen"
     #define SONGS_COLS_3 "\tlast_seen\tpresent\tlisten_ms\tplay_count"
@@ -46,11 +48,14 @@
     #define LISTENS_COLUMNS "timestamp\tsong_id\tlisten_ms\tend"
     #define EDITS_COLUMNS "timestamp\tsong_id\tfield\tbefore\tafter"
     #define MERGES_COLUMNS "timestamp\taction\tsource_id\ttarget_id"
-    #define ELO_COLUMNS "song_id\tcategory\trating\tbattles\twins"
-    #define BATTLES_COLS_1 "timestamp\tcategory\twinner\tloser"
+    #define ELO_COLS_1 "kind\tboard\tsubject\tcategory"
+    #define ELO_COLUMNS ELO_COLS_1 "\trating\tbattles\twins"
+    #define BATTLES_COLS_1 "timestamp\tkind\tboard\tcategory\twinner\tloser"
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
     #define PLAYLISTS_COLUMNS "id\tname"
     #define PLAYLIST_SONGS_COLUMNS "playlist_id\tsong_id\tposition"
+    #define BOARDS_COLUMNS "id\tname"
+    #define RULES_COLUMNS "board_id\tmode\ttype\ttarget"
     #define TSV_MAX_FIELDS 20
     #define V1_FIELDS 14
     #define V2_FIELDS 16
@@ -62,11 +67,16 @@
     #define TABS_RIGHT 1530
     #define LIST_STEP 52
     #define PANEL_H 790
-    #define CONTENT_Y 280
+    #define BOARD_BAR_Y 190
+    #define CAT_BAR_Y 260
+    #define CONTENT_Y 350
+    #define BATTLE_CARD_Y 340
+    #define BATTLE_CARD_H 420
     #define CONTENT_BOTTOM 820
     #define BOARD_STEP 46
     #define PL_ROWS_Y 330
     #define PL_ROW_STEP 52
+    #define BOARDS_ROWS_Y 330
 
     #include "app.h"
     #include <stdlib.h>
@@ -153,6 +163,7 @@ void battle_destroy(app_t *app);
 void battle_view(app_t *app);
 void battle_next(app_t *app);
 void battle_vote(app_t *app, int side);
+void battle_reload(app_t *app);
 
 // src/scene/ranking
 int ranking_init(app_t *app);
@@ -176,9 +187,25 @@ void pledit_search(app_t *app);
 void pledit_scroll(app_t *app, float delta);
 void pledit_view(app_t *app);
 
+// src/scene/boards
+int boards_init(app_t *app);
+void boards_event(app_t *app, sfEvent *event);
+void boards_draw(app_t *app);
+void boards_layout(app_t *app);
+void boards_destroy(app_t *app);
+void boards_list(app_t *app);
+void boards_open(app_t *app, board_t *board);
+void boards_leave(app_t *app);
+void boards_edit(app_t *app);
+void boards_confirm(app_t *app);
+void boards_count(app_t *app);
+void boards_text(app_t *app, sfUint32 code);
+void boards_add_column(app_t *app);
+
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
 int category_bar(app_t *app, int *category, int nb, int random);
+int board_bar(app_t *app, arena_t *arena);
 
 // src/ui
 ui_t *ui_create(sfTexture *texture, ui_def_t const *defs, int nb);
@@ -276,15 +303,35 @@ int playlist_toggle(library_t *lib, playlist_t *playlist, song_t *song);
 int playlist_view(library_t *lib, playlist_t const *playlist,
     song_t **view);
 
+// src/library/boards : rankings and their rules
+board_t *board_add(library_t *lib, int id, char const *name);
+board_t *board_by_id(library_t *lib, int id);
+int board_general_create(library_t *lib);
+void board_remove(library_t *lib, board_t *board);
+int rule_add(board_t *board, int include, rule_type_t type, int target);
+void rule_remove(board_t *board, rule_t *rule);
+void rule_text(library_t *lib, rule_t const *rule, char *buf, int size);
+char const *rule_type_name(rule_type_t type);
+void rules_forget(library_t *lib, rule_type_t type, int target);
+int board_has_song(library_t *lib, int board_id, song_t *song);
+
 // src/elo : ratings, without any display
 int category_find(char const *name);
 char const *category_name(int category);
-elo_t *elo_find(library_t *lib, int song_id, int category);
-elo_t *elo_get(library_t *lib, int song_id, int category);
-void elo_battle(library_t *lib, int winner, int loser, int category);
+int kind_find(char const *name);
+char const *kind_name(elo_kind_t kind);
+elo_t *elo_find(library_t *lib, arena_t const *arena, int subject);
+elo_t *elo_get(library_t *lib, arena_t const *arena, int subject);
+void elo_battle(library_t *lib, arena_t const *arena, int winner,
+    int loser);
 void elo_clear(library_t *lib);
-void elo_score(library_t *lib, song_t *song, int category, rank_t *out);
-int elo_pick_pair(library_t *lib, int category, song_t **pair);
+int rank_id(rank_t const *rank);
+char const *rank_name(rank_t const *rank);
+int subject_resolve(library_t *lib, elo_kind_t kind, int id);
+void elo_score(library_t *lib, arena_t const *arena, rank_t *out);
+int elo_pick_pair(library_t *lib, arena_t const *arena, pool_t *pool,
+    rank_t *pair);
+int pool_build(library_t *lib, arena_t const *arena, pool_t *pool);
 
 // src/data : save files
 int tsv_read(char const *path, tsv_fn_t fn, library_t *lib);
@@ -301,14 +348,18 @@ void db_parse_link(library_t *lib, char **fields, int nb);
 int db_save_tables(library_t *lib);
 void db_merge(library_t *lib, song_t *scanned);
 void db_migrate(library_t *lib);
+void db_migrate_battles(void);
 void db_parse_playlist(library_t *lib, char **fields, int nb);
 void db_parse_playlist_song(library_t *lib, char **fields, int nb);
 int db_save_playlists(library_t *lib);
+void db_parse_board(library_t *lib, char **fields, int nb);
+void db_parse_rule(library_t *lib, char **fields, int nb);
+int db_save_boards(library_t *lib);
 void log_line(char const *path, char const *columns, char const *line);
 void db_load_elo(library_t *lib);
 int db_save_elo(library_t *lib);
-void battle_record(library_t *lib, song_t *winner, song_t *loser,
-    int category);
+void battle_record(library_t *lib, arena_t const *arena,
+    rank_t const *winner, rank_t const *loser);
 
 // src/utils
 int utf8_encode(char *out, unsigned int code);

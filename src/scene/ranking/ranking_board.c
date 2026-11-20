@@ -37,7 +37,8 @@ void ranking_scroll(app_t *app, float delta)
 static void header(app_t *app)
 {
     widget_text(app, "#", (float [3]){130, CONTENT_Y, 22}, &gray);
-    widget_text(app, "Musique", (float [3]){210, CONTENT_Y, 22}, &gray);
+    widget_text(app, app->arena.kind == KIND_SONG ? "Musique" : "Artiste",
+        (float [3]){210, CONTENT_Y, 22}, &gray);
     widget_text(app, "Elo", (float [3]){1330, CONTENT_Y, 22}, &gray);
     widget_text(app, "Battles", (float [3]){1480, CONTENT_Y, 22}, &gray);
     widget_text(app, "Victoires", (float [3]){1640, CONTENT_Y, 22}, &gray);
@@ -47,12 +48,12 @@ static void draw_line(app_t *app, rank_t const *rank, int position,
     float y)
 {
     char text[NAME_LEN * 2];
-    song_t const *song = rank->song;
+    char const *artists = rank->song ? rank->song->artists : NULL;
 
     snprintf(text, sizeof(text), "%d", position + 1);
     widget_text(app, text, (float [3]){130, y, 26}, &gray);
-    snprintf(text, sizeof(text), "%s%s%s", song_title(song),
-        song->artists ? " - " : "", song->artists ? song->artists : "");
+    snprintf(text, sizeof(text), "%s%s%s", rank_name(rank),
+        artists ? " - " : "", artists ? artists : "");
     widget_text(app, text, (float [3]){210, y, 26}, &sfWhite);
     snprintf(text, sizeof(text), "%.0f", rank->rating);
     widget_text(app, text, (float [3]){1330, y, 26}, &sfWhite);

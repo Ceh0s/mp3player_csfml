@@ -95,6 +95,37 @@ typedef struct playlist_s {
     struct playlist_s *next;
 } playlist_t;
 
+typedef enum rule_type_e {
+    RULE_ALL,
+    RULE_PLAYLIST,
+    RULE_ARTIST,
+    RULE_SONG,
+    NB_RULE_TYPES
+} rule_type_t;
+
+/*
+** a rule of a ranking: include (1) or exclude (0) all the songs, those
+** of a playlist, of an artist, or one song (target = its raw id)
+*/
+typedef struct rule_s {
+    int include;
+    rule_type_t type;
+    int target;
+    struct rule_s *next;
+} rule_t;
+
+/*
+** a ranking (board) has its own Elo ratings; a present song is in it
+** if a rule includes it and no rule excludes it. The general one (id 0)
+** holds every song, it is never saved nor modified.
+*/
+typedef struct board_s {
+    int id;
+    char *name;
+    rule_t *rules;
+    struct board_s *next;
+} board_t;
+
 /*
 ** present : the present songs sorted by title ("Tous les titres"),
 ** nb songs
@@ -106,11 +137,13 @@ typedef struct library_s {
     link_t *links;
     elo_t *elo;
     playlist_t *playlists;
+    board_t *boards;
     song_t **present;
     int nb;
     int next_song;
     int next_artist;
     int next_playlist;
+    int next_board;
     int migrated;
 } library_t;
 

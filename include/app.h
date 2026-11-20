@@ -13,6 +13,10 @@
     #include "song.h"
     #include "player.h"
 
+/*
+** arena : ranking, kind and category chosen in the battle and rankings
+** screens, kept when going from one to the other
+*/
 struct app_s {
     sfRenderWindow *window;
     sfView *view;
@@ -39,9 +43,11 @@ struct app_s {
     battle_t *battle;
     ranking_t *ranking;
     pledit_t *pledit;
+    boards_t *boards;
     song_t *edit_song;
     playlist_t *edit_playlist;
     int library_tab;
+    arena_t arena;
     widgets_t *wg;
     library_t *lib;
     player_t *player;

@@ -17,6 +17,10 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/battle/battle_scene.c\
 		src/scene/battle/battle_view.c\
 		src/scene/battle/battle_vote.c\
+		src/scene/boards/boards_add.c\
+		src/scene/boards/boards_edit.c\
+		src/scene/boards/boards_list.c\
+		src/scene/boards/boards_scene.c\
 		src/scene/edit/edit.c\
 		src/scene/edit/edit_artist.c\
 		src/scene/edit/edit_input.c\
@@ -32,6 +36,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/library/library_tabs.c\
 		src/scene/library/library_view.c\
 		src/scene/pages/artist_page.c\
+		src/scene/pages/board_bar.c\
 		src/scene/pages/category_bar.c\
 		src/scene/playlist/pledit_scene.c\
 		src/scene/playlist/pledit_view.c\
@@ -49,6 +54,7 @@ SRC_UI	=	src/ui/ui_element.c\
 
 SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pair.c\
+		src/elo/elo_pool.c\
 		src/elo/elo_rating.c\
 		src/elo/elo_score.c
 
@@ -59,6 +65,9 @@ SRC_AUDIO	=	src/audio/listen_tracker.c\
 SRC_LIBRARY	=	src/library/library.c\
 		src/library/library_destroy.c\
 		src/library/artists/artist_breakdown.c\
+		src/library/boards/board_members.c\
+		src/library/boards/board_rules.c\
+		src/library/boards/boards.c\
 		src/library/artists/artists.c\
 		src/library/artists/artists_names.c\
 		src/library/artists/artists_stats.c\
@@ -78,6 +87,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/songs/song_resolve.c
 
 SRC_DATA	=	src/data/db_all.c\
+		src/data/db_boards.c\
 		src/data/db_elo.c\
 		src/data/db_merge.c\
 		src/data/db_migrate.c\

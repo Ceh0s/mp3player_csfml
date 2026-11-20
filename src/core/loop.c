@@ -22,7 +22,7 @@ static void wait_tick(app_t *app)
 */
 static int typing(scene_id_t scene)
 {
-    return scene == EDIT || scene == PLAYLIST;
+    return scene == EDIT || scene == PLAYLIST || scene == BOARDS;
 }
 
 static void global_event(app_t *app, sfEvent *event)
@@ -35,7 +35,8 @@ static void global_event(app_t *app, sfEvent *event)
         return;
     if (event->key.code == sfKeyF11)
         app->toggle_fullscreen = 1;
-    if (event->key.code == sfKeyEscape && app->scene != EDIT)
+    if (event->key.code == sfKeyEscape && app->scene != EDIT
+        && app->scene != BOARDS)
         scene_back(app);
     if (event->key.code == sfKeySpace && !typing(app->scene))
         player_toggle(app);

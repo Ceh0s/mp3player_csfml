@@ -81,7 +81,7 @@ int library_refresh(library_t *lib)
 }
 
 /*
-** empty library
+** empty library holding only the general ranking
 */
 static library_t *library_new(void)
 {
@@ -92,6 +92,11 @@ static library_t *library_new(void)
     lib->next_song = 1;
     lib->next_artist = 1;
     lib->next_playlist = 1;
+    lib->next_board = 1;
+    if (board_general_create(lib) == 84) {
+        library_destroy(lib);
+        return NULL;
+    }
     return lib;
 }
 

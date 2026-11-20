@@ -16,6 +16,7 @@
     #define EDIT_SUGGEST 5
     #define EDIT_RESULTS 10
     #define EDIT_WARNINGS 4
+    #define BOARD_RESULTS 6
 
 typedef struct app_s app_t;
 
@@ -26,6 +27,7 @@ typedef enum scene_id_e {
     BATTLE,
     RANKING,
     PLAYLIST,
+    BOARDS,
     NB_SCENES
 } scene_id_t;
 
@@ -117,14 +119,16 @@ typedef struct edit_s {
 } edit_t;
 
 /*
-** pair : the two songs shown, has_pair : 0 if there are not two songs
+** pool : songs or artists of the arena (app->arena), rebuilt when the
+** ranking or the kind changes; pair : the two shown, has_pair : 0 if
+** the pool holds fewer than two
 */
 typedef struct battle_s {
     sfTexture *bg_texture;
     sfSprite *bg;
     sfRectangleShape *panel;
-    int category;
-    song_t *pair[2];
+    pool_t pool;
+    rank_t pair[2];
     int has_pair;
 } battle_t;
 
@@ -134,14 +138,13 @@ typedef enum ranking_tab_e {
 } ranking_tab_t;
 
 /*
-** ranks : the songs having at least one battle in the category,
-** best first (rebuilt when the category changes)
+** ranks : the songs or artists of the arena (app->arena) having at
+** least one battle in it, best first (rebuilt when the arena changes)
 */
 typedef struct ranking_s {
     sfTexture *bg_texture;
     sfSprite *bg;
     sfRectangleShape *panel;
-    int category;
     ranking_tab_t tab;
     rank_t *ranks;
     int nb;
@@ -166,5 +169,31 @@ typedef struct pledit_s {
     int nb_found;
     int scroll;
 } pledit_t;
+
+typedef enum boards_mode_e {
+    BOARDS_LIST,
+    BOARDS_EDIT,
+    BOARDS_CONFIRM
+} boards_mode_t;
+
+/*
+** management of the rankings: list, then edition of one (board)
+** name : name being typed, applied when leaving the edition
+** results : rules that can be added for what is typed in search
+** members : number of songs in the ranking
+*/
+typedef struct boards_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    boards_mode_t mode;
+    board_t *board;
+    char name[NAME_LEN];
+    char search[NAME_LEN];
+    int focus;
+    rule_t results[BOARD_RESULTS];
+    int nb_results;
+    int members;
+} boards_t;
 
 #endif

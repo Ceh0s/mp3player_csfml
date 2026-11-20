@@ -21,7 +21,9 @@ int battle_init(app_t *app)
     app->battle->panel = rect_create(panel, &dark);
     if (!app->battle->bg || !app->battle->panel)
         return 84;
-    battle_next(app);
+    if (app->arena.category == CAT_TOTAL)
+        app->arena.category = CAT_ALL;
+    battle_reload(app);
     return 0;
 }
 
@@ -69,6 +71,7 @@ void battle_destroy(app_t *app)
         sfTexture_destroy(app->battle->bg_texture);
     if (app->battle->panel)
         sfRectangleShape_destroy(app->battle->panel);
+    free(app->battle->pool.items);
     free(app->battle);
     app->battle = NULL;
 }

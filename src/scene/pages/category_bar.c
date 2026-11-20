@@ -8,16 +8,16 @@
 #include "mp3player.h"
 
 /*
-** a real category different from the current one (never GLOBAL)
+** a real category different from the current one (never "Tout confondu")
 */
 static int random_category(int current)
 {
     int category = current;
 
     if (NB_CATEGORIES < 3)
-        return CAT_GLOBAL + 1;
+        return CAT_ALL + 1;
     while (category == current)
-        category = CAT_GLOBAL + 1 + rand() % (NB_CATEGORIES - 1);
+        category = CAT_ALL + 1 + rand() % (NB_CATEGORIES - 1);
     return category;
 }
 
@@ -30,13 +30,13 @@ int category_bar(app_t *app, int *category, int nb, int random)
 {
     int old = *category;
 
-    if (widget_button(app, (float [4]){130, 190, 60, 56}, "<"))
+    if (widget_button(app, (float [4]){130, CAT_BAR_Y, 60, 56}, "<"))
         *category = (*category + nb - 1) % nb;
-    widget_text(app, category_name(*category), (float [3]){215, 196, 32},
-        &sfWhite);
-    if (widget_button(app, (float [4]){560, 190, 60, 56}, ">"))
+    widget_text(app, category_name(*category),
+        (float [3]){215, CAT_BAR_Y + 6, 32}, &sfWhite);
+    if (widget_button(app, (float [4]){560, CAT_BAR_Y, 60, 56}, ">"))
         *category = (*category + 1) % nb;
-    if (random && widget_button(app, (float [4]){650, 190, 360, 56},
+    if (random && widget_button(app, (float [4]){650, CAT_BAR_Y, 360, 56},
             "Catégorie aléatoire"))
         *category = random_category(*category);
     return *category != old;
