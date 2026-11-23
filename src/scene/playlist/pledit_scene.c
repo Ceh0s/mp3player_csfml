@@ -111,6 +111,7 @@ void pledit_destroy(app_t *app)
     free(pl);
     app->pledit = NULL;
     app->edit_playlist = NULL;
+    boards_sync_playlists(app->lib);
     player_resync(app);
     db_save_all(app->lib);
 }

@@ -7,10 +7,15 @@
 
 #include "mp3player.h"
 
+/*
+** the preview of the pair stops, the arrows choose again
+*/
 void battle_next(app_t *app)
 {
     battle_t *battle = app->battle;
 
+    preview_stop(app);
+    battle->focus = -1;
     battle->has_pair = elo_pick_pair(app->lib, &app->arena, &battle->pool,
         battle->pair);
 }

@@ -47,20 +47,26 @@ static void card_detail(app_t *app, rank_t const *rank, float x)
 }
 
 /*
-** the whole card is a button: a click on it is a vote; the big image
-** is centered at its top (round for an artist)
+** the whole card is a button: a click on it is a vote (but not on its
+** "Écouter" or its progress bar, tested first); the big image is
+** centered at its top (round for an artist)
 */
 static int card(app_t *app, rank_t const *rank, float x)
 {
-    int clicked = widget_button(app,
-        (float [4]){x, BATTLE_CARD_Y, 760, BATTLE_CARD_H}, "");
     float picture[4] = {x + 235, BATTLE_CARD_Y + 16, 290, 290};
+    int clicked = 0;
 
+    if (app->wg->mode == WG_CLICK && battle_listen(app, rank, x))
+        return 0;
+    clicked = widget_button(app,
+        (float [4]){x, BATTLE_CARD_Y, 760, BATTLE_CARD_H}, "");
     widget_image(app, image_get(app, rank, 0), picture, rank->artist != NULL);
     widget_text(app, rank_name(rank),
         (float [3]){x + 30, BATTLE_CARD_Y + 320, 32}, &sfWhite);
     card_detail(app, rank, x + 30);
     card_stats(app, rank, x + 30);
+    if (app->wg->mode == WG_DRAW)
+        battle_listen(app, rank, x);
     return clicked;
 }
 
@@ -70,20 +76,35 @@ static void cards(app_t *app, battle_t *battle)
     float middle = BATTLE_CARD_Y + BATTLE_CARD_H / 2 - 30;
 
     widget_text(app, "VS", (float [3]){930, middle, 48}, &sfWhite);
-    widget_text(app, "Clique sur ton choix (ou flèches gauche / droite)",
-        (float [3]){130, y + 6, 22}, &gray);
+    widget_text(app, "Clique sur ton choix, ou flèches gauche / droite "
+        "puis Entrée", (float [3]){130, y + 6, 22}, &gray);
     if (card(app, &battle->pair[0], 130)) {
         battle_vote(app, 0);
         return;
     }
-    if (card(app, &battle->pair[1], 1030))
+    if (card(app, &battle->pair[1], 1030)) {
         battle_vote(app, 1);
+        return;
+    }
+    if (battle->focus >= 0)
+        battle_frame(app, battle->focus == 0 ? 130 : 1030);
+}
+
+static void bottom(app_t *app, battle_t *battle)
+{
+    float y = 840 + app->extra_h;
+    float skip[4] = {1530, y, 260, 56};
+
+    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
+        scene_back(app);
+    widget_help(app, skip, "Autre paire, sans vote");
+    if (battle->has_pair && widget_button(app, skip, "Passer"))
+        battle_next(app);
 }
 
 void battle_view(app_t *app)
 {
     battle_t *battle = app->battle;
-    float y = 840 + app->extra_h;
 
     widget_text(app, "Battle", (float [3]){130, 115, 40}, &sfWhite);
     if (board_bar(app, &app->arena))
@@ -97,9 +118,5 @@ void battle_view(app_t *app)
             "deux musiques dans ce classement pour une battle." : "Il faut "
             "au moins deux artistes dans ce classement pour une battle.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
-        scene_back(app);
-    if (battle->has_pair
-        && widget_button(app, (float [4]){1530, y, 260, 56}, "Passer"))
-        battle_next(app);
+    bottom(app, battle);
 }

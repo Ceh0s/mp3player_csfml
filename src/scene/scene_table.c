@@ -23,7 +23,11 @@ const scene_t scenes[NB_SCENES] = {
     {BOARDS, &boards_init, &boards_event, NULL, &boards_draw,
         &boards_layout, &boards_destroy},
     {DOWNLOAD, &dlscene_init, &dlscene_event, NULL, &dlscene_draw,
-        &dlscene_layout, &dlscene_destroy}
+        &dlscene_layout, &dlscene_destroy},
+    {DUPLICATES, &dupscene_init, &dupscene_event, &dupscene_update,
+        &dupscene_draw, &dupscene_layout, &dupscene_destroy},
+    {SETTINGS, &settings_init, &settings_event, NULL, &settings_draw,
+        &settings_layout, &settings_destroy}
 };
 
 /*

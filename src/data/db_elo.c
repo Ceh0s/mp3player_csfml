@@ -23,13 +23,12 @@ static void parse_battle(library_t *lib, char **fields, int nb)
     int winner = 0;
     int loser = 0;
 
-    if (nb < 6)
+    if (elo_parse_reset(lib, fields, nb) || nb < 6)
         return;
     kind = kind_find(fields[1]);
     arena.kind = kind;
     arena.board = atoi(fields[2]);
-    if (arena.board >= lib->next_board)
-        lib->next_board = arena.board + 1;
+    board_seen_id(lib, arena.board);
     arena.category = category_find(fields[3]);
     if (kind < 0 || arena.category < 0 || !board_by_id(lib, arena.board))
         return;

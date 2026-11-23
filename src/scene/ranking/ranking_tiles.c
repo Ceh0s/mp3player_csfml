@@ -14,7 +14,7 @@ static int tier_count(ranking_t const *ranking, int tier)
     int count = 0;
 
     for (int i = 0; i < ranking->nb; i++)
-        count += ranking_tier(i, ranking->nb) == tier;
+        count += ranking->tiers[i] == tier;
     return count;
 }
 
@@ -57,7 +57,7 @@ int ranking_tiles(app_t *app, int tier, float const *row)
     float rect[4] = {0, 0, size, size};
 
     for (int i = 0; i < ranking->nb; i++) {
-        if (ranking_tier(i, ranking->nb) != tier)
+        if (ranking->tiers[i] != tier)
             continue;
         rect[0] = TILES_X + (shown % per_line) * (size + TILE_GAP);
         rect[1] = row[0] + 4 + (shown / per_line) * (size + TILE_GAP);

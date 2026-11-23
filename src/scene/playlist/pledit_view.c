@@ -107,6 +107,7 @@ static void confirm(app_t *app, pledit_t *pl)
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Supprimer")) {
         rules_forget(app->lib, RULE_PLAYLIST, pl->playlist->id);
         playlist_remove(app->lib, pl->playlist);
+        boards_sync_playlists(app->lib);
         pl->playlist = NULL;
         app->library_tab = 0;
         scene_back(app);
@@ -114,6 +115,27 @@ static void confirm(app_t *app, pledit_t *pl)
     }
     if (widget_button(app, (float [4]){410, y, 260, 56}, "Annuler"))
         pl->confirm = 0;
+}
+
+/*
+** address of a site linked to the playlist ("Synchroniser" in the
+** library), set in the download screen
+*/
+static void linked(app_t *app, pledit_t *pl, float y)
+{
+    source_t *src = source_get(app->lib, pl->playlist->id);
+    char line[NAME_LEN + 16];
+    char cut[64 + 4];
+
+    if (!src)
+        return;
+    utf8_cut(cut, src->url, 64);
+    snprintf(line, sizeof(line), "Liée à : %s", cut);
+    widget_text(app, line, (float [3]){420, y + 14, 22}, &gray);
+    if (!widget_button(app, (float [4]){1240, y, 170, 56}, "Délier"))
+        return;
+    source_remove(app->lib, pl->playlist->id);
+    db_save_sources(app->lib);
 }
 
 void pledit_view(app_t *app)
@@ -130,6 +152,7 @@ void pledit_view(app_t *app)
     song_rows(app, pl);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
         scene_back(app);
+    linked(app, pl, y);
     if (widget_button(app, (float [4]){1430, y, 350, 56},
             "Supprimer la playlist"))
         pl->confirm = 1;

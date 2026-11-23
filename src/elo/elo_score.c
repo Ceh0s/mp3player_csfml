@@ -3,8 +3,9 @@
 ** mp3player
 ** File description:
 ** score of a song or artist in a category, or in the virtual TOTAL
-** category (sum of the ratings of the real categories, "Tout confondu"
-** excluded), and what identifies the subject of a score
+** category (sum of the ratings of the rated categories, "Tout
+** confondu" and the fun ones excluded), and what identifies the
+** subject of a score
 */
 
 #include "mp3player.h"
@@ -67,6 +68,7 @@ void elo_score(library_t *lib, arena_t const *arena, rank_t *out)
         add_category(lib, arena, arena->category, out);
         return;
     }
-    for (int i = CAT_ALL + 1; i < NB_CATEGORIES; i++)
-        add_category(lib, arena, i, out);
+    for (int i = 0; i < NB_CATEGORIES; i++)
+        if (category_rated(i))
+            add_category(lib, arena, i, out);
 }

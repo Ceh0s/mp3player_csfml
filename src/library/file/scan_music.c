@@ -8,6 +8,7 @@
 #include "mp3player.h"
 #include <dirent.h>
 #include <strings.h>
+#include <ctype.h>
 
 static int has_mp3_ext(char const *name)
 {
@@ -25,9 +26,27 @@ static char *join_path(char const *dir, char const *name)
     return path;
 }
 
+/*
+** a downloaded file is named "title [id].mp3" (two videos with the same
+** title never replace each other): the id of a YouTube video (11
+** letters, digits, - or _) is not part of the name shown
+*/
+static size_t shown_length(char const *name)
+{
+    size_t len = strlen(name) - 4;
+    char const *id = name + len - 12;
+
+    if (len < 15 || name[len - 1] != ']' || strncmp(id - 2, " [", 2) != 0)
+        return len;
+    for (int i = 0; i < 11; i++)
+        if (!isalnum((unsigned char)id[i]) && id[i] != '-' && id[i] != '_')
+            return len;
+    return len - 14;
+}
+
 static void read_file(song_t *song, char const *name)
 {
-    song->file = strndup(name, strlen(name) - 4);
+    song->file = strndup(name, shown_length(name));
     id3_read(song, song->path);
     song->key = song_make_key(song);
     song->hash = fingerprint_file(song->path);
@@ -66,6 +85,14 @@ static song_t *add_entry(song_t *list, char const *dir, char const *name)
     }
     song->next = list;
     return song;
+}
+
+/*
+** a single file of the folder (just downloaded), NULL if not a real mp3
+*/
+song_t *scan_file(char const *dir, char const *name)
+{
+    return add_entry(NULL, dir, name);
 }
 
 song_t *scan_music(char const *dir)

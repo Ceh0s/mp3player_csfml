@@ -65,39 +65,73 @@ sans lui, l'appli fonctionne et l'écran de téléchargement l'indique.
 ```
 main.c
 include/   app.h (app_t)  scene.h (scènes, home_t, libscene_t, edit_t, battle_t, ranking_t,
-           pledit_t, boards_t)  song.h (song_t, fprint_t, artist_t, link_t, playlist_t,
-           board_t, rule_t, library_t, id3_tag_t)  elo.h (arena_t, elo_t, rank_t, pool_t)
+           pledit_t, boards_t, dlscene_t, dupscene_t, setscene_t, selection_t)  song.h
+           (song_t, fprint_t, artist_t, link_t, playlist_t, board_t, rule_t, rejected_t,
+           source_t, envelope_t, not_dup_t, dup_info_t, dup_pair_t, like_t, tie_order_t,
+           suggest_t, sug_state_t, settings_t, library_t, id3_tag_t)  download.h
+           (download_t, dl_options_t, dl_entry_t, dl_report_t)  elo.h (arena_t, elo_t,
+           rank_t, ranked_t, pool_t)
            player.h  ui.h (ui_def_t, ui_t, widgets_t, image_t)  mp3player.h (constantes,
            prototypes)
-src/core/              création/destruction de l'app, boucle à tick, fenêtre, vue, signaux
+src/core/              création/destruction de l'app, boucle à tick, fenêtre, vue, signaux,
+                       touches maintenues (keys.c : seuls Retour arrière et flèches répètent)
 src/scene/             table des scènes
-    home/              écran d'accueil (bouton play + menu Bibliothèque / Battle / Classements)
+    home/              écran d'accueil (bouton play + menu Bibliothèque / Battle /
+                       Classements / Doublons / Paramètres)
     library/           liste des musiques + barre de lecture + onglets de playlists
-                       (library_scene.c, _list, _view, _tabs, _bar, _layout)
+                       + barre de tri et glisser-déposer (library_scene.c, _list,
+                       _view, _tabs, _bar, _layout, _sort, _drag), avis (_likes),
+                       mode sélection (_select, _select_view) et ses actions en lot
+                       (_actions, _action_rows, _bulk, _insert)
     edit/              écran d'édition (page principale, lignes d'artistes, recherche/fusion,
-                       saisie, suggestions, page artiste)
-    battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote)
-    ranking/           tier list (noms ou images : ranking_tiles.c) et leaderboard
+                       saisie, page des suggestions de titre, page artiste)
+    battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote,
+                       battle_listen : écoute, avis, cadre du choix au clavier)
+    ranking/           tier list (noms ou images : ranking_tiles.c), leaderboard (ex æquo
+                       « - »), départage (ranking_ties, _drag, _order), reset (_reset)
+    settings/          paramètres (aide au survol)
     playlist/          édition d'une playlist (nom, titres cochés, suppression)
     boards/            gestion des classements personnalisés (liste, règles, ajout)
-    download/          écran de téléchargement (adresse, progression, annulation)
+    download/          écran de téléchargement (adresse, options : durée, playlists de
+                       réception, lien ; progression, résumé) et liste par-dessus
+                       (download_popup : hors durée / refusés / retirés)
+    duplicates/        doublons : analyse du son une musique par tick, paires, choix
     pages/             morceaux d'écran réutilisables (artist_page, category_bar,
-                       board_bar : classement + musiques/artistes, image_box : import)
+                       board_bar : classement + musiques/artistes, image_box : import,
+                       like_buttons : J'aime / Je n'aime pas)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
-                       widgets image / infobulle, cache des textures d'images
-src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires
-src/audio/             lecteur (un seul sfMusic ouvert), file de lecture, temps d'écoute
-src/download/          téléchargement audio par yt-dlp (lancement, suivi à chaque tick)
+                       widgets image / infobulle (widget_help : seulement si l'aide au
+                       survol est activée), cache des textures d'images
+src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires,
+                       reset (ligne « reset » dans battles.log)
+src/audio/             lecteur (un seul sfMusic ouvert), file de lecture, temps d'écoute,
+                       écoute en battle (preview.c : second sfMusic, jamais compté)
+src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo), suivi à
+                       chaque tick, lecture de la liste, tri des vidéos, ajout du mp3,
+                       titres hors durée, titres retirés d'une playlist du site, bilan
+                       (download_report.c)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
-    file/              fichiers sur disque : validation mp3, empreinte audio, scan du dossier
+    file/              fichiers sur disque : validation mp3, empreinte audio, scan du
+                       dossier, durées
     id3/               lecture des tags ID3 et de la pochette (APIC)
-    images/            images des musiques/artistes : miniatures, import, nettoyage du chemin
-    playlists/         playlists et vue des musiques présentes d'une playlist
-    boards/            classements, règles inclure/exclure, appartenance d'une musique
-    songs/             chansons, empreintes connues, résolution des alias, édition, fusion
+    images/            images des musiques/artistes : miniatures, import, nettoyage du
+                       chemin, réparation unique des images décalées (cover_check.c)
+    playlists/         playlists, vue des musiques présentes, tri (critère, sens,
+                       ordre personnalisé)
+    boards/            classements, règles inclure/exclure, appartenance d'une musique,
+                       classement auto par playlist, ordre de départage
+    likes/             avis (+1/-1) et playlists auto « Titres likés / dislikés »
+    suggest/           suggestions de titre (règles indépendantes, sûres seulement),
+                       états cacher/supprimer, application (titre + artistes)
+    songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
+                       suppression des fichiers (demandée seulement)
+    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus, adresses
+                       liées aux playlists
+    duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires,
+                       enveloppe sonore et comparaison, paires « pas un doublon »
     artists/           artistes, liens, noms affichés, stats et détail par artiste
 src/data/              lecture/écriture TSV, migration, journaux
-src/utils/             UTF-8, chaînes, saisie de texte (avec Ctrl+V)
+src/utils/             UTF-8, chaînes, découpage en mots, saisie de texte (avec Ctrl+V)
 assets/       atlas.png (6 icônes 256 px), fonds JPEG, font.ttf, no_cover.png (image par
               défaut, provisoire : l'auteur fournira la sienne)
 ```
@@ -115,7 +149,8 @@ Principes en place :
 - **Navigation comme un chemin de dossier** (`src/scene/scene_nav.c`) : `app->path` garde les
   scènes parentes depuis l'accueil. `scene_open` descend (`cd battle`), `scene_back` remonte
   (`cd ..`) et ferme l'appli depuis l'accueil. Échap appelle `scene_back` (dans `global_event`,
-  sauf l'édition et la gestion des classements, qui remontent d'abord leurs sous-pages ;
+  sauf l'édition et la gestion des classements, qui remontent d'abord leurs sous-pages, et
+  le téléchargement, qui ferme d'abord sa liste par-dessus ;
   Espace = lecture/pause sauf dans les écrans de saisie). Ne jamais écrire `next_scene`
   directement.
 - **Widgets en mode immédiat** (écran d'édition) : une fonction décrit l'écran, appelée en
@@ -126,15 +161,66 @@ Principes en place :
   Musiques carrées, artistes ronds (comme YT Music).
 - **Téléchargement** : `fork` + `execvp("yt-dlp")` dans son propre groupe de processus,
   sortie lue sans attendre (tube `O_NONBLOCK`) et fin détectée par `waitpid(WNOHANG)` à
-  chaque tick : ni thread ni variable globale. À la fin, `library_rescan` ajoute le mp3
-  (titre, artiste et pochette viennent des tags écrits par yt-dlp). Annulé à la fermeture.
+  chaque tick : ni thread ni variable globale. Annulé à la fermeture.
+  Plusieurs liens séparés par `;` (découpés par `stwa_delimiter`, `src/utils/str_split.c`,
+  repris de la wlib de l'auteur) forment une file : un seul yt-dlp à la fois
+  (`src/download/download_queue.c`). Chaque lien est d'abord **listé** (`--flat-playlist
+  -O`, une ligne par vidéo : id, durée, état live, adresse, titre ; rien n'est téléchargé),
+  puis chaque vidéo est triée (`download_sort.c`) : déjà dans `music/` (retrouvée par son
+  id, `song_by_video`) → seulement ajoutée aux playlists ; privée, supprimée ou live →
+  ignorée ; hors de la durée choisie → mise de côté (`flagged`) ; sinon téléchargée **une
+  par une**. Une vidéo finie est ajoutée seule à la bibliothèque (`download_add.c`, sans
+  rescanner tout le dossier) puis aux **playlists de réception** (`dl_options_t.targets`,
+  la playlist ouverte dans la bibliothèque est présélectionnée). Un échec est compté et la
+  file continue. Options copiées au démarrage d'une file (`dl_options_t`), donc modifier
+  l'écran ne change pas une file en cours.
+  **Durée min / max** (vide = sans limite) : les titres hors plage attendent une décision
+  dans la liste « Hors durée » (ouverte seule à la fin de la file, ou à la main) :
+  télécharger (rejoint la file, ou en démarre une sans lien) ou refuser. Un refus est gardé
+  dans `rejected.tsv` et ne compte que **tant que la vidéo reste hors de la plage** : une
+  plage élargie la télécharge et efface le refus.
+  **Lien adresse ↔ playlist** (un seul lien, une seule playlist de réception) : gardé dans
+  `playlist_sources.tsv` avec la plage et l'option « Signaler les titres retirés » ;
+  « Synchroniser » (bibliothèque, onglet de la playlist) rouvre le téléchargement rempli et
+  le lance (`app->sync_playlist`). Les titres de la playlist locale dont la vidéo n'est plus
+  listée sont proposés (garder / retirer de la playlist / supprimer le fichier, demandé
+  deux fois) ; seulement si la liste a réussi et n'est pas vide, et jamais un titre sans
+  vidéo connue. Progression « élément x / n » sur les vidéos retenues. Bascule « Cookies
+  firefox » (`DL_BROWSER`, session seulement) pour les playlists privées
+  (`--cookies-from-browser`). Taille et temps restant de toute la file estimés à partir de
+  la moyenne des éléments finis, lus dans les lignes de progression de yt-dlp
+  (`src/download/download_stats.c`, affichage `download_stats_view.c`).
+  Fichiers nommés `titre [id].mp3` (deux vidéos au même titre ne s'écrasent plus,
+  `--no-overwrites`) ; l'id YouTube est retiré du nom affiché (`scan_music.c`). Avant
+  chaque file, `data/downloads.archive` est réécrit depuis les mp3 présents (tag `purl`
+  écrit par yt-dlp, gardé dans `fprint_t.source`) : yt-dlp saute ces vidéos sans les
+  télécharger (`--download-archive`), l'écran compte les vidéos ignorées.
+- **Doublons** (scène `DUPLICATES`, depuis l'accueil, ou depuis le résumé d'un téléchargement
+  avec `app->dup_since` = début de la file : seulement les nouveaux titres). Deux étapes :
+  1. métadonnées (`src/library/duplicates/`) : même cœur de titre (sans « Artiste - »,
+     parenthèses/crochets, featurings, « official video »…), mêmes mots de version (remix,
+     live, slowed, extended… : un remix n'est pas l'original), un artiste en commun (liens,
+     tag = souvent la chaîne, nom avant « - » ; « - Topic », « VEVO », « Official » retirés),
+     durées à 15 s près ;
+  2. son, seulement pour ces paires : enveloppe = volume toutes les 100 ms (décodage
+     `sfSoundBuffer`, un fichier par tick, pas au-delà de 20 min), comparée par corrélation
+     des **variations** de volume avec un décalage jusqu'à 16 s. Mesuré sur la bibliothèque :
+     musiques différentes < 30, mêmes enregistrements 74 à 99. ≥ 70 « même enregistrement »,
+     40 à 69 « probable », < 40 écartée (deux homonymes). Cache `envelopes.tsv`.
+  Choix : « Garder celui-ci » (l'autre y est fusionné, `song_merge`), avec bascule
+  « Supprimer le fichier en trop », ou « Pas un doublon » (`not_duplicates.tsv`).
+- **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (fenêtre des
+  actions, puis mode sélection). Les écrans avec saisie gèrent Espace eux-mêmes.
 - **Arène** (`app->arena`) : type (musiques/artistes) + classement + catégorie, partagée par
   les scènes battle et classements.
 
 ## Données (`data/`, format TSV v2)
 
 Les fichiers mp3 ne sont **jamais modifiés** ; tout ce qui est édité vit dans `data/`.
-Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0`).
+Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0`). Seule
+exception, demandée explicitement : « Supprimer le fichier » (titre retiré d'une playlist du
+site, doublon), « Exclure » et « Supprimer du lecteur » (mode sélection) effacent le mp3 de `music/` (`song_delete_files`, ligne dans `edits.log`) ; la
+musique garde ses stats et passe `present = 0`.
 
 | Fichier | Contenu |
 |---|---|
@@ -146,7 +232,21 @@ Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0
 | `battles.log` | une ligne par battle : date, type (song/artist), classement, catégorie, gagnant, perdant (ids bruts), Elo d'avant |
 | `elo.tsv` | copie lisible des Elo calculés (jamais relue) |
 | `playlists.tsv` / `playlist_songs.tsv` | playlists, et leurs musiques dans l'ordre (ids bruts) |
+| `playlist_sorts.tsv` | tri choisi par playlist (0 = « Tous les titres ») : critère (par nom), asc/desc |
+| `custom_orders.tsv` | ordre personnalisé de chaque playlist (ids bruts), à part de `playlist_songs.tsv` |
 | `boards.tsv` / `board_rules.tsv` | classements personnalisés et leurs règles (include/exclude, all/playlist/artist/song) |
+| `downloads.archive` | vidéos YouTube déjà dans `music/` pour yt-dlp (`youtube <id>`), réécrit avant chaque téléchargement (sécurité : les vidéos présentes sont déjà écartées après la liste) |
+| `rejected.tsv` | vidéos refusées pour leur durée : id, durée (s), date, titre |
+| `playlist_sources.tsv` | adresse liée à une playlist : playlist, adresse, durée min/max (-1 = aucune), signaler les retirés |
+| `envelopes.tsv` | enveloppe sonore d'un fichier (empreinte → octets en hexadécimal, vide si illisible), écrite en quittant l'écran des doublons |
+| `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
+| `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
+| `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
+| `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre |
+| `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
+| `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle, texte retiré, état |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol |
+| `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
 - **Identité** : id interne fixe + empreinte audio (FNV-1a des 256 premiers Ko après le tag
@@ -169,7 +269,13 @@ Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0
   si une règle l'inclut et aucune ne l'exclut (règle artiste = tous rôles). Les artistes
   d'un classement sont ceux liés à ses musiques.
 - **Playlists** : ids bruts résolus à l'usage ; « Tous les titres » = musiques présentes.
-  Le lecteur joue dans la file de la playlist choisie (`player_queue`). Supprimer une
+  Le lecteur joue dans la file de la playlist choisie (`player_queue`), dans l'ordre affiché :
+  liste et file passent toutes deux par `playlist_sorted_view` (tri fusion stable écrit à la
+  main, valeurs inconnues toujours en fin). Critères : ajout à la playlist (= ordre de
+  `playlist_songs.tsv`, les ajouts se font en fin), personnalisé (glisser-déposer), titre,
+  artiste, durée, écoute, ajout au logiciel (`first_seen`), parution (tag année). Défaut :
+  ordre de la playlist, titre pour « Tous les titres ». Durée mesurée une fois par CSFML
+  pour chaque musique qui n'en a pas (`durations.c`, -1 si illisible), puis sauvegardée. Supprimer une
   playlist retire les règles de classement qui l'utilisent.
 - **Images** : la pochette ID3 est extraite une fois au chargement si l'image n'existe pas ;
   remplaçable depuis l'édition (chemin collé) ou reprise du mp3. Image d'une fusion = celle
@@ -181,10 +287,44 @@ Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0
 
 ## Plan de développement
 
+### Phase 4.7 — Liste de suggestions de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Bugs** : Retour arrière maintenu (répétition activée, filtrée dans `keys.c`) ; images
+  décalées d'une musique (35 images du 2026-11-20, réparées une fois par `covers_repair`,
+  cause non retrouvée dans le code actuel).
+- **Catégories** : + « Meme material » et « Agression auditive », hors TOTAL et hors aléatoire
+  (`category_rated`).
+- **Battle** : ←/→ choisit une carte, Entrée vote ; écoute du début avec barre cliquable
+  (le lecteur est mis en pause puis reprend, rien n'est compté) ; avis sur les cartes.
+- **Classements** : toutes les musiques du pool (1500 sans battle), tri Elo → % victoires →
+  victoires → ordre de départage (un par classement et type, onglet « Départage » :
+  glisser-déposer, par titre, par artiste, aléatoire). Rang partagé « - » si même Elo
+  arrondi. Tiers S/A/B/C/D/F (10/20/25/20/15/10 %) parmi ceux qui ont une battle, plus
+  « Non classé ». Un classement auto par playlist (id = -id de la playlist, jamais
+  enregistré). Reset (ce classement ou tout, taper « Confirm »).
+- **Avis** : J'aime / Je n'aime pas (bibliothèque, édition, page artiste, battle), deux
+  playlists auto non modifiables à la main.
+- **Exclusion** (édition, sélection, liste « Hors durée ») et **bilan** de chaque file
+  (fin ou arrêt), onglets « Exclus » et « Bilan » de la liste du téléchargement.
+- **Suggestions de titre** : préfixe/suffixe artiste connu ou uploader, crochets de bruit
+  (official video, HD, lyrics…), licences (CC-BY, No Copyright…), guillemets, hashtags de
+  fin, « Prod by », featuring/remix (l'artiste est ajouté, ou change de rôle s'il est déjà
+  là ; un nom « A, B » est découpé). Pas d'album/série/BO (impossible d'être sûr). Une ligne
+  sous le titre (« Tout appliquer ») et une page : Appliquer / Cacher / Supprimer.
+- **Mode sélection** (bibliothèque) : cases, Maj+clic, tout l'onglet / aucun, fenêtre
+  « Actions… » : avis, playlist (ajouter/retirer), suggestions, insérer un texte (début,
+  fin, après n caractères, avec exemple), image pour tous, pochette du mp3, exclure,
+  supprimer du lecteur (les deux demandés deux fois, un seul rescan).
+- **Paramètres** : aide au survol activable (`widget_help`).
+
+### Phase 4.6 — Téléchargement par playlist, synchronisation, doublons (faite)
+Liste avant téléchargement, durée min/max et refus, playlists de réception, lien adresse ↔
+playlist (« Synchroniser », titres retirés), écran des doublons (métadonnées + son).
+
 ### Phase 4.5 — Playlists, classements personnalisés, battles d'artistes, images (faite)
 - Catégories : **Tout confondu** (jugement libre, indépendant, catégorie principale, jamais
   tirée au hasard, exclue de TOTAL), Mélodie, Production, Émotion, Rejouabilité,
-  Nostalgie. Mêmes catégories pour les artistes.
+  Nostalgie, puis (4.7) Meme material et Agression auditive (hors TOTAL et hors aléatoire).
+  Mêmes catégories pour les artistes.
 
 ### Phase 4 — Battle, Elo, tier list, leaderboard (faite)
 - **Elo standard** : `E_a = 1 / (1 + 10^((R_b - R_a) / 400))`,
@@ -198,9 +338,9 @@ Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0
   flèches gauche/droite pour voter. K compté par musique et par catégorie. Paires tirées en
   privilégiant les titres avec peu de battles, puis un adversaire parmi les 3 Elo les plus
   proches, parmi les musiques présentes.
-- **Tier list** S/A/B/C/D par percentile (10 / 25 / 30 / 25 / 10 %) et **leaderboard**
-  (Elo, battles, % de victoires, défilement). Seules les musiques présentes avec au moins
-  une battle dans la catégorie sont classées. Accès depuis l'accueil et la bibliothèque.
+- **Tier list** et **leaderboard** (Elo, battles, % de victoires, défilement) : voir
+  phase 4.7 pour les tiers actuels et le classement de toutes les musiques. Accès depuis
+  l'accueil et la bibliothèque.
 - Toujours utiliser l'id **résolu** (`song_resolve`) : une fusion doit regrouper les Elo.
 - Écrire `elo.tsv` (`song_id category rating battles wins`) et `battles.log` (rejouable).
 
@@ -216,6 +356,8 @@ comptés, avec le détail de `artist_page`), albums, genres, taux de skip, histo
 - Page artiste accessible ailleurs que depuis l'édition d'une musique (pour l'image).
 - Fusion d'artistes (les Elo d'artistes ne sont pas encore résolus).
 - Retour éventuel sur Raspberry Pi 4.
+- Doublons : afficher leur nombre dans le résumé d'un téléchargement (il faudrait lire le
+  son avant) ; aujourd'hui un bouton ouvre l'écran limité aux nouveaux titres.
 
 ## Références
 - Boucle à tick : `/home/ceh0s/EPITECH/tek1/G-ING/wolf3d/src/update/update_events.c`

@@ -33,6 +33,16 @@ static void edit_playlist(app_t *app, int id)
     scene_open(app, PLAYLIST);
 }
 
+/*
+** "Tous les titres" and the automatic playlists are not edited by hand
+*/
+static int editable(app_t *app, int id)
+{
+    playlist_t *pl = playlist_by_id(app->lib, id);
+
+    return pl && pl->auto_like == 0;
+}
+
 void library_tabs(app_t *app)
 {
     libscene_t *scene = app->libscene;
@@ -46,7 +56,7 @@ void library_tabs(app_t *app)
             id = pl->id;
     if (tab(app, &x, "+ Playlist", 0))
         edit_playlist(app, 0);
-    if (scene->playlist_id != 0 && widget_button(app,
+    if (editable(app, scene->playlist_id) && widget_button(app,
             (float [4]){1560, TABS_Y, 250, 52}, "Modifier la playlist"))
         edit_playlist(app, scene->playlist_id);
     if (id == scene->playlist_id)

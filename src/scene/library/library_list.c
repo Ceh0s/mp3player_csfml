@@ -22,6 +22,18 @@ int list_click(app_t *app)
     return -1;
 }
 
+/*
+** the tab shown becomes the queue; the song playing is paused instead
+*/
+void list_play(app_t *app, int row)
+{
+    player_queue(app, app->libscene->playlist_id);
+    if (app->libscene->view[row] == app->player->song)
+        player_toggle(app);
+    else
+        player_play(app, row);
+}
+
 void list_scroll(app_t *app, float delta)
 {
     int max = app->libscene->nb_view - app->libscene->rows;

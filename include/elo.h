@@ -8,7 +8,7 @@
 #ifndef ELO_H_
     #define ELO_H_
 
-    #define NB_CATEGORIES 6
+    #define NB_CATEGORIES 8
     #define CAT_ALL 0
     #define CAT_TOTAL NB_CATEGORIES
     #define BOARD_GENERAL 0
@@ -16,7 +16,8 @@
     #define ELO_K_NEW 40.0
     #define ELO_K_OLD 20.0
     #define ELO_NEW_BATTLES 10
-    #define NB_TIERS 5
+    #define NB_TIERS 6
+    #define TIER_UNRANKED NB_TIERS
 
 typedef enum elo_kind_e {
     KIND_SONG,
@@ -64,6 +65,15 @@ typedef struct rank_s {
     int battles;
     int wins;
 } rank_t;
+
+/*
+** a score and its place in the order chosen between ex aequo (the
+** lower first), to sort a ranking
+*/
+typedef struct ranked_s {
+    rank_t rank;
+    long tie;
+} ranked_t;
 
 /*
 ** the songs or artists that can meet in the battles of an arena

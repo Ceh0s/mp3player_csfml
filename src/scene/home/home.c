@@ -39,12 +39,18 @@ static void menu(app_t *app)
 {
     float y = 740 + app->extra_h / 2;
 
-    if (widget_button(app, (float [4]){520, y, 280, 64}, "Bibliothèque"))
+    if (widget_button(app, (float [4]){220, y, 280, 64}, "Bibliothèque"))
         scene_open(app, LIBRARY);
-    if (widget_button(app, (float [4]){820, y, 280, 64}, "Battle"))
+    if (widget_button(app, (float [4]){520, y, 280, 64}, "Battle"))
         scene_open(app, BATTLE);
-    if (widget_button(app, (float [4]){1120, y, 280, 64}, "Classements"))
+    if (widget_button(app, (float [4]){820, y, 280, 64}, "Classements"))
         scene_open(app, RANKING);
+    if (widget_button(app, (float [4]){1120, y, 280, 64}, "Doublons")) {
+        app->dup_since = 0;
+        scene_open(app, DUPLICATES);
+    }
+    if (widget_button(app, (float [4]){1420, y, 280, 64}, "Paramètres"))
+        scene_open(app, SETTINGS);
 }
 
 void home_event(app_t *app, sfEvent *event)

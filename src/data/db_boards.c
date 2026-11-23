@@ -48,7 +48,7 @@ static int save_rules(library_t *lib)
     if (!file)
         return 84;
     for (board_t *board = lib->boards; board; board = board->next) {
-        if (board->id == BOARD_GENERAL)
+        if (board->id <= BOARD_GENERAL)
             continue;
         for (rule_t *rule = board->rules; rule; rule = rule->next)
             fprintf(file, "%d\t%s\t%s\t%d\n", board->id,
@@ -65,7 +65,7 @@ int db_save_boards(library_t *lib)
     if (!file)
         return 84;
     for (board_t *board = lib->boards; board; board = board->next)
-        if (board->id != BOARD_GENERAL)
+        if (board->id > BOARD_GENERAL)
             fprintf(file, "%d\t%s\n", board->id, board->name);
     if (tsv_commit(file, BOARDS_DB) == 84)
         return 84;

@@ -79,3 +79,21 @@ sfUint32 *utf8_to_utf32(char const *str)
     out[n] = 0;
     return out;
 }
+
+/*
+** copies text in buf, cut after max bytes on the start of a utf-8
+** character, with "..." when it was cut (buf holds max + 4 bytes)
+*/
+void utf8_cut(char *buf, char const *text, size_t max)
+{
+    size_t len = strlen(text);
+
+    if (len <= max) {
+        strcpy(buf, text);
+        return;
+    }
+    while (max > 0 && ((unsigned char)text[max] & 0xC0) == 0x80)
+        max--;
+    memcpy(buf, text, max);
+    strcpy(buf + max, "...");
+}

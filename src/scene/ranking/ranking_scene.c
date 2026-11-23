@@ -21,17 +21,44 @@ int ranking_init(app_t *app)
     app->ranking->panel = rect_create(panel, &dark);
     if (!app->ranking->bg || !app->ranking->panel)
         return 84;
+    app->ranking->drag_row = -1;
     ranking_build(app);
     return 0;
 }
 
+/*
+** Escape closes the reset window first; it receives the typed text
+*/
+static void ranking_key(app_t *app, sfEvent *event)
+{
+    ranking_t *ranking = app->ranking;
+
+    if (event->type == sfEvtTextEntered && ranking->reset)
+        text_input_n(ranking->confirm, sizeof(ranking->confirm),
+            event->text.unicode);
+    if (event->type != sfEvtKeyPressed || event->key.code != sfKeyEscape)
+        return;
+    if (!ranking->reset) {
+        scene_back(app);
+        return;
+    }
+    ranking->reset = 0;
+    ranking->confirm[0] = '\0';
+}
+
 void ranking_event(app_t *app, sfEvent *event)
 {
+    ranking_key(app, event);
     if (event->type == sfEvtMouseWheelScrolled
-        && app->ranking->tab == TAB_BOARD)
+        && app->ranking->tab != TAB_TIERS)
         ranking_scroll(app, event->mouseWheelScroll.delta);
+    if (event->type == sfEvtMouseButtonPressed && !app->ranking->reset
+        && app->ranking->tab == TAB_TIES)
+        ranking_drag_press(app);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
+        return;
+    if (app->ranking->tab == TAB_TIES && ranking_drag_release(app))
         return;
     app->wg->mode = WG_CLICK;
     ranking_view(app);
@@ -68,6 +95,8 @@ void ranking_destroy(app_t *app)
     if (app->ranking->panel)
         sfRectangleShape_destroy(app->ranking->panel);
     free(app->ranking->ranks);
+    free(app->ranking->order);
+    free(app->ranking->tiers);
     free(app->ranking);
     app->ranking = NULL;
 }

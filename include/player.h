@@ -21,6 +21,8 @@ typedef enum end_reason_e {
 ** queue : the songs played one after the other, those of the playlist
 ** playlist_id (0 = every present song), rebuilt when the library changes
 ** index : position of the current song in the queue (-1 if none)
+** preview / preview_song : song listened to in a battle (counts nothing)
+** resume : 1 if the music was playing before the preview (goes on after)
 */
 typedef struct player_s {
     sfMusic *music;
@@ -31,6 +33,9 @@ typedef struct player_s {
     int index;
     long session_ms;
     long carry_us;
+    sfMusic *preview;
+    song_t *preview_song;
+    int resume;
 } player_t;
 
 #endif

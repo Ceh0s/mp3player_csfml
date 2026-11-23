@@ -72,6 +72,6 @@ int list_create(app_t *app)
     scene->view = malloc(sizeof(song_t *) * (app->lib->nb + 1));
     if (!scene->view)
         return 84;
-    scene->nb_view = playlist_view(app->lib, playlist, scene->view);
+    scene->nb_view = playlist_sorted_view(app->lib, playlist, scene->view);
     return create_titles(app, scene);
 }

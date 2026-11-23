@@ -68,6 +68,8 @@ static void rows(app_t *app)
     float y = BOARDS_ROWS_Y;
 
     for (board_t *board = app->lib->boards; board; board = board->next) {
+        if (board->id < 0)
+            continue;
         if (y + 52 > CONTENT_BOTTOM + app->extra_h)
             break;
         if (widget_button(app, (float [4]){130, y, 1100, 52}, board->name)) {

@@ -77,7 +77,10 @@ int library_refresh(library_t *lib)
         attach_file(lib, fp, 1);
     for (song_t *song = lib->songs; song; song = song->next)
         song_build_artists(lib, song);
-    return build_present(lib);
+    if (build_present(lib) == 84)
+        return 84;
+    library_fill_durations(lib);
+    return 0;
 }
 
 /*
@@ -114,6 +117,7 @@ library_t *library_load(void)
     }
     db_load_elo(lib);
     images_from_covers(lib);
+    covers_repair(lib);
     tsv_touch(LISTENS_LOG, LISTENS_COLUMNS);
     tsv_touch(BATTLES_LOG, BATTLES_COLUMNS);
     db_save_all(lib);

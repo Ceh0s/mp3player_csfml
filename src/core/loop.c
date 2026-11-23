@@ -20,10 +20,25 @@ static void wait_tick(app_t *app)
 /*
 ** the screens where text is typed handle escape and space themselves
 */
-static int typing(scene_id_t scene)
+static int typing(app_t *app)
 {
+    scene_id_t scene = app->scene;
+
+    if (scene == RANKING)
+        return app->ranking && app->ranking->reset;
+    if (scene == LIBRARY)
+        return app->libscene && app->libscene->sel.open;
     return scene == EDIT || scene == PLAYLIST || scene == BOARDS
         || scene == DOWNLOAD;
+}
+
+/*
+** the screens with pages or lists over them handle escape themselves
+*/
+static int own_escape(scene_id_t scene)
+{
+    return scene == EDIT || scene == BOARDS || scene == DOWNLOAD
+        || scene == RANKING || scene == LIBRARY;
 }
 
 static void global_event(app_t *app, sfEvent *event)
@@ -36,10 +51,9 @@ static void global_event(app_t *app, sfEvent *event)
         return;
     if (event->key.code == sfKeyF11)
         app->toggle_fullscreen = 1;
-    if (event->key.code == sfKeyEscape && app->scene != EDIT
-        && app->scene != BOARDS)
+    if (event->key.code == sfKeyEscape && !own_escape(app->scene))
         scene_back(app);
-    if (event->key.code == sfKeySpace && !typing(app->scene))
+    if (event->key.code == sfKeySpace && !typing(app))
         player_toggle(app);
 }
 
@@ -70,16 +84,23 @@ static void update(app_t *app)
     window_apply_toggle(app);
 }
 
-int loop_run(app_t *app)
+static void poll_events(app_t *app)
 {
     sfEvent event;
 
-    wait_tick(app);
-    view_mouse(app);
     while (sfRenderWindow_pollEvent(app->window, &event)) {
+        if (key_repeated(app, &event))
+            continue;
         global_event(app, &event);
         scenes[app->scene].event(app, &event);
     }
+}
+
+int loop_run(app_t *app)
+{
+    wait_tick(app);
+    view_mouse(app);
+    poll_events(app);
     if (signals_pending())
         sfRenderWindow_close(app->window);
     update(app);

@@ -80,6 +80,7 @@ static void attach_print(library_t *lib, fprint_t *fp, song_t *found,
     fp->song_id = song->id;
     replace(&fp->path, &found->path);
     replace(&fp->file, &found->file);
+    replace(&fp->source, &found->source);
 }
 
 static void merge_one(library_t *lib, song_t *found)

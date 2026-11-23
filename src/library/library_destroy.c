@@ -16,6 +16,7 @@ static void destroy_fprints(fprint_t *fp)
         free(fp->hash);
         free(fp->path);
         free(fp->file);
+        free(fp->source);
         free(fp);
         fp = next;
     }
@@ -54,7 +55,16 @@ void library_destroy(library_t *lib)
     destroy_links(lib->links);
     elo_clear(lib);
     playlist_remove(lib, NULL);
+    sort_remove(lib, -1);
     board_remove(lib, NULL);
+    rejected_remove(lib, NULL);
+    excluded_remove(lib, NULL);
+    source_remove(lib, -1);
+    envelopes_free(lib);
+    not_dups_free(lib);
+    ties_free(lib);
+    likes_free(lib);
+    suggest_states_free(lib);
     free(lib->present);
     free(lib);
 }

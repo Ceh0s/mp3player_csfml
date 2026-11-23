@@ -11,6 +11,7 @@
     #include <SFML/Graphics.h>
     #include "ui.h"
     #include "song.h"
+    #include "download.h"
 
     #define EDIT_ARTISTS 6
     #define EDIT_SUGGEST 5
@@ -29,6 +30,8 @@ typedef enum scene_id_e {
     PLAYLIST,
     BOARDS,
     DOWNLOAD,
+    DUPLICATES,
+    SETTINGS,
     NB_SCENES
 } scene_id_t;
 
@@ -42,6 +45,12 @@ typedef struct scene_s {
     void (*destroy)(app_t *app);
 } scene_t;
 
+typedef struct setscene_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+} setscene_t;
+
 typedef struct home_s {
     sfTexture *bg_texture;
     sfSprite *bg;
@@ -49,9 +58,49 @@ typedef struct home_s {
 } home_t;
 
 /*
+** selection mode of the library: ids : the songs checked (resolved
+** ids), nb of them, last : row clicked last (for Shift + click, -1 if
+** none); open : 1 while the actions window is over the list
+** playlist : playlist chosen for "Ajouter" / "Retirer", text : what is
+** inserted in the titles, where : SEL_START / SEL_END / SEL_AFTER (after
+** the number of characters typed in after), image : path of an image
+** for all, focus : field receiving the keys (SEL_FOCUS_...), confirm :
+** SEL_EXCLUDE or SEL_DELETE once clicked (a second click confirms),
+** msg : result of the last action
+*/
+    #define SEL_START 0
+    #define SEL_END 1
+    #define SEL_AFTER 2
+    #define SEL_FOCUS_NONE 0
+    #define SEL_FOCUS_TEXT 1
+    #define SEL_FOCUS_AFTER 2
+    #define SEL_FOCUS_IMAGE 3
+    #define SEL_EXCLUDE 1
+    #define SEL_DELETE 2
+
+typedef struct selection_s {
+    int *ids;
+    int nb;
+    int last;
+    int open;
+    int playlist;
+    char text[NAME_LEN];
+    int where;
+    char after[8];
+    char image[NAME_LEN];
+    int focus;
+    int confirm;
+    char msg[96];
+} selection_t;
+
+/*
 ** playlist_id : tab shown (0 = "Tous les titres"), view / nb_view : its
 ** present songs, titles : one text per song of the view
 ** shown : song written in the bottom bar (has_shown = 0 before the 1st)
+** drag_row : row held by the mouse in the custom order (-1 if none),
+** press : where it was pressed, dragging : 1 once the mouse moved,
+** drag_wait : ticks before the list scrolls again while dragging
+** selecting : 1 in the selection mode (a click checks a song), sel : it
 */
 typedef struct libscene_s {
     sfTexture *bg_texture;
@@ -73,13 +122,20 @@ typedef struct libscene_s {
     int rows;
     song_t *shown;
     int has_shown;
+    int drag_row;
+    sfVector2f press;
+    int dragging;
+    int drag_wait;
+    int selecting;
+    selection_t sel;
 } libscene_t;
 
 typedef enum edit_mode_e {
     EDIT_MAIN,
     EDIT_SEARCH,
     EDIT_CONFIRM,
-    EDIT_ARTIST
+    EDIT_ARTIST,
+    EDIT_TITLES
 } edit_mode_t;
 
 typedef enum edit_focus_e {
@@ -102,10 +158,11 @@ typedef struct image_input_s {
 /*
 ** title / artists / nb_artists : working copy, saved with "Enregistrer"
 ** input : "add an artist" field, suggest : existing artists matching it
-** proposal : title and artists guessed from the ID3 title
+** show_hidden : 1 to list the hidden suggestions too (EDIT_TITLES page)
 ** search / results / target : choice of the song to merge into
 ** artist : artist shown by the artist page
 ** image : import of an image for the song or the artist shown
+** exclude : 1 once "Exclure" was clicked (a second click confirms)
 */
 typedef struct edit_s {
     sfTexture *bg_texture;
@@ -120,22 +177,21 @@ typedef struct edit_s {
     char input[NAME_LEN];
     artist_t *suggest[EDIT_SUGGEST];
     int nb_suggest;
-    int has_proposal;
-    char proposal_title[NAME_LEN];
-    artist_role_t proposal[EDIT_ARTISTS];
-    int nb_proposal;
+    int show_hidden;
     char search[NAME_LEN];
     song_t *results[EDIT_RESULTS];
     int nb_results;
     song_t *target;
     artist_t *artist;
     image_input_t image;
+    int exclude;
 } edit_t;
 
 /*
 ** pool : songs or artists of the arena (app->arena), rebuilt when the
 ** ranking or the kind changes; pair : the two shown, has_pair : 0 if
-** the pool holds fewer than two
+** the pool holds fewer than two; focus : side chosen with the arrows
+** (-1 = none), voted with Enter
 */
 typedef struct battle_s {
     sfTexture *bg_texture;
@@ -144,16 +200,21 @@ typedef struct battle_s {
     pool_t pool;
     rank_t pair[2];
     int has_pair;
+    int focus;
 } battle_t;
 
 typedef enum ranking_tab_e {
     TAB_TIERS,
-    TAB_BOARD
+    TAB_BOARD,
+    TAB_TIES
 } ranking_tab_t;
 
 /*
-** ranks : the songs or artists of the arena (app->arena) having at
-** least one battle in it, best first (rebuilt when the arena changes)
+** ranks : the songs or artists of the arena (app->arena), best first
+** (rebuilt when the arena changes), nb of them; tiers : tier of each
+** one; order : the same in the order chosen between ex aequo
+** ("Départage" tab, drag_row : row held, -1 if none)
+** reset : 1 while the reset window is open, confirm : what is typed in it
 */
 typedef struct ranking_s {
     sfTexture *bg_texture;
@@ -161,8 +222,15 @@ typedef struct ranking_s {
     sfRectangleShape *panel;
     ranking_tab_t tab;
     rank_t *ranks;
+    rank_t *order;
+    int *tiers;
     int nb;
     int scroll;
+    int drag_row;
+    int dragging;
+    sfVector2f press;
+    int reset;
+    char confirm[16];
 } ranking_t;
 
 /*
@@ -211,13 +279,68 @@ typedef struct boards_s {
 } boards_t;
 
 /*
-** url : address being typed (the download itself is app->download)
+** url : addresses being typed, separated by ; (the download itself is
+** app->download), URLS_LEN leaves room for about 90 links
+** min / max : allowed duration typed ("m:ss" or minutes, empty = no
+** limit), focus : field receiving the keys (DL_FIELD_...)
+** targets : local playlists chosen to receive the songs
+** link / absent : options of a single playlist (dl_options_t)
+** popup : list shown over the screen (DL_POPUP_...), scroll : its
+** first row shown, confirm : song whose files are about to be removed
+** (asked a second time), 0 if none
 */
+    #define URLS_LEN 4096
+    #define DURATION_LEN 10
+
+typedef enum dl_field_e {
+    DL_FIELD_URL,
+    DL_FIELD_MIN,
+    DL_FIELD_MAX
+} dl_field_t;
+
+typedef enum dl_popup_e {
+    DL_POPUP_NONE,
+    DL_POPUP_FLAGGED,
+    DL_POPUP_REFUSED,
+    DL_POPUP_ABSENT,
+    DL_POPUP_EXCLUDED,
+    DL_POPUP_REPORT
+} dl_popup_t;
+
 typedef struct dlscene_s {
     sfTexture *bg_texture;
     sfSprite *bg;
     sfRectangleShape *panel;
-    char url[NAME_LEN];
+    char url[URLS_LEN];
+    char min[DURATION_LEN];
+    char max[DURATION_LEN];
+    dl_field_t focus;
+    int targets[DL_TARGETS];
+    int nb_targets;
+    int link;
+    int absent;
+    dl_popup_t popup;
+    int scroll;
+    int confirm;
 } dlscene_t;
+
+/*
+** possible duplicates: the pairs found by dup_find (list), then the
+** sound of the songs in them is read, one song per tick (todo, done:
+** the window keeps being drawn); ready once every pair is compared
+** remove : 1 to remove the file of the song merged into the one kept
+*/
+typedef struct dupscene_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    dup_list_t list;
+    song_t **todo;
+    int nb_todo;
+    int done;
+    int ready;
+    int scroll;
+    int remove;
+} dupscene_t;
 
 #endif

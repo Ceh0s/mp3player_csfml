@@ -2,23 +2,28 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** tier list: S/A/B/C/D by percentile (10 / 25 / 30 / 25 / 10 %),
-** the titles of a tier are written one after the other in its row,
-** or its images are shown (ranking_tiles.c)
+** tier list: S/A/B/C/D/F by percentile (10 / 20 / 25 / 20 / 15 / 10 %)
+** among those having at least one battle, the others are "Non classé";
+** the titles of a tier are written one after the other in its row, or
+** its images are shown (ranking_tiles.c)
 */
 
 #include "mp3player.h"
 
-static const int tier_cumul[NB_TIERS] = {10, 35, 65, 90, 100};
+static const int tier_cumul[NB_TIERS] = {10, 30, 55, 75, 90, 100};
 
-static char const *const tier_names[NB_TIERS] = {"S", "A", "B", "C", "D"};
+static char const *const tier_names[NB_TIERS + 1] = {
+    "S", "A", "B", "C", "D", "F", "Non\nclassé"
+};
 
-static const sfColor tier_colors[NB_TIERS] = {
+static const sfColor tier_colors[NB_TIERS + 1] = {
     {255, 127, 127, 255},
     {255, 191, 127, 255},
     {255, 223, 127, 255},
     {191, 255, 127, 255},
-    {127, 191, 255, 255}
+    {127, 191, 255, 255},
+    {191, 127, 255, 255},
+    {150, 150, 150, 255}
 };
 
 /*
@@ -31,6 +36,25 @@ int ranking_tier(int rank, int nb)
         if (rank * 100 < tier_cumul[t] * nb)
             return t;
     return NB_TIERS - 1;
+}
+
+/*
+** tiers[i] : tier of ranks[i], TIER_UNRANKED without any battle
+*/
+void ranking_assign_tiers(ranking_t *ranking)
+{
+    int rated = 0;
+    int pos = 0;
+
+    for (int i = 0; i < ranking->nb; i++)
+        rated += ranking->ranks[i].battles > 0;
+    for (int i = 0; i < ranking->nb; i++) {
+        ranking->tiers[i] = TIER_UNRANKED;
+        if (ranking->ranks[i].battles == 0)
+            continue;
+        ranking->tiers[i] = ranking_tier(pos, rated);
+        pos++;
+    }
 }
 
 /*
@@ -64,7 +88,7 @@ static int draw_titles(app_t *app, int tier, float const *row)
     int hidden = 0;
 
     for (int i = 0; i < ranking->nb; i++) {
-        if (ranking_tier(i, ranking->nb) != tier)
+        if (ranking->tiers[i] != tier)
             continue;
         if (!place_title(app, rank_name(&ranking->ranks[i]), pos, row))
             hidden++;
@@ -79,8 +103,12 @@ static void draw_row(app_t *app, int tier, float const *row)
 
     widget_rect(app, (float [4]){130, row[0], 100, row[1] - 8},
         &tier_colors[tier]);
-    widget_text(app, tier_names[tier],
-        (float [3]){165, row[0] + row[1] / 2 - 30, 40}, &sfBlack);
+    if (tier == TIER_UNRANKED)
+        widget_text(app, tier_names[tier],
+            (float [3]){142, row[0] + row[1] / 2 - 28, 20}, &sfBlack);
+    else
+        widget_text(app, tier_names[tier],
+            (float [3]){165, row[0] + row[1] / 2 - 30, 40}, &sfBlack);
     if (app->show_images)
         hidden = ranking_tiles(app, tier, row);
     else
@@ -96,10 +124,11 @@ static void draw_row(app_t *app, int tier, float const *row)
 */
 void ranking_tiers(app_t *app)
 {
-    float height = (CONTENT_BOTTOM + app->extra_h - CONTENT_Y) / NB_TIERS;
+    float height = (CONTENT_BOTTOM + app->extra_h - CONTENT_Y)
+        / (NB_TIERS + 1);
 
     if (app->wg->mode != WG_DRAW)
         return;
-    for (int t = 0; t < NB_TIERS; t++)
+    for (int t = 0; t <= TIER_UNRANKED; t++)
         draw_row(app, t, (float [2]){CONTENT_Y + t * height, height});
 }

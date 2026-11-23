@@ -37,11 +37,25 @@
     #define IMAGES_DIR "data/images"
     #define IMAGE_BIG 400
     #define IMAGE_SMALL 120
+    #define COVER_CHECKED IMAGES_DIR "/.covers_checked"
+    #define COVER_SAME 8
     #define PATH_LEN 256
     #define PLAYLISTS_DB "data/playlists.tsv"
     #define PLAYLIST_SONGS_DB "data/playlist_songs.tsv"
+    #define SORTS_DB "data/playlist_sorts.tsv"
+    #define CUSTOM_DB "data/custom_orders.tsv"
+    #define TIES_DB "data/tie_orders.tsv"
+    #define LIKES_DB "data/likes.tsv"
+    #define EXCLUDED_DB "data/excluded.tsv"
+    #define SUGGEST_DB "data/suggestions.tsv"
+    #define SETTINGS_DB "data/settings.tsv"
+    #define DOWNLOADS_LOG "data/downloads.log"
     #define BOARDS_DB "data/boards.tsv"
     #define RULES_DB "data/board_rules.tsv"
+    #define REJECTED_DB "data/rejected.tsv"
+    #define SOURCES_DB "data/playlist_sources.tsv"
+    #define ENVELOPES_DB "data/envelopes.tsv"
+    #define NOT_DUPS_DB "data/not_duplicates.tsv"
     #define SONGS_COLS_1 "id\tmerged_into\tfile\ttitle\talbum\tgenre\tyear"
     #define SONGS_COLS_2 "\tsrc_title\tsrc_artists\tduration_ms\tfirst_seen"
     #define SONGS_COLS_3 "\tlast_seen\tpresent\tlisten_ms\tplay_count"
@@ -57,17 +71,36 @@
     #define ELO_COLUMNS ELO_COLS_1 "\trating\tbattles\twins"
     #define BATTLES_COLS_1 "timestamp\tkind\tboard\tcategory\twinner\tloser"
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
-    #define PLAYLISTS_COLUMNS "id\tname"
+    #define PLAYLISTS_COLUMNS "id\tname\tauto"
+    #define LIKES_COLUMNS "kind\tid\tvalue"
+    #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle"
+    #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
+    #define SETTINGS_COLUMNS "key\tvalue"
+    #define DOWNLOADS_COLUMNS "timestamp\tstatus\ttitle\tdetail"
     #define PLAYLIST_SONGS_COLUMNS "playlist_id\tsong_id\tposition"
+    #define SORTS_COLUMNS "playlist_id\tkey\tdirection"
+    #define CUSTOM_COLUMNS "playlist_id\tsong_id\tposition"
     #define BOARDS_COLUMNS "id\tname"
     #define RULES_COLUMNS "board_id\tmode\ttype\ttarget"
+    #define REJECTED_COLUMNS "video_id\tduration_s\ttimestamp\ttitle"
+    #define SOURCES_COLUMNS "playlist_id\turl\tmin_s\tmax_s\treport_absent"
+    #define ENVELOPES_COLUMNS "hash\tenvelope"
+    #define NOT_DUPS_COLUMNS "song_a\tsong_b"
+    #define TIES_COLUMNS "board\tkind\tid\tposition"
     #define TSV_MAX_FIELDS 20
     #define V1_FIELDS 14
     #define V2_FIELDS 16
     #define FPRINT_BYTES 262144
+    #define DUP_MAX_DIFF_MS 15000
+    #define ENV_SHIFT 160
+    #define ENV_MIN 100
+    #define ENV_MAX_FILE_MS 1200000
+    #define DUP_SURE 70
+    #define DUP_DIFFERENT 40
 
     #define LIST_X 130
-    #define LIST_Y 196
+    #define LIST_Y 258
+    #define SORT_Y 190
     #define TABS_Y 124
     #define TABS_RIGHT 1530
     #define LIST_STEP 52
@@ -89,6 +122,10 @@
     #define PL_ROWS_Y 330
     #define PL_ROW_STEP 52
     #define BOARDS_ROWS_Y 330
+    #define DUP_ROWS_Y 250
+    #define DUP_BLOCK_H 160
+    #define DLPOPUP_ROWS_Y 290
+    #define DLPOPUP_STEP 54
 
     #include "app.h"
     #include <stdlib.h>
@@ -109,6 +146,7 @@ extern const char *const elo_categories[NB_CATEGORIES];
 app_t *app_create(void);
 int app_destroy(app_t *app, int rtn_value);
 int loop_run(app_t *app);
+int key_repeated(app_t *app, sfEvent const *event);
 int window_create(app_t *app);
 void window_apply_toggle(app_t *app);
 int view_create(app_t *app);
@@ -124,6 +162,11 @@ void scene_open(app_t *app, scene_id_t id);
 void scene_back(app_t *app);
 
 // src/scene/home
+int settings_init(app_t *app);
+void settings_event(app_t *app, sfEvent *event);
+void settings_draw(app_t *app);
+void settings_layout(app_t *app);
+void settings_destroy(app_t *app);
 int home_init(app_t *app);
 void home_event(app_t *app, sfEvent *event);
 void home_draw(app_t *app);
@@ -139,6 +182,7 @@ void libscene_layout(app_t *app);
 void libscene_destroy(app_t *app);
 int list_create(app_t *app);
 int list_click(app_t *app);
+void list_play(app_t *app, int row);
 void list_scroll(app_t *app, float delta);
 void list_update(app_t *app);
 void list_draw(app_t *app);
@@ -148,7 +192,34 @@ void bar_update(app_t *app);
 void bar_draw(app_t *app);
 void bar_layout(app_t *app);
 void list_free(app_t *app);
+void library_likes(app_t *app);
 void library_tabs(app_t *app);
+void library_sort_bar(app_t *app);
+int select_has(selection_t const *sel, int id);
+song_t *select_song(app_t *app, int i);
+int select_row(app_t *app);
+void select_click(app_t *app, int row);
+void select_all(app_t *app, int all);
+void library_select_toggle(app_t *app);
+void library_select_boxes(app_t *app);
+void library_select_bar(app_t *app);
+void library_actions(app_t *app);
+void library_insert_rows(app_t *app, float y);
+void library_image_row(app_t *app, float y);
+void library_actions_key(app_t *app, sfUint32 code);
+void insert_title(selection_t const *sel, char const *title, char *out);
+void bulk_insert(app_t *app);
+void bulk_suggest(app_t *app);
+void bulk_like(app_t *app, int value);
+void bulk_playlist(app_t *app, int add);
+void bulk_images(app_t *app, int from_cover);
+void bulk_remove(app_t *app, int exclude);
+void library_reorder(app_t *app, int keep_scroll);
+void list_values(app_t *app);
+void drag_press(app_t *app);
+void drag_update(app_t *app);
+int drag_release(app_t *app);
+void drag_draw(app_t *app);
 
 // src/scene/edit
 int edit_init(app_t *app);
@@ -164,8 +235,8 @@ void edit_artist_row(app_t *app, edit_t *edit, int i);
 void edit_text_entered(app_t *app, sfUint32 code);
 void edit_add_artist(app_t *app, char const *name, role_t role);
 void edit_refresh_lists(app_t *app);
-void edit_propose(app_t *app);
-void edit_apply_proposal(app_t *app);
+void edit_suggest_line(app_t *app, edit_t *edit);
+void edit_titles(app_t *app);
 
 // src/scene/battle
 int battle_init(app_t *app);
@@ -176,6 +247,8 @@ void battle_destroy(app_t *app);
 void battle_view(app_t *app);
 void battle_next(app_t *app);
 void battle_vote(app_t *app, int side);
+int battle_listen(app_t *app, rank_t const *rank, float x);
+void battle_frame(app_t *app, float x);
 void battle_reload(app_t *app);
 
 // src/scene/ranking
@@ -191,6 +264,15 @@ int ranking_tier(int rank, int nb);
 int ranking_tiles(app_t *app, int tier, float const *row);
 void ranking_board(app_t *app);
 void ranking_scroll(app_t *app, float delta);
+int ranking_rows(app_t *app);
+void ranking_ties(app_t *app);
+void ranking_drag_press(app_t *app);
+int ranking_drag_release(app_t *app);
+void ranking_drag_draw(app_t *app);
+void ranking_reset_view(app_t *app);
+void ranking_assign_tiers(ranking_t *ranking);
+void ranking_tie_keys(app_t *app, ranked_t *items, int nb);
+void ranking_save_order(app_t *app);
 
 // src/scene/playlist
 int pledit_init(app_t *app);
@@ -225,14 +307,77 @@ void dlscene_layout(app_t *app);
 void dlscene_destroy(app_t *app);
 void dlscene_start(app_t *app);
 void dlscene_view(app_t *app);
+void dlscene_stats(app_t *app, download_t const *dl);
+void dlscene_status(app_t *app, download_t const *dl);
+void dlscene_options(app_t *app, dl_options_t *opt);
+void dlscene_text(app_t *app, sfUint32 code);
+void dlscene_durations(app_t *app, float y);
+int parse_duration(char const *text);
+void dlscene_preselect(app_t *app);
+void dlscene_targets(app_t *app, float y);
+void dlscene_popup(app_t *app);
+void dlscene_sync(app_t *app);
+void dlscene_link(app_t *app, float y);
+void dlscene_absent(app_t *app);
+void dlscene_absent_footer(app_t *app, float y);
+void dlscene_report(app_t *app);
+int dlscene_report_lines(app_t *app);
+void dlscene_excluded(app_t *app);
+void dlscene_refused(app_t *app);
+int dlpopup_rows(app_t *app);
+void format_size(char *buf, size_t size, double bytes);
+
+// src/scene/duplicates
+int dupscene_init(app_t *app);
+void dupscene_event(app_t *app, sfEvent *event);
+void dupscene_update(app_t *app);
+void dupscene_draw(app_t *app);
+void dupscene_layout(app_t *app);
+void dupscene_destroy(app_t *app);
+int dupscene_todo(app_t *app);
+void dupscene_clean(app_t *app);
+int dupscene_rows(app_t *app);
+void dupscene_scroll(app_t *app, float delta);
+void dupscene_view(app_t *app);
+int dup_block(app_t *app, int i, float y);
 
 // src/download : audio download by yt-dlp
-int download_start(app_t *app, char const *url);
+void report_add(download_t *dl, report_status_t status, char const *title,
+    char const *detail);
+void report_free(download_t *dl);
+int report_count(download_t const *dl, report_status_t status);
+void report_finish(download_t *dl, int stopped);
+int download_start(app_t *app, char const *text, dl_options_t const *opt);
+int download_begin(app_t *app, char **queue, dl_options_t const *opt);
+int download_launch(app_t *app, char const *url, dl_step_t step);
+int download_next(app_t *app);
 void download_cancel(app_t *app);
 void download_poll(app_t *app);
+void download_archive_write(library_t const *lib);
+void download_sort(app_t *app);
+void download_added(app_t *app, dl_entry_t const *entry);
+int download_list_line(download_t *dl, char const *line);
+void entries_free(dl_entry_t *list);
+void entry_append(dl_entry_t **list, dl_entry_t *entry);
+dl_entry_t *entry_find(dl_entry_t *list, char const *id);
+dl_entry_t *entry_pop(dl_entry_t **list);
+int entries_count(dl_entry_t const *list);
+void download_accept(app_t *app, dl_entry_t *entry);
+void download_refuse(app_t *app, dl_entry_t *entry);
+void download_exclude(app_t *app, dl_entry_t *entry);
+void download_decide_all(app_t *app, int accept);
+void download_find_absent(app_t *app);
+void download_absent_keep(app_t *app, int i);
+void download_absent_unlist(app_t *app, int i);
+void download_absent_delete(app_t *app, int i);
+void stats_parse(dl_stats_t *st, char const *line);
+void stats_item_done(dl_stats_t *st);
+int download_rest(download_t const *dl);
+long download_estimate(download_t const *dl, double *size);
 
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
+int like_buttons(app_t *app, elo_kind_t kind, int id, float const *pos);
 int category_bar(app_t *app, int *category, int nb, int random);
 int board_bar(app_t *app, arena_t *arena);
 int image_box(app_t *app, rank_t const *rank, image_input_t *input,
@@ -264,6 +409,7 @@ void widget_image(app_t *app, sfTexture *texture, float const *rect,
     int round);
 void widget_tip(app_t *app, float const *rect, char const *str);
 void widget_tip_draw(app_t *app);
+void widget_help(app_t *app, float const *rect, char const *str);
 sfTexture *image_get(app_t *app, rank_t const *rank, int small);
 void image_cache_clear(app_t *app);
 
@@ -275,6 +421,10 @@ void player_stop(app_t *app, end_reason_t reason);
 void player_update(app_t *app);
 void player_resync(app_t *app);
 void player_queue(app_t *app, int playlist_id);
+void preview_stop(app_t *app);
+void preview_toggle(app_t *app, song_t *song);
+void preview_seek(app_t *app, float ratio);
+void preview_update(app_t *app);
 void listen_log(song_t const *song, long ms, end_reason_t reason);
 
 // src/library
@@ -288,7 +438,9 @@ long id3_synchsafe(unsigned char const *bytes);
 long mp3_audio_offset(unsigned char const *head);
 int mp3_is_valid(char const *path);
 char *fingerprint_file(char const *path);
+void library_fill_durations(library_t *lib);
 song_t *scan_music(char const *dir);
+song_t *scan_file(char const *dir, char const *name);
 
 // src/library/id3 : tags
 void id3_read(song_t *song, char const *path);
@@ -304,6 +456,7 @@ void image_path(char *buf, rank_t const *rank, int small);
 int image_import(rank_t const *rank, char const *file);
 int image_from_cover(rank_t const *rank);
 void images_from_covers(library_t *lib);
+void covers_repair(library_t *lib);
 int thumbnail_save(sfImage *source, char const *big, char const *small);
 void path_clean(char const *in, char *out);
 
@@ -324,8 +477,52 @@ void song_set_artists(library_t *lib, song_t *song,
 void library_changed(app_t *app);
 int song_merge(app_t *app, song_t *source, song_t *target);
 void song_split(app_t *app, song_t *alias);
+void song_delete_files(app_t *app, song_t *song);
+void song_remove_files(library_t *lib, song_t *song);
 int merge_warnings(song_t const *src, song_t const *dst,
     char warn[EDIT_WARNINGS][128]);
+
+// src/library/videos : videos the songs come from
+int source_video_id(char const *source, char *id);
+int video_in_name(char const *path, char const *id);
+int song_video_id(library_t *lib, song_t *song, char *id);
+rejected_t *excluded_find(library_t *lib, char const *id);
+rejected_t *excluded_add(library_t *lib, char const *id, char const *title);
+void excluded_remove(library_t *lib, char const *id);
+int song_exclude(app_t *app, song_t *song);
+int excluded_count(library_t const *lib);
+song_t *song_by_video(library_t *lib, char const *id);
+rejected_t *rejected_find(library_t *lib, char const *id);
+rejected_t *rejected_add(library_t *lib, char const *id, char const *title,
+    int duration);
+void rejected_remove(library_t *lib, char const *id);
+int rejected_count(library_t const *lib);
+source_t *source_get(library_t *lib, int playlist_id);
+source_t *source_set(library_t *lib, int playlist_id, char const *url);
+void source_remove(library_t *lib, int playlist_id);
+int fprint_video_id(fprint_t const *fp, char *id);
+
+// src/library/duplicates : songs present twice
+void dup_clean(char const *in, char *out, int size);
+int dup_has_word(char const *clean, char const *word);
+int dup_version(char const *clean);
+void dup_remove_noise(char *clean);
+void dup_core(char const *title, char *core, char *prefix);
+void dup_artists(library_t *lib, song_t const *song, char const *prefix,
+    char *out);
+int dup_artists_meet(char const *a, char const *b);
+int dup_find(library_t *lib, dup_list_t *list);
+unsigned char *envelope_compute(char const *path, int *nb);
+int envelope_compare(envelope_t const *a, envelope_t const *b);
+envelope_t *envelope_find(library_t *lib, char const *hash);
+envelope_t *envelope_add(library_t *lib, char const *hash,
+    unsigned char *data, int nb);
+void envelopes_free(library_t *lib);
+char const *song_hash(library_t *lib, song_t const *song);
+envelope_t *song_envelope(library_t *lib, song_t const *song);
+int not_dup_find(library_t *lib, song_t const *a, song_t const *b);
+int not_dup_add(library_t *lib, int a, int b);
+void not_dups_free(library_t *lib);
 
 // src/library/artists
 artist_t *artist_find(library_t *lib, char const *name);
@@ -349,12 +546,31 @@ void playlist_remove(library_t *lib, playlist_t *playlist);
 int playlist_has_song(library_t *lib, playlist_t const *playlist,
     song_t const *song);
 int playlist_toggle(library_t *lib, playlist_t *playlist, song_t *song);
+int playlist_append(library_t *lib, playlist_t *playlist, song_t *song);
+int playlists_append(library_t *lib, int const *ids, int nb, song_t *song);
+sort_def_t const *sort_def(int key);
+int sort_key_by_name(char const *name);
+view_sort_t *sort_get(library_t *lib, int playlist_id);
+void sort_set(library_t *lib, int playlist_id, sort_key_t key);
+void sort_remove(library_t *lib, int playlist_id);
+int playlist_sorted_view(library_t *lib, playlist_t const *playlist,
+    song_t **view);
+int sort_set_custom(library_t *lib, view_sort_t *sort, song_t *const *view,
+    int nb);
+long custom_position(view_sort_t const *sort, song_t *const *custom,
+    song_t const *song, int native);
 int playlist_view(library_t *lib, playlist_t const *playlist,
     song_t **view);
 
 // src/library/boards : rankings and their rules
 board_t *board_add(library_t *lib, int id, char const *name);
 board_t *board_by_id(library_t *lib, int id);
+void board_seen_id(library_t *lib, int board_id);
+void boards_sync_playlists(library_t *lib);
+tie_order_t *tie_find(library_t *lib, int board, int kind);
+int tie_append(library_t *lib, int board, int kind, int id);
+int tie_set(library_t *lib, arena_t const *arena, int const *ids, int nb);
+void ties_free(library_t *lib);
 int board_general_create(library_t *lib);
 void board_remove(library_t *lib, board_t *board);
 int rule_add(board_t *board, int include, rule_type_t type, int target);
@@ -364,9 +580,55 @@ char const *rule_type_name(rule_type_t type);
 void rules_forget(library_t *lib, rule_type_t type, int target);
 int board_has_song(library_t *lib, int board_id, song_t *song);
 
+// src/library/likes : likes and the automatic playlists
+int like_get(library_t *lib, elo_kind_t kind, int id);
+int like_add(library_t *lib, elo_kind_t kind, int id, int value);
+void like_set(library_t *lib, elo_kind_t kind, int id, int value);
+void like_put(library_t *lib, elo_kind_t kind, int id, int value);
+void likes_free(library_t *lib);
+playlist_t *playlist_auto(library_t *lib, int value);
+void likes_sync(library_t *lib);
+
+// src/library/suggest : suggestions to clean a title
+char const *suggest_rule_name(int rule);
+int suggest_rule_find(char const *name);
+void suggest_list(library_t *lib, song_t *song, char const *title,
+    suggest_list_t *out);
+int sug_noise_word(char const *word);
+int sug_style_name(char const *name);
+int sug_license_at(char const *text);
+int sug_song_name(suggest_ctx_t const *ctx, char const *name, int any_known);
+void sug_tidy(char *title);
+void sug_cut(char const *title, int start, int end, char *out);
+suggest_t *sug_add(suggest_ctx_t *ctx, suggest_rule_t rule,
+    char const *removed, char const *title);
+suggest_t *sug_push(suggest_ctx_t *ctx, suggest_rule_t rule, int start,
+    int len);
+void sug_prefix(suggest_ctx_t *ctx);
+void sug_suffix(suggest_ctx_t *ctx);
+void sug_hashtags(suggest_ctx_t *ctx);
+void sug_prod(suggest_ctx_t *ctx);
+void sug_groups(suggest_ctx_t *ctx);
+void sug_remix(suggest_ctx_t *ctx, int const *group, char const *name,
+    int len);
+void sug_bare_feat(suggest_ctx_t *ctx);
+int suggest_state(library_t *lib, int song, suggest_t const *sug);
+int suggest_state_add(library_t *lib, int song, suggest_t const *sug,
+    int state);
+void suggest_set_state(library_t *lib, int song, suggest_t const *sug,
+    int state);
+void suggest_states_free(library_t *lib);
+void suggest_split_names(artist_role_t *roles, int *nb, char const *artist);
+void suggest_apply_roles(artist_role_t *roles, int *nb, suggest_t const *sug);
+int song_roles(library_t *lib, song_t const *song, artist_role_t *out);
+int suggest_first(library_t *lib, song_t *song, char const *title,
+    suggest_list_t *list);
+int suggest_apply_song(library_t *lib, song_t *song);
+
 // src/elo : ratings, without any display
 int category_find(char const *name);
 char const *category_name(int category);
+int category_rated(int category);
 int kind_find(char const *name);
 char const *kind_name(elo_kind_t kind);
 elo_t *elo_find(library_t *lib, arena_t const *arena, int subject);
@@ -374,6 +636,8 @@ elo_t *elo_get(library_t *lib, arena_t const *arena, int subject);
 void elo_battle(library_t *lib, arena_t const *arena, int winner,
     int loser);
 void elo_clear(library_t *lib);
+int elo_parse_reset(library_t *lib, char **fields, int nb);
+void elo_reset(library_t *lib, arena_t const *arena, int all);
 int rank_id(rank_t const *rank);
 char const *rank_name(rank_t const *rank);
 int subject_resolve(library_t *lib, elo_kind_t kind, int id);
@@ -401,11 +665,32 @@ void db_migrate_battles(void);
 void db_parse_playlist(library_t *lib, char **fields, int nb);
 void db_parse_playlist_song(library_t *lib, char **fields, int nb);
 int db_save_playlists(library_t *lib);
+void db_parse_sort(library_t *lib, char **fields, int nb);
+void db_parse_custom(library_t *lib, char **fields, int nb);
+int db_save_sorts(library_t *lib);
 void db_parse_board(library_t *lib, char **fields, int nb);
 void db_parse_rule(library_t *lib, char **fields, int nb);
 int db_save_boards(library_t *lib);
+void db_parse_rejected(library_t *lib, char **fields, int nb);
+int db_save_rejected(library_t *lib);
+void db_parse_source(library_t *lib, char **fields, int nb);
+int db_save_sources(library_t *lib);
+void db_parse_envelope(library_t *lib, char **fields, int nb);
+int db_save_envelopes(library_t *lib);
+void db_parse_not_dup(library_t *lib, char **fields, int nb);
+int db_save_not_dups(library_t *lib);
 void log_line(char const *path, char const *columns, char const *line);
 void db_load_elo(library_t *lib);
+void db_parse_tie(library_t *lib, char **fields, int nb);
+int db_save_ties(library_t *lib);
+void db_parse_like(library_t *lib, char **fields, int nb);
+int db_save_likes(library_t *lib);
+void db_parse_excluded(library_t *lib, char **fields, int nb);
+int db_save_excluded(library_t *lib);
+void db_parse_suggestion(library_t *lib, char **fields, int nb);
+void db_parse_setting(library_t *lib, char **fields, int nb);
+int db_save_settings(library_t *lib);
+int db_save_suggestions(library_t *lib);
 int db_save_elo(library_t *lib);
 void battle_record(library_t *lib, arena_t const *arena,
     rank_t const *winner, rank_t const *loser);
@@ -413,11 +698,16 @@ void battle_record(library_t *lib, arena_t const *arena,
 // src/utils
 int utf8_encode(char *out, unsigned int code);
 sfUint32 *utf8_to_utf32(char const *str);
+void utf8_cut(char *buf, char const *text, size_t max);
 char *str_lower(char const *str);
 char *str_or_null(char const *str);
 int str_contains(char const *hay, char const *needle);
 int split_tab(char *line, char **fields, int max);
 int text_input(char *buf, sfUint32 code);
+int text_input_n(char *buf, size_t size, sfUint32 code);
+char **stwa_delimiter(char const *str, char const *delim, int didx,
+    int empty);
+void str_array_free(char **arr);
 void format_time(char *buf, size_t size, long ms);
 
 #endif

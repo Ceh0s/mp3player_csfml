@@ -29,6 +29,7 @@ void song_destroy(song_t *song)
     free(song->year);
     free(song->src_title);
     free(song->src_artists);
+    free(song->source);
     free(song);
 }
 

@@ -22,7 +22,6 @@ static void save(app_t *app)
 static void header(app_t *app, edit_t *edit)
 {
     char info[NAME_LEN * 3];
-    char label[NAME_LEN * 2];
 
     snprintf(info, sizeof(info), "Tag ID3 : %s - %s    |    Fichier : %s",
         edit->song->src_artists ? edit->song->src_artists : "?",
@@ -35,12 +34,7 @@ static void header(app_t *app, edit_t *edit)
     if (widget_field(app, (float [4]){130, 265, 1100, 56}, edit->title,
             edit->focus == FOCUS_TITLE))
         edit->focus = FOCUS_TITLE;
-    if (!edit->has_proposal)
-        return;
-    snprintf(label, sizeof(label), "Suggestion : %s / %s  (cliquer pour "
-        "appliquer)", edit->proposal_title, edit->proposal[0].name);
-    if (widget_button(app, (float [4]){130, 335, 1100, 48}, label))
-        edit_apply_proposal(app);
+    edit_suggest_line(app, edit);
 }
 
 static void add_column(app_t *app, edit_t *edit)
@@ -97,6 +91,33 @@ static void image(app_t *app, edit_t *edit)
         edit->focus = FOCUS_IMAGE;
 }
 
+/*
+** the song is deleted and its video never downloaded again; asked
+** twice; impossible for a song that did not come from a video
+*/
+static void exclude_button(app_t *app, edit_t *edit, float y)
+{
+    float rect[4] = {1480, y, 300, 56};
+    char id[VIDEO_ID];
+
+    if (!song_video_id(app->lib, edit->song, id)) {
+        widget_help(app, rect, "Ce titre ne vient pas d'une vidéo : "
+            "rien à exclure des téléchargements");
+        widget_button(app, rect, "(Exclure)");
+        return;
+    }
+    widget_help(app, rect, "Supprime le fichier et ne télécharge plus "
+        "jamais cette vidéo (stats gardées)");
+    if (!widget_button(app, rect, edit->exclude ? "Confirmer" : "Exclure"))
+        return;
+    if (!edit->exclude) {
+        edit->exclude = 1;
+        return;
+    }
+    song_exclude(app, edit->song);
+    scene_back(app);
+}
+
 static void buttons(app_t *app, edit_t *edit)
 {
     float y = 840 + app->extra_h;
@@ -105,12 +126,14 @@ static void buttons(app_t *app, edit_t *edit)
         save(app);
     if (widget_button(app, (float [4]){410, y, 260, 56}, "Annuler"))
         scene_back(app);
+    like_buttons(app, KIND_SONG, edit->song->id, (float [3]){1060, y + 6, 0});
     if (widget_button(app, (float [4]){690, y, 340, 56},
             "Fusionner avec...")) {
         edit->mode = EDIT_SEARCH;
         edit->focus = FOCUS_SEARCH;
         edit_refresh_lists(app);
     }
+    exclude_button(app, edit, y);
 }
 
 void edit_main(app_t *app)

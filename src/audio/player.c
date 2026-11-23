@@ -51,10 +51,17 @@ void player_play(app_t *app, int index)
     sfMusic_play(player->music);
 }
 
+/*
+** during a battle preview, Space pauses the preview instead
+*/
 void player_toggle(app_t *app)
 {
     sfMusic *music = app->player->music;
 
+    if (app->player->preview) {
+        preview_toggle(app, app->player->preview_song);
+        return;
+    }
     if (!music)
         return;
     if (sfMusic_getStatus(music) == sfPlaying)

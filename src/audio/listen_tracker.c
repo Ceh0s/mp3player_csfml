@@ -39,6 +39,7 @@ void player_update(app_t *app)
     sfSoundStatus status = sfStopped;
     int next = player->index + 1;
 
+    preview_update(app);
     if (!player->music)
         return;
     status = sfMusic_getStatus(player->music);

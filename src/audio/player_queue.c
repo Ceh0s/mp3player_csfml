@@ -25,7 +25,7 @@ static int queue_build(app_t *app)
         return 84;
     if (!playlist)
         player->playlist_id = 0;
-    player->nb = playlist_view(app->lib, playlist, player->queue);
+    player->nb = playlist_sorted_view(app->lib, playlist, player->queue);
     for (int i = 0; player->song && i < player->nb; i++)
         if (player->queue[i] == player->song)
             player->index = i;

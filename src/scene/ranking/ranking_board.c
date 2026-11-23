@@ -3,14 +3,20 @@
 ** mp3player
 ** File description:
 ** leaderboard: rank, song, Elo, battles and % of victories,
-** scrolled with the mouse wheel
+** scrolled with the mouse wheel; the songs with the same Elo (as it is
+** shown) share a rank: the first one shows it, the others "-"
+** (1, 2, -, -, 5)
 */
 
 #include "mp3player.h"
+#include <math.h>
 
 static const sfColor gray = {180, 180, 180, 255};
 
-static int visible_rows(app_t *app)
+/*
+** rows of the leaderboard (and of the "Départage" tab) on the screen
+*/
+int ranking_rows(app_t *app)
 {
     return (CONTENT_BOTTOM + app->extra_h - CONTENT_Y - BOARD_STEP)
         / BOARD_STEP;
@@ -22,7 +28,7 @@ static int visible_rows(app_t *app)
 void ranking_scroll(app_t *app, float delta)
 {
     ranking_t *ranking = app->ranking;
-    int max = ranking->nb - visible_rows(app);
+    int max = ranking->nb - ranking_rows(app);
 
     if (delta > 0)
         ranking->scroll--;
@@ -44,15 +50,26 @@ static void header(app_t *app)
     widget_text(app, "Victoires", (float [3]){1640, CONTENT_Y, 22}, &gray);
 }
 
-static void draw_line(app_t *app, rank_t const *rank, int position,
-    float y)
+static void position(app_t *app, int i, float y)
 {
+    rank_t const *ranks = app->ranking->ranks;
+    char text[16];
+
+    if (i > 0 && lround(ranks[i].rating) == lround(ranks[i - 1].rating))
+        snprintf(text, sizeof(text), "-");
+    else
+        snprintf(text, sizeof(text), "%d", i + 1);
+    widget_text(app, text, (float [3]){130, y, 26}, &gray);
+}
+
+static void draw_line(app_t *app, int i, float y)
+{
+    rank_t const *rank = &app->ranking->ranks[i];
     char text[NAME_LEN * 2];
     char const *artists = rank->song ? rank->song->artists : NULL;
     float thumb[4] = {200, y - 2, THUMB, THUMB};
 
-    snprintf(text, sizeof(text), "%d", position + 1);
-    widget_text(app, text, (float [3]){130, y, 26}, &gray);
+    position(app, i, y);
     widget_image(app, image_get(app, rank, 1), thumb, rank->artist != NULL);
     snprintf(text, sizeof(text), "%s%s%s", rank_name(rank),
         artists ? " - " : "", artists ? artists : "");
@@ -69,13 +86,13 @@ static void draw_line(app_t *app, rank_t const *rank, int position,
 void ranking_board(app_t *app)
 {
     ranking_t *ranking = app->ranking;
-    int rows = visible_rows(app);
+    int rows = ranking_rows(app);
     float y = 0;
 
     header(app);
     for (int i = ranking->scroll; i < ranking->nb
         && i < ranking->scroll + rows; i++) {
         y = CONTENT_Y + BOARD_STEP + (i - ranking->scroll) * BOARD_STEP;
-        draw_line(app, &ranking->ranks[i], i, y);
+        draw_line(app, i, y);
     }
 }

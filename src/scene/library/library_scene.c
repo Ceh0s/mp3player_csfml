@@ -40,6 +40,8 @@ int libscene_init(app_t *app)
     if (!app->libscene)
         return 84;
     app->libscene->playlist_id = app->library_tab;
+    app->libscene->drag_row = -1;
+    app->libscene->sel.last = -1;
     app->libscene->bg = background_create(BG_BLUR_PATH,
         &app->libscene->bg_texture);
     app->libscene->ui = ui_create(app->atlas, lib_ui, 6);
@@ -50,10 +52,14 @@ int libscene_init(app_t *app)
     return 0;
 }
 
+/*
+** in the selection mode, a click on a song checks it instead of
+** playing it
+*/
 static void click(app_t *app)
 {
     int id = ui_hit(app, app->libscene->ui);
-    int row = list_click(app);
+    int row = app->libscene->selecting ? select_row(app) : list_click(app);
 
     if (id == LIB_CLOSE)
         sfRenderWindow_close(app->window);
@@ -65,18 +71,27 @@ static void click(app_t *app)
         player_skip(app, id == LIB_PREV ? -1 : 1);
     if (row == -1 || id != -1)
         return;
-    player_queue(app, app->libscene->playlist_id);
-    if (app->libscene->view[row] == app->player->song)
-        player_toggle(app);
+    if (app->libscene->selecting)
+        select_click(app, row);
     else
-        player_play(app, row);
+        list_play(app, row);
 }
 
 /*
-** shortcuts to the battle and rankings screens (widgets)
+** shortcuts to the download, battle and rankings screens (widgets);
+** a playlist linked to an address can be downloaded again
 */
 static void shortcuts(app_t *app)
 {
+    float sync[4] = {790, 20, 250, 56};
+    source_t *src = source_get(app->lib, app->libscene->playlist_id);
+
+    if (src && widget_button(app, sync, "Synchroniser")) {
+        app->sync_playlist = src->playlist_id;
+        scene_open(app, DOWNLOAD);
+    }
+    if (src)
+        widget_tip(app, sync, src->url);
     if (widget_button(app, (float [4]){1060, 20, 250, 56}, "Télécharger"))
         scene_open(app, DOWNLOAD);
     if (widget_button(app, (float [4]){1330, 20, 230, 56}, "Battle"))
@@ -85,32 +100,87 @@ static void shortcuts(app_t *app)
         scene_open(app, RANKING);
 }
 
+/*
+** the buttons around the list (drawn, or tested for a click)
+*/
+static void widgets(app_t *app)
+{
+    library_likes(app);
+    shortcuts(app);
+    library_select_toggle(app);
+    library_tabs(app);
+    if (app->libscene->selecting)
+        library_select_bar(app);
+    else
+        library_sort_bar(app);
+}
+
 static void right_click(app_t *app)
 {
     int row = list_click(app);
 
-    if (row == -1)
+    if (row == -1 || app->libscene->sel.open)
         return;
     app->edit_song = app->libscene->view[row];
     scene_open(app, EDIT);
 }
 
-void libscene_event(app_t *app, sfEvent *event)
+/*
+** the release of a dragged song is not a click; the actions window
+** takes the clicks while it is open
+*/
+static void left_release(app_t *app)
 {
-    if (event->type == sfEvtMouseWheelScrolled)
-        list_scroll(app, event->mouseWheelScroll.delta);
-    if (event->type == sfEvtMouseButtonReleased
-        && event->mouseButton.button == sfMouseRight)
-        right_click(app);
-    if (event->type != sfEvtMouseButtonReleased
-        || event->mouseButton.button != sfMouseLeft)
+    if (app->libscene->sel.open) {
+        app->wg->mode = WG_CLICK;
+        library_actions(app);
+        app->wg->mode = WG_DRAW;
+        return;
+    }
+    if (drag_release(app))
         return;
     if (bar_seek(app) == 0)
         click(app);
     app->wg->mode = WG_CLICK;
-    shortcuts(app);
-    library_tabs(app);
+    widgets(app);
     app->wg->mode = WG_DRAW;
+}
+
+/*
+** escape closes the actions window, then leaves the selection mode
+*/
+static void key(app_t *app, sfEvent const *event)
+{
+    libscene_t *scene = app->libscene;
+
+    if (event->type == sfEvtTextEntered && scene->sel.open)
+        library_actions_key(app, event->text.unicode);
+    if (event->type != sfEvtKeyPressed || event->key.code != sfKeyEscape)
+        return;
+    if (scene->sel.open)
+        scene->sel.open = 0;
+    else if (scene->selecting) {
+        scene->selecting = 0;
+        select_all(app, 0);
+    } else
+        scene_back(app);
+}
+
+void libscene_event(app_t *app, sfEvent *event)
+{
+    key(app, event);
+    if (event->type == sfEvtMouseWheelScrolled)
+        list_scroll(app, event->mouseWheelScroll.delta);
+    if (event->type == sfEvtMouseButtonPressed
+        && event->mouseButton.button == sfMouseLeft
+        && !app->libscene->selecting)
+        drag_press(app);
+    if (event->type == sfEvtMouseButtonReleased
+        && event->mouseButton.button == sfMouseRight)
+        right_click(app);
+    if (event->type == sfEvtMouseButtonReleased
+        && event->mouseButton.button == sfMouseLeft)
+        left_release(app);
 }
 
 void libscene_update(app_t *app)
@@ -121,6 +191,7 @@ void libscene_update(app_t *app)
     ui_show(app->libscene->ui, LIB_PLAY, !playing);
     ui_show(app->libscene->ui, LIB_PAUSE, playing);
     list_update(app);
+    drag_update(app);
     bar_update(app);
 }
 
@@ -131,8 +202,13 @@ void libscene_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     list_draw(app);
+    library_select_boxes(app);
+    list_values(app);
+    drag_draw(app);
     bar_draw(app);
     ui_draw(app, app->libscene->ui);
-    shortcuts(app);
-    library_tabs(app);
+    widgets(app);
+    if (app->libscene->sel.open)
+        library_actions(app);
+    widget_tip_draw(app);
 }

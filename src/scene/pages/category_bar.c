@@ -8,17 +8,22 @@
 #include "mp3player.h"
 
 /*
-** a real category different from the current one (never "Tout confondu")
+** a rated category different from the current one (never "Tout
+** confondu" nor the categories that do not measure the quality)
 */
 static int random_category(int current)
 {
-    int category = current;
+    int choices[NB_CATEGORIES];
+    int nb = 0;
 
-    if (NB_CATEGORIES < 3)
-        return CAT_ALL + 1;
-    while (category == current)
-        category = CAT_ALL + 1 + rand() % (NB_CATEGORIES - 1);
-    return category;
+    for (int i = 0; i < NB_CATEGORIES; i++)
+        if (category_rated(i) && i != current) {
+            choices[nb] = i;
+            nb++;
+        }
+    if (nb == 0)
+        return current;
+    return choices[rand() % nb];
 }
 
 /*
@@ -29,6 +34,7 @@ static int random_category(int current)
 int category_bar(app_t *app, int *category, int nb, int random)
 {
     int old = *category;
+    float dice[4] = {650, CAT_BAR_Y, 360, 56};
 
     if (widget_button(app, (float [4]){130, CAT_BAR_Y, 60, 56}, "<"))
         *category = (*category + nb - 1) % nb;
@@ -36,8 +42,10 @@ int category_bar(app_t *app, int *category, int nb, int random)
         (float [3]){215, CAT_BAR_Y + 6, 32}, &sfWhite);
     if (widget_button(app, (float [4]){560, CAT_BAR_Y, 60, 56}, ">"))
         *category = (*category + 1) % nb;
-    if (random && widget_button(app, (float [4]){650, CAT_BAR_Y, 360, 56},
-            "Catégorie aléatoire"))
+    if (random)
+        widget_help(app, dice, "Tire au hasard une catégorie qui compte "
+            "dans TOTAL");
+    if (random && widget_button(app, dice, "Catégorie aléatoire"))
         *category = random_category(*category);
     return *category != old;
 }

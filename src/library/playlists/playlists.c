@@ -59,6 +59,8 @@ void playlist_remove(library_t *lib, playlist_t *playlist)
         }
         old = *cur;
         *cur = old->next;
+        sort_remove(lib, old->id);
+        source_remove(lib, old->id);
         free(old->songs);
         free(old->name);
         free(old);

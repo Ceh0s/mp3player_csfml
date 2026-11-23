@@ -41,14 +41,13 @@ int edit_init(app_t *app)
     snprintf(app->edit->title, NAME_LEN, "%s", song_title(app->edit->song));
     for (int role = 0; role < NB_ROLES; role++)
         load_role(app, app->edit, role);
-    edit_propose(app);
     return 0;
 }
 
 static void build(app_t *app)
 {
-    void (*const screens[4])(app_t *) = {&edit_main, &edit_search,
-        &edit_confirm, &edit_artist};
+    void (*const screens[5])(app_t *) = {&edit_main, &edit_search,
+        &edit_confirm, &edit_artist, &edit_titles};
 
     screens[app->edit->mode](app);
 }
@@ -78,6 +77,7 @@ void edit_draw(app_t *app)
     sfRenderWindow_drawRectangleShape(app->window, app->edit->panel, NULL);
     app->wg->mode = WG_DRAW;
     build(app);
+    widget_tip_draw(app);
 }
 
 void edit_layout(app_t *app)

@@ -32,18 +32,41 @@ static char **frame_target(song_t *song, char const *id)
     return NULL;
 }
 
+/*
+** a TXXX frame is a description and a value, separated by '\0' (which
+** id3_decode_text turns into "; "): yt-dlp writes "purl" = the address
+** of the video
+*/
+static void store_user_text(song_t *song, unsigned char const *data,
+    long size)
+{
+    char *text = id3_decode_text(data, size);
+
+    if (text && !song->source && strncmp(text, "purl; ", 6) == 0
+        && text[6] != '\0')
+        song->source = strdup(text + 6);
+    free(text);
+}
+
+static void store_length(song_t *song, unsigned char const *data,
+    long size)
+{
+    char *text = id3_decode_text(data, size);
+
+    song->duration_ms = text ? atol(text) : 0;
+    free(text);
+}
+
 static void store_frame(song_t *song, char const *id,
     unsigned char const *data, long size)
 {
     char **target = frame_target(song, id);
     char *text = NULL;
 
-    if (strncmp(id, "TLEN", 4) == 0) {
-        text = id3_decode_text(data, size);
-        song->duration_ms = text ? atol(text) : 0;
-        free(text);
-        return;
-    }
+    if (strncmp(id, "TXXX", 4) == 0)
+        store_user_text(song, data, size);
+    if (strncmp(id, "TLEN", 4) == 0)
+        store_length(song, data, size);
     if (!target || *target)
         return;
     text = id3_decode_text(data, size);

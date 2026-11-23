@@ -47,6 +47,7 @@ void libscene_destroy(app_t *app)
     if (app->libscene->bg_texture)
         sfTexture_destroy(app->libscene->bg_texture);
     ui_destroy(app->libscene->ui);
+    free(app->libscene->sel.ids);
     free(app->libscene);
     app->libscene = NULL;
 }

@@ -2,9 +2,10 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** download screen: the address of a video or a sound is pasted, its
-** audio is saved as an mp3 in music/ then added to the library. The
-** download goes on when leaving the screen (it belongs to app).
+** download screen: the addresses of videos or sounds are pasted
+** (separated by ;), their audio is saved as mp3 in music/ then added to
+** the library and to the playlists chosen. The download goes on when
+** leaving the screen (it belongs to app).
 */
 
 #include "mp3player.h"
@@ -22,18 +23,58 @@ int dlscene_init(app_t *app)
     app->dlscene->panel = rect_create(panel, &dark);
     if (!app->dlscene->bg || !app->dlscene->panel)
         return 84;
+    dlscene_preselect(app);
+    if (app->sync_playlist)
+        dlscene_sync(app);
     return 0;
 }
 
 /*
-** 13 = enter: starts the download of the typed address
+** escape closes the list shown over the screen, else leaves the screen
+*/
+static void key_pressed(app_t *app, sfKeyCode key)
+{
+    if (key != sfKeyEscape)
+        return;
+    if (app->dlscene->popup != DL_POPUP_NONE)
+        app->dlscene->popup = DL_POPUP_NONE;
+    else
+        scene_back(app);
+}
+
+static void wheel(app_t *app, float delta)
+{
+    dlscene_t *scene = app->dlscene;
+    int nb = app->download.nb_absent;
+
+    if (scene->popup == DL_POPUP_FLAGGED)
+        nb = entries_count(app->download.flagged);
+    if (scene->popup == DL_POPUP_REFUSED)
+        nb = rejected_count(app->lib);
+    if (scene->popup == DL_POPUP_EXCLUDED)
+        nb = excluded_count(app->lib);
+    if (scene->popup == DL_POPUP_REPORT)
+        nb = dlscene_report_lines(app);
+    scene->scroll -= (int)delta;
+    if (scene->scroll > nb - dlpopup_rows(app))
+        scene->scroll = nb - dlpopup_rows(app);
+    if (scene->scroll < 0)
+        scene->scroll = 0;
+}
+
+/*
+** 13 = enter: starts the download of the typed addresses
 */
 void dlscene_event(app_t *app, sfEvent *event)
 {
+    if (event->type == sfEvtKeyPressed)
+        key_pressed(app, event->key.code);
+    if (event->type == sfEvtMouseWheelScrolled)
+        wheel(app, event->mouseWheelScroll.delta);
     if (event->type == sfEvtTextEntered && event->text.unicode == 13)
         dlscene_start(app);
     else if (event->type == sfEvtTextEntered)
-        text_input(app->dlscene->url, event->text.unicode);
+        dlscene_text(app, event->text.unicode);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;
@@ -49,6 +90,7 @@ void dlscene_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     dlscene_view(app);
+    widget_tip_draw(app);
 }
 
 void dlscene_layout(app_t *app)

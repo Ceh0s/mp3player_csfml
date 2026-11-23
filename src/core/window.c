@@ -19,7 +19,7 @@ int window_create(app_t *app)
     app->window = sfRenderWindow_create(mode, WINDOW_TITLE, style, NULL);
     if (!app->window)
         return 84;
-    sfRenderWindow_setKeyRepeatEnabled(app->window, sfFalse);
+    sfRenderWindow_setKeyRepeatEnabled(app->window, sfTrue);
     if (app->view)
         view_update(app);
     return 0;

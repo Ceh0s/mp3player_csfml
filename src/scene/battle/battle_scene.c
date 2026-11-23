@@ -28,14 +28,24 @@ int battle_init(app_t *app)
 }
 
 /*
-** left and right arrows vote for the song on that side
+** left and right arrows choose a side (framed), Enter votes for it
 */
+static void battle_key(app_t *app, sfKeyCode code)
+{
+    battle_t *battle = app->battle;
+
+    if (code == sfKeyLeft)
+        battle->focus = 0;
+    if (code == sfKeyRight)
+        battle->focus = 1;
+    if (code == sfKeyEnter && battle->focus >= 0)
+        battle_vote(app, battle->focus);
+}
+
 void battle_event(app_t *app, sfEvent *event)
 {
-    if (event->type == sfEvtKeyPressed && event->key.code == sfKeyLeft)
-        battle_vote(app, 0);
-    if (event->type == sfEvtKeyPressed && event->key.code == sfKeyRight)
-        battle_vote(app, 1);
+    if (event->type == sfEvtKeyPressed)
+        battle_key(app, event->key.code);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;
@@ -51,6 +61,7 @@ void battle_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     battle_view(app);
+    widget_tip_draw(app);
 }
 
 void battle_layout(app_t *app)
@@ -65,6 +76,7 @@ void battle_destroy(app_t *app)
 {
     if (!app->battle)
         return;
+    preview_stop(app);
     if (app->battle->bg)
         sfSprite_destroy(app->battle->bg);
     if (app->battle->bg_texture)
