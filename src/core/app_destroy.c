@@ -25,15 +25,24 @@ static void destroy_shared(app_t *app)
         sfRenderWindow_destroy(app->window);
 }
 
+/*
+** yt-dlp is stopped first, then what the download kept is freed
+*/
+static void destroy_download(app_t *app)
+{
+    download_cancel(app);
+    entries_free(app->download.flagged);
+    report_free(&app->download);
+    free(app->download.absent);
+    download_order_free(&app->download);
+}
+
 int app_destroy(app_t *app, int rtn_value)
 {
     if (!app)
         return rtn_value;
     scenes[app->scene].destroy(app);
-    download_cancel(app);
-    entries_free(app->download.flagged);
-    report_free(&app->download);
-    free(app->download.absent);
+    destroy_download(app);
     if (app->player && app->lib)
         player_stop(app, END_QUIT);
     if (app->lib && db_save_all(app->lib) == 84)

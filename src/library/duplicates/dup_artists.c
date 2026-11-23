@@ -64,6 +64,15 @@ static void add_names(char *out, char const *names)
     }
 }
 
+/*
+** adds the names "A, B & C" to a list of names ("|a|b|" form, "|" when
+** empty), used for a video of a listing (its channel)
+*/
+void dup_names(char *out, char const *names)
+{
+    add_names(out, names);
+}
+
 void dup_artists(library_t *lib, song_t const *song, char const *prefix,
     char *out)
 {

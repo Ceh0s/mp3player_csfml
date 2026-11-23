@@ -83,7 +83,7 @@ static void click(app_t *app)
 */
 static void shortcuts(app_t *app)
 {
-    float sync[4] = {790, 20, 250, 56};
+    float sync[4] = {1000, 20, 220, 56};
     source_t *src = source_get(app->lib, app->libscene->playlist_id);
 
     if (src && widget_button(app, sync, "Synchroniser")) {
@@ -92,13 +92,13 @@ static void shortcuts(app_t *app)
     }
     if (src)
         widget_tip(app, sync, src->url);
-    if (widget_button(app, (float [4]){1060, 20, 250, 56}, "Télécharger"))
+    if (widget_button(app, (float [4]){1235, 20, 220, 56}, "Télécharger"))
         scene_open(app, DOWNLOAD);
-    if (widget_button(app, (float [4]){1330, 20, 230, 56}, "Battle"))
+    if (widget_button(app, (float [4]){1470, 20, 150, 56}, "Battle"))
         scene_open(app, BATTLE);
-    if (widget_button(app, (float [4]){1580, 20, 250, 56}, "Classements"))
+    if (widget_button(app, (float [4]){1635, 20, 230, 56}, "Classements"))
         scene_open(app, RANKING);
-    if (widget_button(app, (float [4]){540, 20, 230, 56}, "Statistiques"))
+    if (widget_button(app, (float [4]){765, 20, 220, 56}, "Statistiques"))
         scene_open(app, STATS);
 }
 

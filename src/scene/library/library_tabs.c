@@ -12,13 +12,30 @@
 /*
 ** a tab is as wide as its name; the tabs after TABS_RIGHT are not shown
 */
+/*
+** the tab shown has its number of present songs (found / all of them
+** during a search)
+*/
+static void tab_label(app_t *app, char *label, char const *name,
+    int selected)
+{
+    libscene_t *scene = app->libscene;
+
+    snprintf(label, NAME_LEN + 32, "%s", name);
+    if (selected && app->search.text[0] != '\0')
+        snprintf(label, NAME_LEN + 32, "> %s (%d / %d) <", name,
+            scene->nb_view, scene->nb_total);
+    else if (selected)
+        snprintf(label, NAME_LEN + 32, "> %s (%d) <", name, scene->nb_total);
+}
+
 static int tab(app_t *app, float *x, char const *name, int selected)
 {
-    char label[NAME_LEN + 8];
+    char label[NAME_LEN + 32];
     float width = 0;
     int clicked = 0;
 
-    snprintf(label, sizeof(label), selected ? "> %s <" : "%s", name);
+    tab_label(app, label, name, selected);
     width = widget_text_width(app, label, 26) + 32;
     if (*x + width > TABS_RIGHT)
         return 0;

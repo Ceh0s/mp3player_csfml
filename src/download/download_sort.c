@@ -50,6 +50,8 @@ static int known_unavailable(app_t *app, download_t *dl,
 
     if (!un)
         return 0;
+    if (download_reupload(app, entry))
+        return 1;
     dl->unavailable++;
     dl_reason(reason, sizeof(reason), un->reason);
     report_add(dl, REP_UNAVAILABLE, entry->title, reason);
@@ -131,8 +133,10 @@ static void sort_entry(app_t *app, download_t *dl, dl_entry_t *entry)
 void download_sort(app_t *app)
 {
     download_t *dl = &app->download;
-    dl_entry_t *entry = entry_pop(&dl->listed);
+    dl_entry_t *entry = NULL;
 
+    download_keep_order(app);
+    entry = entry_pop(&dl->listed);
     while (entry) {
         sort_entry(app, dl, entry);
         entry = entry_pop(&dl->listed);

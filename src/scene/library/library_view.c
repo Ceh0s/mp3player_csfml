@@ -58,7 +58,8 @@ static int create_titles(app_t *app, libscene_t *scene)
 }
 
 /*
-** (re)builds the songs and texts of the tab scene->playlist_id
+** (re)builds the songs and texts of the tab scene->playlist_id;
+** nb_total counts its present songs before the search
 */
 int list_create(app_t *app)
 {
@@ -73,6 +74,7 @@ int list_create(app_t *app)
     if (!scene->view)
         return 84;
     scene->nb_view = playlist_sorted_view(app->lib, playlist, scene->view);
+    scene->nb_total = scene->nb_view;
     scene->nb_view = view_filter(scene->view, scene->nb_view,
         app->search.text);
     return create_titles(app, scene);

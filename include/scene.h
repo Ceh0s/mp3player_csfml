@@ -128,6 +128,7 @@ typedef struct libscene_s {
     int playlist_id;
     song_t **view;
     int nb_view;
+    int nb_total;
     sfText **titles;
     sfText *now_title;
     sfText *now_artist;

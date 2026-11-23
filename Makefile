@@ -192,6 +192,8 @@ SRC_DOWNLOAD	=	src/download/dl_reason.c\
 		src/download/download_archive.c\
 		src/download/download_flagged.c\
 		src/download/download_list.c\
+		src/download/download_order.c\
+		src/download/download_reupload.c\
 		src/download/download_poll.c\
 		src/download/download_queue.c\
 		src/download/download_report.c\

@@ -14,7 +14,7 @@
 static char const *const versions[] = {"remix", "live", "acoustic",
     "sped", "slowed", "nightcore", "extended", "instrumental", "vip",
     "radio", "cover", "reverb", "mashup", "bootleg", "karaoke", "remake",
-    NULL};
+    "reversed", NULL};
 
 static char const *const noise[] = {"official", "officiel", "video",
     "audio", "lyrics", "lyric", "clip", "hd", "hq", "4k", "visualizer",

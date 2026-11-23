@@ -322,6 +322,13 @@ void dlscene_view(app_t *app);
 void dlscene_stats(app_t *app, download_t const *dl);
 void dlscene_status(app_t *app, download_t const *dl);
 void dlscene_failures(app_t *app, download_t const *dl, float y);
+void download_order_free(download_t *dl);
+void download_keep_order(app_t *app);
+void download_apply_order(app_t *app);
+void download_order_swap(download_t *dl, char const *old_id,
+    library_t *lib, song_t *song);
+song_t *reupload_match(library_t *lib, dl_entry_t const *entry);
+int download_reupload(app_t *app, dl_entry_t const *entry);
 void dlscene_options(app_t *app, dl_options_t *opt);
 void dlscene_text(app_t *app, sfUint32 code);
 void dlscene_durations(app_t *app, float y);
@@ -584,6 +591,7 @@ void dup_core(char const *title, char *core, char *prefix);
 void dup_artists(library_t *lib, song_t const *song, char const *prefix,
     char *out);
 int dup_artists_meet(char const *a, char const *b);
+void dup_names(char *out, char const *names);
 int dup_find(library_t *lib, dup_list_t *list);
 int dup_group_pairs(dup_list_t *list);
 void dup_group_remove(dup_group_t *group, int i);

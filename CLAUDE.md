@@ -118,7 +118,9 @@ src/audio/             lecteur (un seul sfMusic ouvert), file de lecture (aléat
 src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo), suivi à
                        chaque tick, lecture de la liste, tri des vidéos, ajout du mp3,
                        titres hors durée, titres retirés d'une playlist du site, bilan
-                       (download_report.c), raisons des échecs en français (dl_reason.c)
+                       (download_report.c), raisons des échecs en français (dl_reason.c),
+                       ordre de la playlist du site (download_order.c), nouvelle
+                       version d'un réupload retrouvée (download_reupload.c)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
     file/              fichiers sur disque : validation mp3, empreinte audio, scan du
                        dossier, durées, fichiers au son identique à un autre
@@ -201,7 +203,16 @@ Principes en place :
   **Lien adresse ↔ playlist** (un seul lien, une seule playlist de réception) : gardé dans
   `playlist_sources.tsv` avec la plage et l'option « Signaler les titres retirés » ;
   « Synchroniser » (bibliothèque, onglet de la playlist) rouvre le téléchargement rempli et
-  le lance (`app->sync_playlist`). Les titres de la playlist locale dont la vidéo n'est plus
+  le lance (`app->sync_playlist`). **Ordre du site** : pour un seul lien vers une seule
+  playlist, liste réussie de plus d'une vidéo, la playlist locale prend l'ordre de la liste
+  de yt-dlp à la fin de la file (pas si elle est annulée) ; les titres sans vidéo listée
+  restent après, dans leur ordre. L'ordre personnalisé n'est pas touché.
+  **Réuploads** : une vidéo « not available » (déjà connue ou qui vient d'échouer) est
+  cherchée parmi les musiques présentes avec les règles des doublons (même cœur de titre
+  et version, chaîne de la vidéo parmi les artistes, durée à 15 s près ; la liste de
+  yt-dlp donne la chaîne même pour une vidéo indisponible). Une seule correspondance, ou
+  une seule auto-générée : elle est ajoutée aux playlists à la place, à sa place dans
+  l'ordre du site (« réupload : remplacé par … » dans le bilan). Les titres de la playlist locale dont la vidéo n'est plus
   listée sont proposés (garder / retirer de la playlist / supprimer le fichier, demandé
   deux fois) ; seulement si la liste a réussi et n'est pas vide, et jamais un titre sans
   vidéo connue. Progression « élément x / n » sur les vidéos retenues. Bascule « Cookies
@@ -327,6 +338,16 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.10 — Quatrième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Ordre de la playlist importée** : celui du site (voir Téléchargement).
+- **Réuploads** d'une playlist importée retrouvés dans la bibliothèque (Playlist du
+  Gueux : 295 → 303 titres sur 308 ; 3 nouvelles versions absentes, 2 erreurs 403).
+  « reversed » ajouté aux mots de version des doublons.
+- **Nombre de titres** présents dans l'onglet affiché de la bibliothèque (« trouvés /
+  total » pendant une recherche).
+- Rangée du haut de la bibliothèque resserrée (« Statistiques » passait sous
+  « Sélection »).
 
 ### Phase 4.9 — Troisième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Gel** de plusieurs secondes après chaque choix : `song_build_artists` cherchait

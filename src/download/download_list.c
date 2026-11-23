@@ -3,9 +3,9 @@
 ** mp3player
 ** File description:
 ** videos found by the listing of a link: each line written by yt-dlp
-** with DL_FORMAT ("id, duration, live status, address, title" separated
-** by tabs) becomes an entry; the lists of entries (listed, todo,
-** flagged) are handled here
+** with DL_FORMAT ("id, duration, live status, address, channel, title"
+** separated by tabs; the channel is "NA" when unknown) becomes an
+** entry; the lists of entries (listed, todo, flagged) are handled here
 */
 
 #include "mp3player.h"
@@ -17,6 +17,7 @@ void entries_free(dl_entry_t *list)
     while (list) {
         next = list->next;
         free(list->url);
+        free(list->channel);
         free(list->title);
         free(list);
         list = next;
@@ -62,17 +63,17 @@ static dl_entry_t *entry_new(char **fields, dl_options_t const *opt)
     if (!entry)
         return NULL;
     snprintf(entry->id, VIDEO_ID, "%s", fields[0]);
-    entry->duration = -1;
-    if (fields[1][0] >= '0' && fields[1][0] <= '9')
-        entry->duration = (int)atof(fields[1]);
+    entry->duration = fields[1][0] >= '0' && fields[1][0] <= '9' ?
+        (int)atof(fields[1]) : -1;
     entry->live = strcmp(fields[2], "is_live") == 0
         || strcmp(fields[2], "is_upcoming") == 0
         || strcmp(fields[2], "post_live") == 0;
     entry->url = strdup(fields[3]);
-    entry->title = strdup(fields[4]);
+    entry->channel = strdup(strcmp(fields[4], "NA") == 0 ? "" : fields[4]);
+    entry->title = strdup(fields[5]);
     memcpy(entry->targets, opt->targets, sizeof(entry->targets));
     entry->nb_targets = opt->nb_targets;
-    if (!entry->url || !entry->title) {
+    if (!entry->url || !entry->channel || !entry->title) {
         entries_free(entry);
         return NULL;
     }
@@ -86,11 +87,11 @@ static dl_entry_t *entry_new(char **fields, dl_options_t const *opt)
 int download_list_line(download_t *dl, char const *line)
 {
     char copy[DL_LINE];
-    char *fields[6];
+    char *fields[7];
     dl_entry_t *entry = NULL;
 
     snprintf(copy, sizeof(copy), "%s", line);
-    if (split_tab(copy, fields, 6) != 5 || fields[0][0] == '\0'
+    if (split_tab(copy, fields, 7) != 6 || fields[0][0] == '\0'
         || strlen(fields[0]) >= VIDEO_ID || strchr(fields[0], ' ')
         || strncmp(fields[3], "http", 4) != 0)
         return 0;

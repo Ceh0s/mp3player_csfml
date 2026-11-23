@@ -17,7 +17,8 @@
     #define DL_BROWSER "firefox"
     #define DL_ARCHIVE "data/downloads.archive"
     #define DL_FORMAT_1 "%(id)s\t%(duration)s\t%(live_status)s"
-    #define DL_FORMAT DL_FORMAT_1 "\t%(webpage_url)s\t%(title)s"
+    #define DL_FORMAT_2 "\t%(webpage_url)s\t%(channel)s\t%(title)s"
+    #define DL_FORMAT DL_FORMAT_1 DL_FORMAT_2
 
 typedef enum dl_state_e {
     DL_IDLE,
@@ -63,6 +64,7 @@ typedef struct dl_options_s {
 typedef struct dl_entry_s {
     char id[VIDEO_ID];
     char *url;
+    char *channel;
     char *title;
     int duration;
     int live;
@@ -144,6 +146,8 @@ typedef struct dl_stats_s {
 ** report : what became of each video of the queue (kept until the next
 ** queue), show_report : 1 when the queue ended or was stopped: the
 ** download screen then opens the report once
+** order / nb_order : ids of the videos of an imported playlist (one
+** link, one playlist), in the order of the site (download_order.c)
 */
 typedef struct download_s {
     pid_t pid;
@@ -181,6 +185,8 @@ typedef struct download_s {
     dl_report_t *report;
     int show_report;
     dl_stats_t stats;
+    char **order;
+    int nb_order;
 } download_t;
 
 /*

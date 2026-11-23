@@ -63,8 +63,10 @@ int download_next(app_t *app)
     if (!dl->queue)
         return 84;
     url = next_url(dl, &step);
-    if (!url)
+    if (!url) {
+        download_apply_order(app);
         return end_queue(dl);
+    }
     if (download_launch(app, url, step) == 0)
         return 0;
     download_cancel(app);
@@ -115,6 +117,7 @@ int download_begin(app_t *app, char **queue, dl_options_t const *opt)
     download_t *dl = &app->download;
 
     report_free(dl);
+    download_order_free(dl);
     dl->show_report = 0;
     dl->queue = queue;
     dl->opt = *opt;
