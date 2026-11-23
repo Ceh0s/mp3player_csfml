@@ -69,6 +69,7 @@ void ranking_view(app_t *app)
         return;
     }
     widget_text(app, "Classements", (float [3]){130, 115, 40}, &sfWhite);
+    ranking_search(app);
     if (board_bar(app, &app->arena))
         ranking_build(app);
     if (category_bar(app, &app->arena.category, NB_CATEGORIES + 1, 0))

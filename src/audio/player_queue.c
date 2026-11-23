@@ -3,7 +3,8 @@
 ** mp3player
 ** File description:
 ** queue of the player: the songs of the playlist being played, in its
-** order ("Tous les titres" = every present song)
+** order ("Tous les titres" = every present song), only those matching
+** the search of the library when the song was chosen (filter)
 */
 
 #include "mp3player.h"
@@ -26,6 +27,7 @@ static int queue_build(app_t *app)
     if (!playlist)
         player->playlist_id = 0;
     player->nb = playlist_sorted_view(app->lib, playlist, player->queue);
+    player->nb = view_filter(player->queue, player->nb, player->filter);
     for (int i = 0; player->song && i < player->nb; i++)
         if (player->queue[i] == player->song)
             player->index = i;
@@ -35,11 +37,15 @@ static int queue_build(app_t *app)
 /*
 ** the next songs will be those of this playlist (0 = every song)
 */
-void player_queue(app_t *app, int playlist_id)
+void player_queue(app_t *app, int playlist_id, char const *filter)
 {
-    if (app->player->queue && app->player->playlist_id == playlist_id)
+    player_t *player = app->player;
+
+    if (player->queue && player->playlist_id == playlist_id
+        && strcmp(player->filter, filter) == 0)
         return;
-    app->player->playlist_id = playlist_id;
+    player->playlist_id = playlist_id;
+    snprintf(player->filter, NAME_LEN, "%s", filter);
     queue_build(app);
 }
 

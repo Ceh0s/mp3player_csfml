@@ -52,7 +52,7 @@ song_t *song_by_video(library_t *lib, char const *id)
                 && strcmp(found, id) == 0))
             return song_resolve(lib, song_by_id(lib, fp->song_id));
     }
-    return NULL;
+    return same_file_video(lib, id);
 }
 
 /*

@@ -53,7 +53,7 @@ void ranking_event(app_t *app, sfEvent *event)
         && app->ranking->tab != TAB_TIERS)
         ranking_scroll(app, event->mouseWheelScroll.delta);
     if (event->type == sfEvtMouseButtonPressed && !app->ranking->reset
-        && app->ranking->tab == TAB_TIES)
+        && app->ranking->tab == TAB_TIES && app->search.text[0] == '\0')
         ranking_drag_press(app);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)

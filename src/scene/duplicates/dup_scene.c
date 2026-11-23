@@ -2,9 +2,10 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** duplicates screen: the songs present twice (two uploads of the same
-** song), found from their titles, artists and durations, then confirmed
-** by their sound. One of them is kept and the other merged into it.
+** duplicates screen: the songs present several times (uploads of the
+** same song), found from their titles, artists and durations, then
+** confirmed by their sound. One of them is kept and the others merged
+** into it.
 ** Opened from the home screen (every song) or after a download (only
 ** the new songs, app->dup_since).
 */
@@ -77,7 +78,8 @@ void dupscene_destroy(app_t *app)
         sfTexture_destroy(scene->bg_texture);
     if (scene->panel)
         sfRectangleShape_destroy(scene->panel);
-    free(scene->list.pairs);
+    preview_stop(app);
+    free(scene->list.groups);
     free(scene->todo);
     free(scene);
     app->dupscene = NULL;

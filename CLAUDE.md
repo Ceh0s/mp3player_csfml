@@ -95,10 +95,13 @@ src/scene/             table des scènes
     download/          écran de téléchargement (adresse, options : durée, playlists de
                        réception, lien ; progression, résumé) et liste par-dessus
                        (download_popup : hors durée / refusés / retirés)
-    duplicates/        doublons : analyse du son une musique par tick, paires, choix
+    duplicates/        doublons : analyse du son une musique par tick, groupes
+                       (_row, _block), fusions à la main et automatiques (_merge),
+                       fichiers au son identique (_same), tri après un choix (_refresh)
     pages/             morceaux d'écran réutilisables (artist_page, category_bar,
                        board_bar : classement + musiques/artistes, image_box : import,
-                       like_buttons : J'aime / Je n'aime pas)
+                       like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
+                       lecteur, search_field : champ de recherche)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
@@ -112,12 +115,13 @@ src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo)
                        (download_report.c)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
     file/              fichiers sur disque : validation mp3, empreinte audio, scan du
-                       dossier, durées
+                       dossier, durées, fichiers au son identique à un autre
+                       (same_files.c : même empreinte, gardés à part)
     id3/               lecture des tags ID3 et de la pochette (APIC)
     images/            images des musiques/artistes : miniatures, import, nettoyage du
                        chemin, réparation unique des images décalées (cover_check.c)
     playlists/         playlists, vue des musiques présentes, tri (critère, sens,
-                       ordre personnalisé)
+                       ordre personnalisé), filtre par texte (view_filter.c)
     boards/            classements, règles inclure/exclure, appartenance d'une musique,
                        classement auto par playlist, ordre de départage
     likes/             avis (+1/-1) et playlists auto « Titres likés / dislikés »
@@ -127,8 +131,9 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        suppression des fichiers (demandée seulement)
     videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus, adresses
                        liées aux playlists
-    duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires,
-                       enveloppe sonore et comparaison, paires « pas un doublon »
+    duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires
+                       regroupées (dup_groups.c), enveloppe sonore et comparaison,
+                       paires « pas un doublon »
     artists/           artistes, liens, noms affichés, stats et détail par artiste
 src/data/              lecture/écriture TSV, migration, journaux
 src/utils/             UTF-8, chaînes, découpage en mots, saisie de texte (avec Ctrl+V)
@@ -177,8 +182,10 @@ Principes en place :
   **Durée min / max** (vide = sans limite) : les titres hors plage attendent une décision
   dans la liste « Hors durée » (ouverte seule à la fin de la file, ou à la main) :
   télécharger (rejoint la file, ou en démarre une sans lien) ou refuser. Un refus est gardé
-  dans `rejected.tsv` et ne compte que **tant que la vidéo reste hors de la plage** : une
-  plage élargie la télécharge et efface le refus.
+  dans `rejected.tsv` et écarte la vidéo **tant qu'elle reste hors de la plage**. Revenue
+  dans la plage, elle n'est pas téléchargée seule : elle repasse dans « Hors durée »
+  (« (refusé avant) ») ; « Télécharger » efface le refus, « Refuser » l'écarte pour de bon
+  (`in_range`, annulable dans « Refusés »).
   **Lien adresse ↔ playlist** (un seul lien, une seule playlist de réception) : gardé dans
   `playlist_sources.tsv` avec la plage et l'option « Signaler les titres retirés » ;
   « Synchroniser » (bibliothèque, onglet de la playlist) rouvre le téléchargement rempli et
@@ -196,7 +203,8 @@ Principes en place :
   écrit par yt-dlp, gardé dans `fprint_t.source`) : yt-dlp saute ces vidéos sans les
   télécharger (`--download-archive`), l'écran compte les vidéos ignorées.
 - **Doublons** (scène `DUPLICATES`, depuis l'accueil, ou depuis le résumé d'un téléchargement
-  avec `app->dup_since` = début de la file : seulement les nouveaux titres). Deux étapes :
+  avec `app->dup_since` = début de la file : seulement les nouveaux titres). Les paires
+  trouvées sont regroupées (A ~ B et B ~ C = un groupe de trois). Deux étapes :
   1. métadonnées (`src/library/duplicates/`) : même cœur de titre (sans « Artiste - »,
      parenthèses/crochets, featurings, « official video »…), mêmes mots de version (remix,
      live, slowed, extended… : un remix n'est pas l'original), un artiste en commun (liens,
@@ -207,10 +215,26 @@ Principes en place :
      des **variations** de volume avec un décalage jusqu'à 16 s. Mesuré sur la bibliothèque :
      musiques différentes < 30, mêmes enregistrements 74 à 99. ≥ 70 « même enregistrement »,
      40 à 69 « probable », < 40 écartée (deux homonymes). Cache `envelopes.tsv`.
-  Choix : « Garder celui-ci » (l'autre y est fusionné, `song_merge`), avec bascule
-  « Supprimer le fichier en trop », ou « Pas un doublon » (`not_duplicates.tsv`).
+  Chaque musique est comparée à la **référence** du groupe : la version auto-générée par
+  YouTube (« Auto-generated by YouTube. » dans la description, `song_t.autogen`, relu à
+  chaque scan), sinon la plus écoutée. Chaque ligne dit « Auto-généré » ou « Clip / autre
+  upload » et peut être écoutée (`preview.c`, rien n'est compté). Un autre upload au son
+  identique à ≥ 99 % (`DUP_AUTO`) à une version auto-générée y est **fusionné tout seul** à
+  la fin de l'analyse.
+  Choix : « Garder celui-ci » (les autres y sont fusionnés, `song_merge`), avec bascule
+  « Supprimer le fichier en trop » (gardée dans `settings.tsv`, vaut aussi pour les fusions
+  automatiques), ou « Pas un doublon » (la ligne sort du groupe, `not_duplicates.tsv`).
+  Deux fichiers au son identique à l'octet (même empreinte, deux vidéos du même
+  enregistrement) : le second n'est pas une musique, il est gardé dans `lib->same_files`
+  (sa vidéo compte comme présente) et l'écran propose de l'effacer (« Fichiers
+  identiques », demandé deux fois).
 - **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (fenêtre des
   actions, puis mode sélection). Les écrans avec saisie gèrent Espace eux-mêmes.
+- **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran) :
+  bibliothèque (la file de lecture suit le filtre, `player_t.filter`), doublons,
+  classements (trois onglets, vrai rang gardé), liste du téléchargement. Clic dessus = elle
+  reçoit les touches (Espace compris), Entrée ou un clic ailleurs les rend ; Échap la vide
+  d'abord. Le glisser-déposer est coupé pendant une recherche.
 - **Arène** (`app->arena`) : type (musiques/artistes) + classement + catégorie, partagée par
   les scènes battle et classements.
 
@@ -219,8 +243,10 @@ Principes en place :
 Les fichiers mp3 ne sont **jamais modifiés** ; tout ce qui est édité vit dans `data/`.
 Rien n'est jamais supprimé : une musique retirée garde ses stats (`present = 0`). Seule
 exception, demandée explicitement : « Supprimer le fichier » (titre retiré d'une playlist du
-site, doublon), « Exclure » et « Supprimer du lecteur » (mode sélection) effacent le mp3 de `music/` (`song_delete_files`, ligne dans `edits.log`) ; la
-musique garde ses stats et passe `present = 0`.
+site), « Supprimer le fichier en trop » (doublon fusionné, aussi automatiquement si la
+bascule est sur oui), « Effacer ce fichier » (son identique), « Exclure » et « Supprimer du
+lecteur » (mode sélection, édition) effacent le mp3 de `music/` (`song_delete_files`,
+ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 
 | Fichier | Contenu |
 |---|---|
@@ -236,7 +262,7 @@ musique garde ses stats et passe `present = 0`.
 | `custom_orders.tsv` | ordre personnalisé de chaque playlist (ids bruts), à part de `playlist_songs.tsv` |
 | `boards.tsv` / `board_rules.tsv` | classements personnalisés et leurs règles (include/exclude, all/playlist/artist/song) |
 | `downloads.archive` | vidéos YouTube déjà dans `music/` pour yt-dlp (`youtube <id>`), réécrit avant chaque téléchargement (sécurité : les vidéos présentes sont déjà écartées après la liste) |
-| `rejected.tsv` | vidéos refusées pour leur durée : id, durée (s), date, titre |
+| `rejected.tsv` | vidéos refusées pour leur durée : id, durée (s), date, titre, refusée aussi dans la plage (colonne absente des anciens fichiers) |
 | `playlist_sources.tsv` | adresse liée à une playlist : playlist, adresse, durée min/max (-1 = aucune), signaler les retirés |
 | `envelopes.tsv` | enveloppe sonore d'un fichier (empreinte → octets en hexadécimal, vide si illisible), écrite en quittant l'écran des doublons |
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
@@ -245,7 +271,7 @@ musique garde ses stats et passe `present = 0`.
 | `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle, texte retiré, état |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -286,6 +312,16 @@ musique garde ses stats et passe `present = 0`.
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.8 — Deuxième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Doublons** : groupes de plus de deux (bug des trois « My Heart »), version
+  auto-générée conseillée et fusion automatique à ≥ 99 %, écoute de chaque version,
+  recherche, fichiers au son identique (bug « Same file twice », plus de message).
+- **Recherche** : bibliothèque, doublons, classements, liste du téléchargement.
+- **Battle** : clic droit sur une carte de musique = son édition ; l'édition gagne
+  « Supprimer du lecteur » (demandé deux fois) à côté d'« Exclure ».
+- **Téléchargement** : un titre refusé revenu dans la durée est redemandé, plus téléchargé
+  tout seul.
 
 ### Phase 4.7 — Liste de suggestions de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Bugs** : Retour arrière maintenu (répétition activée, filtrée dans `keys.c`) ; images

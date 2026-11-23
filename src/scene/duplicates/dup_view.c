@@ -3,19 +3,24 @@
 ** mp3player
 ** File description:
 ** content of the duplicates screen (called to draw it and to handle a
-** click): progress of the reading of the sound, then one block per
-** pair: how sure it is, the two songs, and the choices
+** click): progress of the reading of the sound, then the files of
+** identical sound and one block per group (dup_block.c), filtered by
+** the search field
 */
 
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
 
-int dupscene_rows(app_t *app)
+/*
+** a group is shown if one of its songs matches the search
+*/
+static int shown(app_t *app, dup_group_t const *group)
 {
-    int rows = (CONTENT_BOTTOM + app->extra_h - DUP_ROWS_Y) / DUP_BLOCK_H;
-
-    return rows > 0 ? rows : 1;
+    for (int i = 0; i < group->nb; i++)
+        if (search_song(app, group->songs[i]))
+            return 1;
+    return 0;
 }
 
 /*
@@ -24,7 +29,7 @@ int dupscene_rows(app_t *app)
 void dupscene_scroll(app_t *app, float delta)
 {
     dupscene_t *scene = app->dupscene;
-    int max = scene->list.nb - dupscene_rows(app);
+    int max = dup_same_count(app) + scene->list.nb - 1;
 
     scene->scroll -= (int)delta;
     if (scene->scroll > max)
@@ -35,46 +40,87 @@ void dupscene_scroll(app_t *app, float delta)
 
 static void status(app_t *app, dupscene_t *scene)
 {
-    char line[128];
+    char line[160];
+    char const *since = scene->list.since ? " parmi les nouveaux titres" : "";
 
     if (!scene->ready)
         snprintf(line, sizeof(line), "Lecture du son : %d / %d...",
             scene->done, scene->nb_todo);
-    else if (scene->list.nb == 0)
-        snprintf(line, sizeof(line), "Aucun doublon trouvé%s.",
-            scene->list.since ? " parmi les nouveaux titres" : "");
+    else if (scene->list.nb == 0 && !app->lib->same_files)
+        snprintf(line, sizeof(line), "Aucun doublon trouvé%s.", since);
     else
-        snprintf(line, sizeof(line), "%d doublon(s) possible(s)%s : garde "
-            "l'un des deux, l'autre y est fusionné (« Séparer » dans "
-            "l'édition annule).", scene->list.nb, scene->list.since ?
-            " parmi les nouveaux titres" : "");
+        snprintf(line, sizeof(line), "%d groupe(s)%s : garde une version, "
+            "les autres y sont fusionnées (« Séparer » dans l'édition "
+            "annule).", scene->list.nb, since);
     widget_text(app, line, (float [3]){130, 180, 22}, &gray);
+    if (scene->auto_merged == 0)
+        return;
+    snprintf(line, sizeof(line), "%d fusion(s) automatique(s) dans la "
+        "version auto-générée (son identique à %d %% ou plus).",
+        scene->auto_merged, DUP_AUTO);
+    widget_text(app, line, (float [3]){130, 210, 22}, &gray);
 }
 
 static void header(app_t *app, dupscene_t *scene)
 {
     float remove[4] = {1260, 115, 520, 52};
+    settings_t *set = &app->lib->settings;
 
     widget_text(app, "Doublons", (float [3]){130, 115, 40}, &sfWhite);
     status(app, scene);
-    if (widget_button(app, remove, scene->remove ? "Supprimer le fichier "
-            "en trop : oui" : "Supprimer le fichier en trop : non"))
-        scene->remove = !scene->remove;
+    search_field(app, (float [4]){700, 115, 520, 52});
+    if (widget_button(app, remove, set->dup_remove ? "Supprimer le fichier "
+            "en trop : oui" : "Supprimer le fichier en trop : non")) {
+        set->dup_remove = !set->dup_remove;
+        db_save_settings(app->lib);
+    }
     widget_help(app, remove, "Le fichier de la musique fusionnée est effacé "
-        "de music/ (ses statistiques restent)");
+        "de music/ (ses statistiques restent), aussi pour les fusions "
+        "automatiques");
+}
+
+/*
+** height of the item n: a file of identical sound, or a group (0 if the
+** search leaves it out)
+*/
+static float item_h(app_t *app, int n, int nb_same)
+{
+    dup_group_t *group = NULL;
+
+    if (n < nb_same)
+        return DUP_SAME_H;
+    group = &app->dupscene->list.groups[n - nb_same];
+    return shown(app, group) ? dup_block_h(group) : 0;
+}
+
+/*
+** returns 1 if the list changed
+*/
+static int item(app_t *app, int n, int nb_same, float y)
+{
+    if (n < nb_same)
+        return dup_same_row(app, n, y);
+    return dup_block(app, &app->dupscene->list.groups[n - nb_same], y);
 }
 
 void dupscene_view(app_t *app)
 {
     dupscene_t *scene = app->dupscene;
-    int rows = dupscene_rows(app);
+    float bottom = CONTENT_BOTTOM + app->extra_h;
+    int nb_same = dup_same_count(app);
+    float y = DUP_ROWS_Y;
+    float h = 0;
 
     header(app, scene);
-    for (int i = scene->scroll; scene->ready && i < scene->list.nb
-        && i < scene->scroll + rows; i++)
-        if (dup_block(app, i, DUP_ROWS_Y + (i - scene->scroll)
-                * DUP_BLOCK_H))
+    for (int n = scene->scroll; scene->ready
+        && n < nb_same + scene->list.nb; n++) {
+        h = item_h(app, n, nb_same);
+        if (y > DUP_ROWS_Y && y + h > bottom)
             break;
+        if (h > 0 && item(app, n, nb_same, y))
+            break;
+        y += h;
+    }
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))
         scene_back(app);

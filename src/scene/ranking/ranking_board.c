@@ -28,7 +28,7 @@ int ranking_rows(app_t *app)
 void ranking_scroll(app_t *app, float delta)
 {
     ranking_t *ranking = app->ranking;
-    int max = ranking->nb - ranking_rows(app);
+    int max = ranking_count(app) - ranking_rows(app);
 
     if (delta > 0)
         ranking->scroll--;
@@ -83,16 +83,23 @@ static void draw_line(app_t *app, int i, float y)
     widget_text(app, text, (float [3]){1640, y, 26}, &sfWhite);
 }
 
+/*
+** shown : rows matching the search before this one
+*/
 void ranking_board(app_t *app)
 {
     ranking_t *ranking = app->ranking;
     int rows = ranking_rows(app);
-    float y = 0;
+    int shown = -1;
 
     header(app);
-    for (int i = ranking->scroll; i < ranking->nb
-        && i < ranking->scroll + rows; i++) {
-        y = CONTENT_Y + BOARD_STEP + (i - ranking->scroll) * BOARD_STEP;
-        draw_line(app, i, y);
+    for (int i = 0; i < ranking->nb; i++) {
+        if (!ranking_match(app, &ranking->ranks[i]))
+            continue;
+        shown++;
+        if (shown < ranking->scroll || shown >= ranking->scroll + rows)
+            continue;
+        draw_line(app, i, CONTENT_Y + BOARD_STEP
+            + (shown - ranking->scroll) * BOARD_STEP);
     }
 }

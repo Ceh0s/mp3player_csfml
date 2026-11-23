@@ -7,8 +7,12 @@
 
 #include "mp3player.h"
 
-static void destroy_fprints(fprint_t *fp)
+/*
+** the fingerprints, and the files with the sound of one of them
+*/
+static void destroy_fprints(library_t *lib)
 {
+    fprint_t *fp = lib->fprints;
     fprint_t *next = NULL;
 
     while (fp) {
@@ -20,6 +24,7 @@ static void destroy_fprints(fprint_t *fp)
         free(fp);
         fp = next;
     }
+    same_files_free(lib);
 }
 
 static void destroy_artists(artist_t *artist)
@@ -50,7 +55,7 @@ void library_destroy(library_t *lib)
     if (!lib)
         return;
     song_list_destroy(lib->songs);
-    destroy_fprints(lib->fprints);
+    destroy_fprints(lib);
     destroy_artists(lib->artists);
     destroy_links(lib->links);
     elo_clear(lib);

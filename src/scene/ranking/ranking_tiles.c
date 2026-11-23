@@ -9,12 +9,14 @@
 
 #include "mp3player.h"
 
-static int tier_count(ranking_t const *ranking, int tier)
+static int tier_count(app_t *app, int tier)
 {
+    ranking_t const *ranking = app->ranking;
     int count = 0;
 
     for (int i = 0; i < ranking->nb; i++)
-        count += ranking->tiers[i] == tier;
+        count += ranking->tiers[i] == tier
+            && ranking_match(app, &ranking->ranks[i]);
     return count;
 }
 
@@ -50,14 +52,15 @@ static void tile(app_t *app, rank_t const *rank, float const *rect)
 int ranking_tiles(app_t *app, int tier, float const *row)
 {
     ranking_t *ranking = app->ranking;
-    float size = tile_size(tier_count(ranking, tier), row);
+    float size = tile_size(tier_count(app, tier), row);
     int per_line = (TILES_RIGHT - TILES_X) / (size + TILE_GAP);
     int shown = 0;
     int hidden = 0;
     float rect[4] = {0, 0, size, size};
 
     for (int i = 0; i < ranking->nb; i++) {
-        if (ranking->tiers[i] != tier)
+        if (ranking->tiers[i] != tier
+            || !ranking_match(app, &ranking->ranks[i]))
             continue;
         rect[0] = TILES_X + (shown % per_line) * (size + TILE_GAP);
         rect[1] = row[0] + 4 + (shown / per_line) * (size + TILE_GAP);

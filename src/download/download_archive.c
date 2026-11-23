@@ -21,6 +21,9 @@ static void write_entries(FILE *file, library_t const *lib)
     for (fprint_t const *fp = lib->fprints; fp; fp = fp->next)
         if (fp->path && source_video_id(fp->source, id))
             fprintf(file, "youtube %s\n", id);
+    for (same_file_t const *same = lib->same_files; same; same = same->next)
+        if (source_video_id(same->source, id))
+            fprintf(file, "youtube %s\n", id);
 }
 
 void download_archive_write(library_t const *lib)

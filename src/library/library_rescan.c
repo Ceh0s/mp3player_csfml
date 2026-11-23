@@ -22,6 +22,7 @@ void library_rescan(app_t *app)
         fp->file = NULL;
         fp->source = NULL;
     }
+    same_files_free(app->lib);
     db_merge(app->lib, scan_music(MUSIC_DIR));
     library_changed(app);
     images_from_covers(app->lib);

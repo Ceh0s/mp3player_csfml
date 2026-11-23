@@ -3,7 +3,8 @@
 ** mp3player
 ** File description:
 ** links the files found in the music folder to the saved songs,
-** using their audio fingerprint: nothing is ever deleted
+** using their audio fingerprint: nothing is ever deleted. A second file
+** with the same fingerprint is kept aside (same_files.c).
 */
 
 #include "mp3player.h"
@@ -30,6 +31,7 @@ static void update_entry(song_t *old, song_t *found)
     replace(&old->year, &found->year);
     if (found->duration_ms > 0)
         old->duration_ms = found->duration_ms;
+    old->autogen = found->autogen;
     old->last_seen = time(NULL);
     free(old->key);
     old->key = NULL;
@@ -89,7 +91,7 @@ static void merge_one(library_t *lib, song_t *found)
     song_t *song = NULL;
 
     if (fp && fp->path) {
-        fprintf(stderr, "Same file twice, ignored: %s\n", found->path);
+        same_file_add(lib, found, fp->song_id);
         song_destroy(found);
         return;
     }

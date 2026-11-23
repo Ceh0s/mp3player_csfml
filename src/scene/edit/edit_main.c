@@ -91,33 +91,6 @@ static void image(app_t *app, edit_t *edit)
         edit->focus = FOCUS_IMAGE;
 }
 
-/*
-** the song is deleted and its video never downloaded again; asked
-** twice; impossible for a song that did not come from a video
-*/
-static void exclude_button(app_t *app, edit_t *edit, float y)
-{
-    float rect[4] = {1480, y, 300, 56};
-    char id[VIDEO_ID];
-
-    if (!song_video_id(app->lib, edit->song, id)) {
-        widget_help(app, rect, "Ce titre ne vient pas d'une vidéo : "
-            "rien à exclure des téléchargements");
-        widget_button(app, rect, "(Exclure)");
-        return;
-    }
-    widget_help(app, rect, "Supprime le fichier et ne télécharge plus "
-        "jamais cette vidéo (stats gardées)");
-    if (!widget_button(app, rect, edit->exclude ? "Confirmer" : "Exclure"))
-        return;
-    if (!edit->exclude) {
-        edit->exclude = 1;
-        return;
-    }
-    song_exclude(app, edit->song);
-    scene_back(app);
-}
-
 static void buttons(app_t *app, edit_t *edit)
 {
     float y = 840 + app->extra_h;
@@ -133,7 +106,7 @@ static void buttons(app_t *app, edit_t *edit)
         edit->focus = FOCUS_SEARCH;
         edit_refresh_lists(app);
     }
-    exclude_button(app, edit, y);
+    edit_remove_buttons(app, edit, y);
 }
 
 void edit_main(app_t *app)

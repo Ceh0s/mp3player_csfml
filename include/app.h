@@ -23,6 +23,7 @@
 ** then (0 = all of them)
 ** held / key_repeat : keys held down, and 1 if the last KeyPressed was
 ** the repeat of a held key (see keys.c)
+** search : search field of the screen shown (search_field.c)
 */
 struct app_s {
     sfRenderWindow *window;
@@ -65,6 +66,7 @@ struct app_s {
     long dup_since;
     int library_tab;
     arena_t arena;
+    search_t search;
     widgets_t *wg;
     library_t *lib;
     player_t *player;

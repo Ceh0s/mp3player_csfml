@@ -41,6 +41,7 @@ int scene_switch(app_t *app)
         return 0;
     scenes[app->scene].destroy(app);
     image_cache_clear(app);
+    memset(&app->search, 0, sizeof(search_t));
     app->scene = app->next_scene;
     if (scenes[app->scene].init(app) == 84)
         return 84;

@@ -45,6 +45,20 @@ typedef struct scene_s {
     void (*destroy)(app_t *app);
 } scene_t;
 
+/*
+** search field shared by the screens with a long list (one at a time,
+** emptied when the screen changes): text typed, focus : 1 while it
+** receives the keys, shown : 1 if the screen drew it at the last frame,
+** rect : where, changed : 1 after a change (cleared by the screen)
+*/
+typedef struct search_s {
+    char text[NAME_LEN];
+    int focus;
+    int shown;
+    float rect[4];
+    int changed;
+} search_t;
+
 typedef struct setscene_s {
     sfTexture *bg_texture;
     sfSprite *bg;
@@ -162,8 +176,12 @@ typedef struct image_input_s {
 ** search / results / target : choice of the song to merge into
 ** artist : artist shown by the artist page
 ** image : import of an image for the song or the artist shown
-** exclude : 1 once "Exclure" was clicked (a second click confirms)
+** exclude : EDIT_ASK_EXCLUDE or EDIT_ASK_DELETE once "Exclure" or
+** "Supprimer du lecteur" was clicked (a second click confirms), 0 if none
 */
+    #define EDIT_ASK_EXCLUDE 1
+    #define EDIT_ASK_DELETE 2
+
 typedef struct edit_s {
     sfTexture *bg_texture;
     sfSprite *bg;
@@ -325,10 +343,13 @@ typedef struct dlscene_s {
 } dlscene_t;
 
 /*
-** possible duplicates: the pairs found by dup_find (list), then the
+** possible duplicates: the groups found by dup_find (list), then the
 ** sound of the songs in them is read, one song per tick (todo, done:
-** the window keeps being drawn); ready once every pair is compared
-** remove : 1 to remove the file of the song merged into the one kept
+** the window keeps being drawn); ready once every group is compared
+** auto_merged : songs merged on their own (dup_merge.c)
+** scroll : first item shown (the files of identical sound, then the
+** groups), confirm : file of identical sound about to be removed + 1
+** (asked a second time), 0 if none
 */
 typedef struct dupscene_s {
     sfTexture *bg_texture;
@@ -339,8 +360,9 @@ typedef struct dupscene_s {
     int nb_todo;
     int done;
     int ready;
+    int auto_merged;
     int scroll;
-    int remove;
+    int confirm;
 } dupscene_t;
 
 #endif

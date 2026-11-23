@@ -5,8 +5,8 @@
 ** search of the possible duplicates among the present songs, from what
 ** is written about them: same core of title, same version (a remix is
 ** not the original), an artist in common (uploader included), close
-** durations. The sound is compared afterwards (dup_audio.c), only for
-** the pairs found here.
+** durations. The pairs are then gathered in groups (dup_groups.c) and
+** the sound is compared afterwards (dup_audio.c), only for them.
 */
 
 #include "mp3player.h"
@@ -40,16 +40,16 @@ static void add_pair(dup_list_t *list, song_t *a, song_t *b)
 {
     dup_pair_t *bigger = NULL;
 
-    if (list->nb % 16 == 0) {
-        bigger = realloc(list->pairs, sizeof(dup_pair_t) * (list->nb + 16));
+    if (list->nb_pairs % 16 == 0) {
+        bigger = realloc(list->pairs, sizeof(dup_pair_t)
+            * (list->nb_pairs + 16));
         if (!bigger)
             return;
         list->pairs = bigger;
     }
-    list->pairs[list->nb].a = a;
-    list->pairs[list->nb].b = b;
-    list->pairs[list->nb].audio = -1;
-    list->nb++;
+    list->pairs[list->nb_pairs].a = a;
+    list->pairs[list->nb_pairs].b = b;
+    list->nb_pairs++;
 }
 
 /*
@@ -72,16 +72,17 @@ static void pairs_of(library_t *lib, dup_info_t *infos, int i,
 }
 
 /*
-** the pairs found replace those of the list; returns 84 on a failed
+** the groups found replace those of the list; returns 84 on a failed
 ** allocation
 */
 int dup_find(library_t *lib, dup_list_t *list)
 {
     dup_info_t *infos = malloc(sizeof(dup_info_t) * (lib->nb + 1));
 
-    free(list->pairs);
-    list->pairs = NULL;
+    free(list->groups);
+    list->groups = NULL;
     list->nb = 0;
+    list->nb_pairs = 0;
     if (!infos)
         return 84;
     for (int i = 0; i < lib->nb; i++)
@@ -89,5 +90,5 @@ int dup_find(library_t *lib, dup_list_t *list)
     for (int i = 0; i < lib->nb; i++)
         pairs_of(lib, infos, i, list);
     free(infos);
-    return 0;
+    return dup_group_pairs(list);
 }

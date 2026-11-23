@@ -14,6 +14,8 @@ void db_parse_setting(library_t *lib, char **fields, int nb)
         return;
     if (strcmp(fields[0], "help") == 0)
         lib->settings.help = atoi(fields[1]) != 0;
+    if (strcmp(fields[0], "dup_remove") == 0)
+        lib->settings.dup_remove = atoi(fields[1]) != 0;
 }
 
 int db_save_settings(library_t *lib)
@@ -23,5 +25,6 @@ int db_save_settings(library_t *lib)
     if (!file)
         return 84;
     fprintf(file, "help\t%d\n", lib->settings.help);
+    fprintf(file, "dup_remove\t%d\n", lib->settings.dup_remove);
     return tsv_commit(file, SETTINGS_DB);
 }

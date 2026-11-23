@@ -27,7 +27,7 @@ int list_click(app_t *app)
 */
 void list_play(app_t *app, int row)
 {
-    player_queue(app, app->libscene->playlist_id);
+    player_queue(app, app->libscene->playlist_id, app->search.text);
     if (app->libscene->view[row] == app->player->song)
         player_toggle(app);
     else

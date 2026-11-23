@@ -42,10 +42,32 @@ static void battle_key(app_t *app, sfKeyCode code)
         battle_vote(app, battle->focus);
 }
 
+/*
+** a right click on the card of a song opens its edit screen (to remove
+** it, for example); the battle is built again when coming back
+*/
+static void right_click(app_t *app)
+{
+    battle_t *battle = app->battle;
+    float card[4] = {130, BATTLE_CARD_Y, 760, BATTLE_CARD_H};
+
+    for (int i = 0; battle->has_pair && i < 2; i++) {
+        card[0] = i == 0 ? 130 : 1030;
+        if (!battle->pair[i].song || !mouse_in_rect(app, card))
+            continue;
+        preview_stop(app);
+        app->edit_song = battle->pair[i].song;
+        scene_open(app, EDIT);
+    }
+}
+
 void battle_event(app_t *app, sfEvent *event)
 {
     if (event->type == sfEvtKeyPressed)
         battle_key(app, event->key.code);
+    if (event->type == sfEvtMouseButtonReleased
+        && event->mouseButton.button == sfMouseRight)
+        right_click(app);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;

@@ -82,7 +82,7 @@
     #define CUSTOM_COLUMNS "playlist_id\tsong_id\tposition"
     #define BOARDS_COLUMNS "id\tname"
     #define RULES_COLUMNS "board_id\tmode\ttype\ttarget"
-    #define REJECTED_COLUMNS "video_id\tduration_s\ttimestamp\ttitle"
+    #define REJECTED_COLUMNS "video_id\tduration_s\ttimestamp\ttitle\tin_range"
     #define SOURCES_COLUMNS "playlist_id\turl\tmin_s\tmax_s\treport_absent"
     #define ENVELOPES_COLUMNS "hash\tenvelope"
     #define NOT_DUPS_COLUMNS "song_a\tsong_b"
@@ -97,6 +97,7 @@
     #define ENV_MAX_FILE_MS 1200000
     #define DUP_SURE 70
     #define DUP_DIFFERENT 40
+    #define DUP_AUTO 99
 
     #define LIST_X 130
     #define LIST_Y 258
@@ -123,7 +124,9 @@
     #define PL_ROW_STEP 52
     #define BOARDS_ROWS_Y 330
     #define DUP_ROWS_Y 250
-    #define DUP_BLOCK_H 160
+    #define DUP_HEAD_H 44
+    #define DUP_ROW_H 76
+    #define DUP_SAME_H 56
     #define DLPOPUP_ROWS_Y 290
     #define DLPOPUP_STEP 54
 
@@ -227,6 +230,7 @@ void edit_event(app_t *app, sfEvent *event);
 void edit_draw(app_t *app);
 void edit_layout(app_t *app);
 void edit_destroy(app_t *app);
+void edit_remove_buttons(app_t *app, edit_t *edit, float y);
 void edit_main(app_t *app);
 void edit_search(app_t *app);
 void edit_confirm(app_t *app);
@@ -264,6 +268,9 @@ int ranking_tier(int rank, int nb);
 int ranking_tiles(app_t *app, int tier, float const *row);
 void ranking_board(app_t *app);
 void ranking_scroll(app_t *app, float delta);
+int ranking_match(app_t *app, rank_t const *rank);
+int ranking_count(app_t *app);
+void ranking_search(app_t *app);
 int ranking_rows(app_t *app);
 void ranking_ties(app_t *app);
 void ranking_drag_press(app_t *app);
@@ -336,10 +343,17 @@ void dupscene_layout(app_t *app);
 void dupscene_destroy(app_t *app);
 int dupscene_todo(app_t *app);
 void dupscene_clean(app_t *app);
-int dupscene_rows(app_t *app);
 void dupscene_scroll(app_t *app, float delta);
 void dupscene_view(app_t *app);
-int dup_block(app_t *app, int i, float y);
+int dup_block(app_t *app, dup_group_t *group, float y);
+float dup_block_h(dup_group_t const *group);
+int dup_row(app_t *app, dup_group_t const *group, int i, float y);
+void dup_keep(app_t *app, song_t *keep, song_t *other);
+void dup_keep_all(app_t *app, dup_group_t *group, int i);
+int dup_auto_merge(app_t *app);
+int dup_same_count(app_t *app);
+same_file_t *dup_same_get(app_t *app, int n);
+int dup_same_row(app_t *app, int n, float y);
 
 // src/download : audio download by yt-dlp
 void report_add(download_t *dl, report_status_t status, char const *title,
@@ -382,6 +396,14 @@ int category_bar(app_t *app, int *category, int nb, int random);
 int board_bar(app_t *app, arena_t *arena);
 int image_box(app_t *app, rank_t const *rank, image_input_t *input,
     float const *pos);
+int listen_mine(app_t *app, song_t const *song);
+int listen_button(app_t *app, song_t *song, float const *rect);
+void listen_time(app_t *app, float const *pos);
+int listen_bar(app_t *app, float const *bar);
+void search_field(app_t *app, float const *rect);
+int search_event(app_t *app, sfEvent const *event);
+int search_text(app_t *app, char const *text);
+int search_song(app_t *app, song_t const *song);
 
 // src/ui
 ui_t *ui_create(sfTexture *texture, ui_def_t const *defs, int nb);
@@ -420,7 +442,7 @@ void player_skip(app_t *app, int direction);
 void player_stop(app_t *app, end_reason_t reason);
 void player_update(app_t *app);
 void player_resync(app_t *app);
-void player_queue(app_t *app, int playlist_id);
+void player_queue(app_t *app, int playlist_id, char const *filter);
 void preview_stop(app_t *app);
 void preview_toggle(app_t *app, song_t *song);
 void preview_seek(app_t *app, float ratio);
@@ -479,8 +501,16 @@ int song_merge(app_t *app, song_t *source, song_t *target);
 void song_split(app_t *app, song_t *alias);
 void song_delete_files(app_t *app, song_t *song);
 void song_remove_files(library_t *lib, song_t *song);
+void song_log_delete(int song_id, char const *path);
 int merge_warnings(song_t const *src, song_t const *dst,
     char warn[EDIT_WARNINGS][128]);
+
+// src/library/file/same_files.c : files with the sound of another one
+void same_file_add(library_t *lib, song_t *found, int song_id);
+void same_files_free(library_t *lib);
+song_t *same_file_video(library_t *lib, char const *id);
+void same_file_delete(same_file_t *same);
+void same_files_of(library_t *lib, song_t *song);
 
 // src/library/videos : videos the songs come from
 int source_video_id(char const *source, char *id);
@@ -512,6 +542,8 @@ void dup_artists(library_t *lib, song_t const *song, char const *prefix,
     char *out);
 int dup_artists_meet(char const *a, char const *b);
 int dup_find(library_t *lib, dup_list_t *list);
+int dup_group_pairs(dup_list_t *list);
+void dup_group_remove(dup_group_t *group, int i);
 unsigned char *envelope_compute(char const *path, int *nb);
 int envelope_compare(envelope_t const *a, envelope_t const *b);
 envelope_t *envelope_find(library_t *lib, char const *hash);
@@ -553,6 +585,8 @@ int sort_key_by_name(char const *name);
 view_sort_t *sort_get(library_t *lib, int playlist_id);
 void sort_set(library_t *lib, int playlist_id, sort_key_t key);
 void sort_remove(library_t *lib, int playlist_id);
+int song_matches(song_t const *song, char const *text);
+int view_filter(song_t **view, int nb, char const *text);
 int playlist_sorted_view(library_t *lib, playlist_t const *playlist,
     song_t **view);
 int sort_set_custom(library_t *lib, view_sort_t *sort, song_t *const *view,

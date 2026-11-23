@@ -35,6 +35,10 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/download/download_targets.c\
 		src/scene/download/download_view.c\
 		src/scene/duplicates/dup_analysis.c\
+		src/scene/duplicates/dup_refresh.c\
+		src/scene/duplicates/dup_merge.c\
+		src/scene/duplicates/dup_row.c\
+		src/scene/duplicates/dup_same.c\
 		src/scene/duplicates/dup_block.c\
 		src/scene/duplicates/dup_scene.c\
 		src/scene/duplicates/dup_view.c\
@@ -42,6 +46,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/edit/edit_artist.c\
 		src/scene/edit/edit_input.c\
 		src/scene/edit/edit_main.c\
+		src/scene/edit/edit_remove.c\
 		src/scene/edit/edit_suggest.c\
 		src/scene/edit/edit_rows.c\
 		src/scene/edit/edit_search.c\
@@ -66,6 +71,8 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/pages/category_bar.c\
 		src/scene/pages/image_box.c\
 		src/scene/pages/like_buttons.c\
+		src/scene/pages/listen_bar.c\
+		src/scene/pages/search_field.c\
 		src/scene/playlist/pledit_scene.c\
 		src/scene/playlist/pledit_view.c\
 		src/scene/ranking/ranking_board.c\
@@ -74,6 +81,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/ranking/ranking_order.c\
 		src/scene/ranking/ranking_reset.c\
 		src/scene/ranking/ranking_scene.c\
+		src/scene/ranking/ranking_search.c\
 		src/scene/ranking/ranking_tiers.c\
 		src/scene/ranking/ranking_ties.c\
 		src/scene/ranking/ranking_tiles.c\
@@ -117,12 +125,14 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/duplicates/dup_clean.c\
 		src/library/duplicates/dup_core.c\
 		src/library/duplicates/dup_find.c\
+		src/library/duplicates/dup_groups.c\
 		src/library/duplicates/envelopes.c\
 		src/library/duplicates/not_dup.c\
 		src/library/file/durations.c\
 		src/library/file/fingerprint.c\
 		src/library/file/mp3_check.c\
 		src/library/file/scan_music.c\
+		src/library/file/same_files.c\
 		src/library/id3/id3_cover.c\
 		src/library/id3/id3_frames.c\
 		src/library/id3/id3_read.c\
@@ -146,6 +156,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/playlists/playlist_append.c\
 		src/library/playlists/playlist_sort.c\
 		src/library/playlists/playlist_view.c\
+		src/library/playlists/view_filter.c\
 		src/library/playlists/playlists.c\
 		src/library/playlists/sorts.c\
 		src/library/songs/fprints.c\

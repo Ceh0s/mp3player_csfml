@@ -84,14 +84,21 @@ void ranking_ties(app_t *app)
 {
     ranking_t *ranking = app->ranking;
     int rows = ranking_rows(app);
+    int shown = -1;
+    char const *help = "Ordre entre ex æquo (même Elo, même % et même "
+        "nombre de victoires) : glisse une ligne pour la déplacer.";
 
-    widget_text(app, "Ordre entre ex æquo (même Elo, même % et même "
-        "nombre de victoires) : glisse une ligne pour la déplacer.",
-        (float [3]){130, CONTENT_Y, 22}, &gray);
-    for (int i = ranking->scroll; i < ranking->nb
-        && i < ranking->scroll + rows; i++)
-        tie_line(app, &ranking->order[i], i,
-            CONTENT_Y + BOARD_STEP + (i - ranking->scroll) * BOARD_STEP);
+    if (app->search.text[0] != '\0')
+        help = "Recherche en cours : vide-la pour déplacer les lignes.";
+    widget_text(app, help, (float [3]){130, CONTENT_Y, 22}, &gray);
+    for (int i = 0; i < ranking->nb; i++) {
+        if (!ranking_match(app, &ranking->order[i]))
+            continue;
+        shown++;
+        if (shown >= ranking->scroll && shown < ranking->scroll + rows)
+            tie_line(app, &ranking->order[i], i, CONTENT_Y + BOARD_STEP
+                + (shown - ranking->scroll) * BOARD_STEP);
+    }
     if (app->wg->mode == WG_DRAW)
         ranking_drag_draw(app);
     buttons(app, ranking);

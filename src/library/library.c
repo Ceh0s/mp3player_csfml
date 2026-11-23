@@ -40,19 +40,16 @@ static int build_present(library_t *lib)
 /*
 ** the file goes to the song its fingerprint belongs to, or to the song
 ** that one was merged into; the own files of a song are attached first
-** (aliases = 0), then those of its aliases (aliases = 1)
+** (aliases = 0), then those of its aliases (aliases = 1); the others
+** (the file of a merged duplicate that was kept) are not played
 */
 static void attach_file(library_t *lib, fprint_t *fp, int aliases)
 {
     song_t *owner = song_by_id(lib, fp->song_id);
     song_t *song = song_resolve(lib, owner);
 
-    if (!fp->path || !song || (owner != song) != aliases)
+    if (!fp->path || !song || (owner != song) != aliases || song->present)
         return;
-    if (song->present) {
-        fprintf(stderr, "Already in the library, ignored: %s\n", fp->path);
-        return;
-    }
     song->present = 1;
     song->path = strdup(fp->path);
     if (fp->file) {

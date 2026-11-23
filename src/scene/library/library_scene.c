@@ -101,18 +101,25 @@ static void shortcuts(app_t *app)
 }
 
 /*
-** the buttons around the list (drawn, or tested for a click)
+** the buttons around the list (drawn, or tested for a click); the
+** search filters the list in both modes
 */
 static void widgets(app_t *app)
 {
+    float search[4] = {1350, SORT_Y, 480, 52};
+
     library_likes(app);
     shortcuts(app);
     library_select_toggle(app);
     library_tabs(app);
-    if (app->libscene->selecting)
+    if (app->libscene->selecting) {
+        search[0] = 1000;
+        search[2] = 560;
         library_select_bar(app);
-    else
+    } else
         library_sort_bar(app);
+    if (!app->libscene->sel.open)
+        search_field(app, search);
 }
 
 static void right_click(app_t *app)
@@ -190,6 +197,10 @@ void libscene_update(app_t *app)
 
     ui_show(app->libscene->ui, LIB_PLAY, !playing);
     ui_show(app->libscene->ui, LIB_PAUSE, playing);
+    if (app->search.changed) {
+        app->search.changed = 0;
+        list_create(app);
+    }
     list_update(app);
     drag_update(app);
     bar_update(app);

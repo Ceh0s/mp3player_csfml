@@ -63,7 +63,8 @@ void drag_press(app_t *app)
 {
     libscene_t *scene = app->libscene;
 
-    scene->drag_row = is_custom(app) ? list_click(app) : -1;
+    scene->drag_row = is_custom(app) && app->search.text[0] == '\0' ?
+        list_click(app) : -1;
     scene->press = app->mouse;
     scene->dragging = 0;
     scene->drag_wait = 0;

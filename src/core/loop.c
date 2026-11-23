@@ -24,6 +24,8 @@ static int typing(app_t *app)
 {
     scene_id_t scene = app->scene;
 
+    if (app->search.focus)
+        return 1;
     if (scene == RANKING)
         return app->ranking && app->ranking->reset;
     if (scene == LIBRARY)
@@ -69,6 +71,7 @@ static void autosave(app_t *app)
 static void draw(app_t *app)
 {
     sfRenderWindow_clear(app->window, sfBlack);
+    app->search.shown = 0;
     scenes[app->scene].draw(app);
     sfRenderWindow_display(app->window);
 }
@@ -89,7 +92,7 @@ static void poll_events(app_t *app)
     sfEvent event;
 
     while (sfRenderWindow_pollEvent(app->window, &event)) {
-        if (key_repeated(app, &event))
+        if (key_repeated(app, &event) || search_event(app, &event))
             continue;
         global_event(app, &event);
         scenes[app->scene].event(app, &event);

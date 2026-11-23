@@ -76,8 +76,9 @@ static void cards(app_t *app, battle_t *battle)
     float middle = BATTLE_CARD_Y + BATTLE_CARD_H / 2 - 30;
 
     widget_text(app, "VS", (float [3]){930, middle, 48}, &sfWhite);
-    widget_text(app, "Clique sur ton choix, ou flèches gauche / droite "
-        "puis Entrée", (float [3]){130, y + 6, 22}, &gray);
+    widget_text(app, "Clique sur ton choix, ou flèches gauche / droite puis "
+        "Entrée ; clic droit : éditer la musique",
+        (float [3]){130, y + 6, 22}, &gray);
     if (card(app, &battle->pair[0], 130)) {
         battle_vote(app, 0);
         return;

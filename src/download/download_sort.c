@@ -8,8 +8,9 @@
 ** - private, deleted or live stream : left out
 ** - out of the allowed duration : left out if it was already refused,
 **   else put aside (flagged) until a decision
-** - else : to download (a refused video back in the allowed duration
-**   is no longer refused)
+** - refused before and now in the allowed duration : put aside too (the
+**   user confirms), left out if it was refused again in the duration
+** - else : to download
 */
 
 #include "mp3player.h"
@@ -37,24 +38,37 @@ static int unavailable(dl_entry_t const *entry)
 }
 
 /*
+** a refused video is left out while it stays out of the duration, or
+** for good if it was refused again in the duration; returns 1 if so
+*/
+static int still_refused(download_t *dl, rejected_t const *rej, int out)
+{
+    if (!rej || (!out && !rej->in_range))
+        return 0;
+    dl->refused++;
+    report_add(dl, REP_REFUSED, rej->title, out ? "hors durée, refusé "
+        "avant" : "refusé avant, aussi dans la durée");
+    return 1;
+}
+
+/*
 ** returns 1 if the entry was kept (put aside or to download)
 */
 static int keep_entry(app_t *app, download_t *dl, dl_entry_t *entry)
 {
+    rejected_t *rej = rejected_find(app->lib, entry->id);
+    int out = out_of_range(&dl->opt, entry->duration);
+
     if (entry_find(dl->todo, entry->id) || entry_find(dl->flagged,
-            entry->id) || (dl->cur && strcmp(dl->cur->id, entry->id) == 0))
+            entry->id) || (dl->cur && strcmp(dl->cur->id, entry->id) == 0)
+        || still_refused(dl, rej, out))
         return 0;
-    if (!out_of_range(&dl->opt, entry->duration)) {
-        rejected_remove(app->lib, entry->id);
+    if (!out && !rej) {
         entry_append(&dl->todo, entry);
         dl->items++;
         return 1;
     }
-    if (rejected_find(app->lib, entry->id)) {
-        dl->refused++;
-        report_add(dl, REP_REFUSED, entry->title, "hors durée, refusé avant");
-        return 0;
-    }
+    entry->was_refused = rej != NULL;
     entry_append(&dl->flagged, entry);
     return 1;
 }

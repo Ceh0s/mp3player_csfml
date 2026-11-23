@@ -63,7 +63,7 @@ static void status_rows(app_t *app, report_status_t status, int *i)
     int rows = dlpopup_rows(app);
 
     for (dl_report_t *line = app->download.report; line; line = line->next) {
-        if (line->status != status)
+        if (line->status != status || !search_text(app, line->title))
             continue;
         if (*i >= first && *i - first < rows)
             report_row(app, line, DLPOPUP_ROWS_Y + (*i - first)
@@ -85,18 +85,30 @@ void dlscene_report(app_t *app)
 }
 
 /*
+** 1 if the row of this title is on the screen; i counts the rows
+** matching the search, this one included
+*/
+static int visible(app_t *app, char const *title, int *i)
+{
+    int first = app->dlscene->scroll;
+
+    if (!search_text(app, title))
+        return 0;
+    (*i)++;
+    return *i >= first && *i - first < dlpopup_rows(app);
+}
+
+/*
 ** the list changes after a decision: the loop stops there
 */
 void dlscene_refused(app_t *app)
 {
-    int first = app->dlscene->scroll;
     int i = -1;
     float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
     char text[80 + 4];
 
     for (rejected_t *rej = app->lib->rejected; rej; rej = rej->next) {
-        i++;
-        if (i < first || i - first >= dlpopup_rows(app))
+        if (!visible(app, rej->title, &i))
             continue;
         y += DLPOPUP_STEP;
         utf8_cut(text, rej->title, 70);
@@ -126,14 +138,12 @@ int dlscene_report_lines(app_t *app)
 void dlscene_excluded(app_t *app)
 {
     library_t *lib = app->lib;
-    int first = app->dlscene->scroll;
     int i = -1;
     float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
     char cut[80 + 4];
 
     for (rejected_t *ex = lib->excluded; ex; ex = ex->next) {
-        i++;
-        if (i < first || i - first >= dlpopup_rows(app))
+        if (!visible(app, ex->title, &i))
             continue;
         y += DLPOPUP_STEP;
         utf8_cut(cut, ex->title, 80);

@@ -88,7 +88,8 @@ static int draw_titles(app_t *app, int tier, float const *row)
     int hidden = 0;
 
     for (int i = 0; i < ranking->nb; i++) {
-        if (ranking->tiers[i] != tier)
+        if (ranking->tiers[i] != tier
+            || !ranking_match(app, &ranking->ranks[i]))
             continue;
         if (!place_title(app, rank_name(&ranking->ranks[i]), pos, row))
             hidden++;

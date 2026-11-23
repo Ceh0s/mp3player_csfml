@@ -56,7 +56,9 @@ typedef struct dl_options_s {
 /*
 ** a video found by the listing: id given by the site, address of its
 ** page, title, duration in seconds (-1 if unknown), live = 1 for a live
-** stream (never ending: not downloaded) and the playlists it goes to
+** stream (never ending: not downloaded) and the playlists it goes to;
+** was_refused = 1 if it was refused before for its duration and is now
+** in the allowed one (asked again instead of downloaded)
 */
 typedef struct dl_entry_s {
     char id[VIDEO_ID];
@@ -64,6 +66,7 @@ typedef struct dl_entry_s {
     char *title;
     int duration;
     int live;
+    int was_refused;
     int targets[DL_TARGETS];
     int nb_targets;
     struct dl_entry_s *next;

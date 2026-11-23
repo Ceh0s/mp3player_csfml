@@ -3,9 +3,10 @@
 ** mp3player
 ** File description:
 ** decision on a video put aside because of its duration: accepted, it
-** is downloaded (added to the running queue, or starting a new one);
-** refused, it is saved in rejected.tsv and left out next times while it
-** stays out of the allowed duration
+** is downloaded (added to the running queue, or starting a new one)
+** and no longer refused; refused, it is saved in rejected.tsv and left
+** out next times while it stays out of the allowed duration (for good
+** if it was refused before and is now in the allowed duration)
 */
 
 #include "mp3player.h"
@@ -34,6 +35,10 @@ void download_accept(app_t *app, dl_entry_t *entry)
 
     entry_unlink(&dl->flagged, entry);
     entry_append(&dl->todo, entry);
+    if (entry->was_refused) {
+        rejected_remove(app->lib, entry->id);
+        db_save_rejected(app->lib);
+    }
     if (dl->queue) {
         dl->items++;
         return;
@@ -49,16 +54,16 @@ void download_accept(app_t *app, dl_entry_t *entry)
 void download_refuse(app_t *app, dl_entry_t *entry)
 {
     download_t *dl = &app->download;
+    rejected_t *rej = NULL;
 
     entry_unlink(&dl->flagged, entry);
-    rejected_add(app->lib, entry->id, entry->title, entry->duration);
+    rej = rejected_add(app->lib, entry->id, entry->title, entry->duration);
+    if (rej && entry->was_refused)
+        rej->in_range = 1;
     entries_free(entry);
     db_save_rejected(app->lib);
 }
 
-/*
-** accept = 1 downloads all the videos put aside, 0 refuses them
-*/
 /*
 ** never downloaded again, whatever the duration
 */
@@ -72,6 +77,9 @@ void download_exclude(app_t *app, dl_entry_t *entry)
     db_save_excluded(app->lib);
 }
 
+/*
+** accept = 1 downloads all the videos put aside, 0 refuses them
+*/
 void download_decide_all(app_t *app, int accept)
 {
     download_t *dl = &app->download;

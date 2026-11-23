@@ -10,7 +10,7 @@
 
 #include "mp3player.h"
 
-static void log_delete(int song_id, char const *path)
+void song_log_delete(int song_id, char const *path)
 {
     char line[PATH_LEN + 64];
 
@@ -29,10 +29,11 @@ void song_remove_files(library_t *lib, song_t *song)
         if (!fp->path || song_resolve(lib, song_by_id(lib, fp->song_id))
             != song)
             continue;
-        log_delete(fp->song_id, fp->path);
+        song_log_delete(fp->song_id, fp->path);
         if (unlink(fp->path) != 0)
             fprintf(stderr, "Cannot remove %s\n", fp->path);
     }
+    same_files_of(lib, song);
 }
 
 /*

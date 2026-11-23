@@ -7,15 +7,18 @@
 ** one, or all of them), the videos refused before (a refusal can be
 ** cancelled), the songs no longer in the playlist of the site
 ** (download_absent_view.c), the excluded videos and the report of the
-** last queue (download_report_view.c)
+** last queue (download_report_view.c); the search field filters the
+** rows of every page by title
 */
 
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
 static char const *const help[] = {"",
-    "Hors de la durée choisie : pas téléchargés.",
-    "Ignorés tant qu'ils restent hors de la durée choisie.",
+    "Hors de la durée choisie, ou refusés avant et revenus dans la durée"
+    " : en attente.",
+    "Ignorés hors de la durée ; dans la durée, redemandés (ignorés pour "
+    "de bon si refusés encore).",
     "Dans la playlist locale, mais plus dans celle du site.",
     "Jamais téléchargés à nouveau, quelle que soit la durée.",
     "Ce qu'est devenue chaque vidéo de la dernière file."};
@@ -73,13 +76,18 @@ static void flagged_rows(app_t *app, download_t *dl)
 {
     int i = -1;
     float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
+    char title[NAME_LEN + 32];
 
     for (dl_entry_t *e = dl->flagged; e; e = e->next) {
+        if (!search_text(app, e->title))
+            continue;
         i++;
         if (hidden(app, i))
             continue;
         y += DLPOPUP_STEP;
-        row_text(app, e->title, e->duration, y);
+        snprintf(title, sizeof(title), "%s%s", e->was_refused ?
+            "(refusé avant) " : "", e->title);
+        row_text(app, title, e->duration, y);
         if (flagged_buttons(app, e, y))
             return;
     }
@@ -165,6 +173,11 @@ void dlscene_popup(app_t *app)
     tabs(app);
     widget_text(app, help[app->dlscene->popup], (float [3]){300, 235, 22},
         &gray);
+    if (app->search.changed) {
+        app->search.changed = 0;
+        app->dlscene->scroll = 0;
+    }
+    search_field(app, (float [4]){1200, 222, 455, 48});
     page(app, app->dlscene->popup);
     footer(app, app->dlscene);
 }
