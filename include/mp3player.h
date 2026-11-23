@@ -254,6 +254,7 @@ void battle_vote(app_t *app, int side);
 int battle_listen(app_t *app, rank_t const *rank, float x);
 void battle_frame(app_t *app, float x);
 void battle_reload(app_t *app);
+void battle_restore(app_t *app);
 
 // src/scene/ranking
 int ranking_init(app_t *app);
@@ -320,6 +321,9 @@ void dlscene_options(app_t *app, dl_options_t *opt);
 void dlscene_text(app_t *app, sfUint32 code);
 void dlscene_durations(app_t *app, float y);
 int parse_duration(char const *text);
+void duration_text(char *buf, int secs);
+void dlscene_range_load(app_t *app);
+void dlscene_range_save(app_t *app);
 void dlscene_preselect(app_t *app);
 void dlscene_targets(app_t *app, float y);
 void dlscene_popup(app_t *app);
@@ -723,6 +727,7 @@ void db_parse_excluded(library_t *lib, char **fields, int nb);
 int db_save_excluded(library_t *lib);
 void db_parse_suggestion(library_t *lib, char **fields, int nb);
 void db_parse_setting(library_t *lib, char **fields, int nb);
+void db_load_settings(library_t *lib);
 int db_save_settings(library_t *lib);
 int db_save_suggestions(library_t *lib);
 int db_save_elo(library_t *lib);

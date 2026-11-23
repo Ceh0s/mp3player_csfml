@@ -24,6 +24,8 @@
 ** held / key_repeat : keys held down, and 1 if the last KeyPressed was
 ** the repeat of a held key (see keys.c)
 ** search : search field of the screen shown (search_field.c)
+** battle_keep : ids of the two songs of the battle while one of them is
+** edited (right click), shown again when coming back (0 = none)
 */
 struct app_s {
     sfRenderWindow *window;
@@ -61,6 +63,7 @@ struct app_s {
     dupscene_t *dupscene;
     setscene_t *settings;
     song_t *edit_song;
+    int battle_keep[2];
     playlist_t *edit_playlist;
     int sync_playlist;
     long dup_since;

@@ -27,8 +27,7 @@ static void load_more(library_t *lib)
 
 void db_load_all(library_t *lib)
 {
-    lib->settings.help = 1;
-    tsv_read(SETTINGS_DB, &db_parse_setting, lib);
+    db_load_settings(lib);
     tsv_read(ARTISTS_DB, &db_parse_artist, lib);
     tsv_read(SONGS_DB, &db_parse_song, lib);
     tsv_read(FPRINTS_DB, &db_parse_fprint, lib);

@@ -415,10 +415,14 @@ typedef struct cover_sig_s {
 ** screen; help : 1 to explain the buttons when the mouse is over them
 ** dup_remove : 1 to remove the file of a song merged as a duplicate
 ** (switch of the duplicates screen)
+** dl_min_s / dl_max_s : duration range typed last on the download
+** screen, in seconds (-1 = no limit)
 */
 typedef struct settings_s {
     int help;
     int dup_remove;
+    int dl_min_s;
+    int dl_max_s;
 } settings_t;
 
 typedef struct library_s {

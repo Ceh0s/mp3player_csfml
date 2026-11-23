@@ -2,7 +2,8 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** result of a battle and choice of the next pair
+** result of a battle and choice of the next pair (or the same one
+** again after the edit of one of its songs)
 */
 
 #include "mp3player.h"
@@ -47,4 +48,31 @@ void battle_vote(app_t *app, int side)
     battle_record(app->lib, &app->arena, &battle->pair[side],
         &battle->pair[1 - side]);
     battle_next(app);
+}
+
+static rank_t *pool_find(pool_t *pool, int id)
+{
+    for (int i = 0; i < pool->nb; i++)
+        if (pool->items[i].song && pool->items[i].song->id == id)
+            return &pool->items[i];
+    return NULL;
+}
+
+/*
+** back from the edit of a song of the pair (right click): the same pair,
+** unless one of them left the pool (removed, excluded or merged)
+*/
+void battle_restore(app_t *app)
+{
+    battle_t *battle = app->battle;
+    rank_t *left = pool_find(&battle->pool, app->battle_keep[0]);
+    rank_t *right = pool_find(&battle->pool, app->battle_keep[1]);
+
+    app->battle_keep[0] = 0;
+    app->battle_keep[1] = 0;
+    if (!left || !right)
+        return;
+    battle->pair[0] = *left;
+    battle->pair[1] = *right;
+    battle->has_pair = 1;
 }

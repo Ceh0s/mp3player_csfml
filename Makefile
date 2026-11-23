@@ -28,6 +28,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/download/download_link.c\
 		src/scene/download/download_options.c\
 		src/scene/download/download_popup.c\
+		src/scene/download/download_range.c\
 		src/scene/download/download_report_view.c\
 		src/scene/download/download_scene.c\
 		src/scene/download/download_stats_view.c\

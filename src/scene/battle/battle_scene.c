@@ -24,6 +24,7 @@ int battle_init(app_t *app)
     if (app->arena.category == CAT_TOTAL)
         app->arena.category = CAT_ALL;
     battle_reload(app);
+    battle_restore(app);
     return 0;
 }
 
@@ -44,7 +45,8 @@ static void battle_key(app_t *app, sfKeyCode code)
 
 /*
 ** a right click on the card of a song opens its edit screen (to remove
-** it, for example); the battle is built again when coming back
+** it, for example); the battle is built again when coming back, with
+** the same pair if both songs are still in it
 */
 static void right_click(app_t *app)
 {
@@ -56,6 +58,8 @@ static void right_click(app_t *app)
         if (!battle->pair[i].song || !mouse_in_rect(app, card))
             continue;
         preview_stop(app);
+        app->battle_keep[0] = battle->pair[0].song->id;
+        app->battle_keep[1] = battle->pair[1].song->id;
         app->edit_song = battle->pair[i].song;
         scene_open(app, EDIT);
     }

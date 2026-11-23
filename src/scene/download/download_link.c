@@ -10,16 +10,6 @@
 #include "mp3player.h"
 
 /*
-** seconds written back as "m:ss" in a duration field ("" = no limit)
-*/
-static void duration_text(char *buf, int secs)
-{
-    buf[0] = '\0';
-    if (secs >= 0)
-        snprintf(buf, DURATION_LEN, "%d:%02d", secs / 60, secs % 60);
-}
-
-/*
 ** opened by "Synchroniser": the options linked to the playlist are
 ** filled in and the download starts at once
 */

@@ -24,6 +24,7 @@ int dlscene_init(app_t *app)
     if (!app->dlscene->bg || !app->dlscene->panel)
         return 84;
     dlscene_preselect(app);
+    dlscene_range_load(app);
     if (app->sync_playlist)
         dlscene_sync(app);
     return 0;
@@ -105,6 +106,7 @@ void dlscene_destroy(app_t *app)
 {
     if (!app->dlscene)
         return;
+    dlscene_range_save(app);
     if (app->dlscene->bg)
         sfSprite_destroy(app->dlscene->bg);
     if (app->dlscene->bg_texture)
