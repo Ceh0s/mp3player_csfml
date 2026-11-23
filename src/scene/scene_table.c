@@ -27,7 +27,9 @@ const scene_t scenes[NB_SCENES] = {
     {DUPLICATES, &dupscene_init, &dupscene_event, &dupscene_update,
         &dupscene_draw, &dupscene_layout, &dupscene_destroy},
     {SETTINGS, &settings_init, &settings_event, NULL, &settings_draw,
-        &settings_layout, &settings_destroy}
+        &settings_layout, &settings_destroy},
+    {STATS, &stats_init, &stats_event, NULL, &stats_draw, &stats_layout,
+        &stats_destroy}
 };
 
 /*
@@ -42,6 +44,7 @@ int scene_switch(app_t *app)
     scenes[app->scene].destroy(app);
     image_cache_clear(app);
     memset(&app->search, 0, sizeof(search_t));
+    memset(&app->wg->caret, 0, sizeof(caret_t));
     app->scene = app->next_scene;
     if (scenes[app->scene].init(app) == 84)
         return 84;

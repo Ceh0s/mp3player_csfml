@@ -183,4 +183,14 @@ typedef struct download_s {
     dl_stats_t stats;
 } download_t;
 
+/*
+** a reason of failure written by yt-dlp (english: part of its line),
+** said in French; lasting : 1 if trying again would fail the same way
+*/
+typedef struct reason_s {
+    char const *english;
+    char const *french;
+    int lasting;
+} reason_t;
+
 #endif

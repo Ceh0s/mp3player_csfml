@@ -82,9 +82,9 @@ void library_actions_key(app_t *app, sfUint32 code)
     int digit = code >= '0' && code <= '9';
 
     if (sel->focus == SEL_FOCUS_TEXT)
-        text_input(sel->text, code);
+        text_input(app, sel->text, code);
     if (sel->focus == SEL_FOCUS_IMAGE)
-        text_input(sel->image, code);
+        text_input(app, sel->image, code);
     if (sel->focus == SEL_FOCUS_AFTER && (code == 8 || digit))
-        text_input_n(sel->after, sizeof(sel->after), code);
+        text_input_n(app, sel->after, sizeof(sel->after), code);
 }

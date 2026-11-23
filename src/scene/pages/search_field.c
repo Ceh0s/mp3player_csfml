@@ -30,8 +30,9 @@ void search_field(app_t *app, float const *rect)
 /*
 ** keys of the field; returns 1 if the event is used here
 */
-static int search_key(search_t *search, sfEvent const *event)
+static int search_key(app_t *app, search_t *search, sfEvent const *event)
 {
+    sfUint32 code = event->text.unicode;
     int pressed = event->type == sfEvtKeyPressed;
     int escape = pressed && event->key.code == sfKeyEscape;
     int enter = pressed && event->key.code == sfKeyEnter;
@@ -46,7 +47,7 @@ static int search_key(search_t *search, sfEvent const *event)
     if (escape || enter)
         search->focus = 0;
     if (event->type == sfEvtTextEntered)
-        search->changed |= text_input(search->text, event->text.unicode);
+        search->changed |= text_input(app, search->text, code);
     return pressed || event->type == sfEvtTextEntered;
 }
 
@@ -64,7 +65,7 @@ int search_event(app_t *app, sfEvent const *event)
     if (event->type == sfEvtMouseButtonReleased
         && event->mouseButton.button == sfMouseLeft)
         search->focus = mouse_in_rect(app, search->rect);
-    return search_key(search, event);
+    return search_key(app, search, event);
 }
 
 /*

@@ -107,9 +107,10 @@ int sug_song_name(suggest_ctx_t const *ctx, char const *name, int any_known)
     if (ctx->song->src_artists && same_uploader(ctx->song->src_artists, name))
         return 1;
     for (link_t *link = ctx->lib->links; link; link = link->next) {
+        if (link->song_id != ctx->song->id)
+            continue;
         artist = artist_by_id(ctx->lib, link->artist_id);
-        if (link->song_id == ctx->song->id && artist
-            && strcasecmp(artist->name, name) == 0)
+        if (artist && strcasecmp(artist->name, name) == 0)
             return 1;
     }
     return any_known && artist_find(ctx->lib, name) != NULL;

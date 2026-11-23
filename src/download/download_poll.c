@@ -75,10 +75,23 @@ static void failed(download_t *dl)
         report_add(dl, REP_FAILED, dl->cur->title, dl->last);
 }
 
+/*
+** a video that YouTube does not serve is not tried again next time
+*/
+static void remember(app_t *app, download_t *dl)
+{
+    if (dl->step != DL_STEP_GET || !dl->cur || !dl_reason_lasting(dl->last))
+        return;
+    unavailable_add(app->lib, dl->cur->id, dl->cur->title, dl->last);
+    db_save_unavailable(app->lib);
+}
+
 static void step_done(app_t *app, download_t *dl, int success)
 {
-    if (!success)
+    if (!success) {
         failed(dl);
+        remember(app, dl);
+    }
     if (dl->step == DL_STEP_LIST) {
         if (success && dl->found > 0)
             download_find_absent(app);

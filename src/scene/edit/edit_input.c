@@ -34,7 +34,7 @@ void edit_text_entered(app_t *app, sfUint32 code)
     if (code == 13 && edit->mode == EDIT_MAIN && edit->focus == FOCUS_ARTIST)
         edit_add_artist(app, edit->input,
             edit->nb_artists > 0 ? ROLE_FEAT : ROLE_MAIN);
-    if (buf && text_input(buf, code))
+    if (buf && text_input(app, buf, code))
         edit_refresh_lists(app);
 }
 

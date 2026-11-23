@@ -70,11 +70,18 @@ void player_toggle(app_t *app)
         sfMusic_play(music);
 }
 
+/*
+** with the queue repeated, the last song is followed by the first one
+** and the first one preceded by the last one
+*/
 void player_skip(app_t *app, int direction)
 {
-    int target = app->player->index + direction;
+    player_t *player = app->player;
+    int target = player->index + direction;
 
-    if (!app->player->music || target < 0 || target >= app->player->nb)
+    if (app->lib->settings.repeat == REPEAT_QUEUE && player->nb > 0)
+        target = (target + player->nb) % player->nb;
+    if (!player->music || target < 0 || target >= player->nb)
         return;
     player_play(app, target);
 }

@@ -90,7 +90,7 @@ void bulk_remove(app_t *app, int exclude)
         done++;
     }
     db_save_excluded(app->lib);
-    library_rescan(app);
+    library_drop_missing(app);
     list_create(app);
     select_all(app, 0);
     snprintf(sel->msg, sizeof(sel->msg), "%d titre(s) %s.", done,

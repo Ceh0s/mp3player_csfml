@@ -68,9 +68,11 @@ static int add_role(library_t *lib, song_t const *song, int role,
     while (nb < EDIT_ARTISTS && out[nb].name[0] != '\0')
         nb++;
     for (link_t *link = lib->links; link; link = link->next) {
-        artist = artist_by_id(lib, link->artist_id);
         if (link->song_id != song->id || (int)link->role != role
-            || !artist || nb >= EDIT_ARTISTS)
+            || nb >= EDIT_ARTISTS)
+            continue;
+        artist = artist_by_id(lib, link->artist_id);
+        if (!artist)
             continue;
         snprintf(out[nb].name, NAME_LEN, "%s", artist->name);
         out[nb].role = role;

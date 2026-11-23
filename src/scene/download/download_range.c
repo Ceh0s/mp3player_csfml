@@ -2,9 +2,9 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** duration range of the download screen, kept in settings.tsv: the
-** fields are filled with the range typed last when the screen opens,
-** and it is saved when the screen is left
+** duration range of the download screen, kept until the app closes
+** (app->dl_range): the fields are filled with the range typed last when
+** the screen opens, and it is kept when the screen is left
 */
 
 #include "mp3player.h"
@@ -21,24 +21,12 @@ void duration_text(char *buf, int secs)
 
 void dlscene_range_load(app_t *app)
 {
-    settings_t *settings = &app->lib->settings;
-
-    duration_text(app->dlscene->min, settings->dl_min_s);
-    duration_text(app->dlscene->max, settings->dl_max_s);
+    duration_text(app->dlscene->min, app->dl_range[0]);
+    duration_text(app->dlscene->max, app->dl_range[1]);
 }
 
-/*
-** written only if it changed
-*/
 void dlscene_range_save(app_t *app)
 {
-    settings_t *settings = &app->lib->settings;
-    int min = parse_duration(app->dlscene->min);
-    int max = parse_duration(app->dlscene->max);
-
-    if (min == settings->dl_min_s && max == settings->dl_max_s)
-        return;
-    settings->dl_min_s = min;
-    settings->dl_max_s = max;
-    db_save_settings(app->lib);
+    app->dl_range[0] = parse_duration(app->dlscene->min);
+    app->dl_range[1] = parse_duration(app->dlscene->max);
 }

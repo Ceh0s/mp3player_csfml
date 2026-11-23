@@ -11,8 +11,6 @@
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
-static const size_t field_chars = 110;
-
 /*
 ** the field is emptied once the download started
 */
@@ -23,22 +21,6 @@ void dlscene_start(app_t *app)
     dlscene_options(app, &opt);
     if (download_start(app, app->dlscene->url, &opt) == 0)
         app->dlscene->url[0] = '\0';
-}
-
-/*
-** the field only shows the end of a long text (what was just typed),
-** starting on the first byte of a utf-8 character
-*/
-static char const *field_end(char const *text)
-{
-    size_t len = strlen(text);
-
-    if (len <= field_chars)
-        return text;
-    text += len - field_chars;
-    while (((unsigned char)text[0] & 0xC0) == 0x80)
-        text++;
-    return text;
 }
 
 /*
@@ -98,7 +80,7 @@ static void header(app_t *app)
         "(YouTube, SoundCloud, Bandcamp, ou une playlist) : les mp3 sont "
         "enregistrés dans music/.", (float [3]){130, 180, 22}, &gray);
     if (widget_field(app, (float [4]){130, 240, 1650, 56},
-            field_end(scene->url), scene->focus == DL_FIELD_URL))
+            scene->url, scene->focus == DL_FIELD_URL))
         scene->focus = DL_FIELD_URL;
     snprintf(count, sizeof(count), "%d lien(s)", count_links(scene->url));
     widget_text(app, count, (float [3]){1600, 305, 20}, &gray);
@@ -162,8 +144,10 @@ void dlscene_view(app_t *app)
     flagged_button(app, dl);
     dlscene_targets(app, 410);
     dlscene_link(app, 530);
-    if (dl->state == DL_RUNNING)
+    if (dl->state == DL_RUNNING) {
         progress(app, dl);
+        dlscene_failures(app, dl, 795);
+    }
     dlscene_status(app, dl);
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))

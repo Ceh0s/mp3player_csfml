@@ -37,12 +37,12 @@ void song_remove_files(library_t *lib, song_t *song)
 }
 
 /*
-** the folder is scanned again: the song becomes absent
+** the files gone are forgotten: the song becomes absent
 */
 void song_delete_files(app_t *app, song_t *song)
 {
     song_remove_files(app->lib, song);
-    library_rescan(app);
+    library_drop_missing(app);
     if (app->libscene)
         list_create(app);
 }

@@ -2,12 +2,13 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** list shown over the download screen, in five pages: the videos put
+** list shown over the download screen, in six pages: the videos put
 ** aside because of their duration (download, refuse or exclude each
 ** one, or all of them), the videos refused before (a refusal can be
 ** cancelled), the songs no longer in the playlist of the site
 ** (download_absent_view.c), the excluded videos and the report of the
-** last queue (download_report_view.c); the search field filters the
+** last queue (download_report_view.c), the unavailable videos
+** (download_unavailable_view.c); the search field filters the
 ** rows of every page by title
 */
 
@@ -21,7 +22,9 @@ static char const *const help[] = {"",
     "de bon si refusés encore).",
     "Dans la playlist locale, mais plus dans celle du site.",
     "Jamais téléchargés à nouveau, quelle que soit la durée.",
-    "Ce qu'est devenue chaque vidéo de la dernière file."};
+    "Ce qu'est devenue chaque vidéo de la dernière file.",
+    "Anciennes versions de titres republiés : ignorées aux prochains "
+    "téléchargements."};
 
 int dlpopup_rows(app_t *app)
 {
@@ -100,10 +103,11 @@ static void tab(app_t *app, float x, char const *name, dl_popup_t popup)
 {
     dlscene_t *scene = app->dlscene;
     char label[64];
+    float width = popup == DL_POPUP_UNAVAILABLE ? 250 : 215;
 
     snprintf(label, sizeof(label), scene->popup == popup ? "> %s <" : "%s",
         name);
-    if (!widget_button(app, (float [4]){x, 160, 262, 46}, label))
+    if (!widget_button(app, (float [4]){x, 160, width, 46}, label))
         return;
     scene->popup = popup;
     scene->scroll = 0;
@@ -123,6 +127,8 @@ static void footer(app_t *app, dlscene_t *scene)
     }
     if (scene->popup == DL_POPUP_ABSENT)
         dlscene_absent_footer(app, y);
+    if (scene->popup == DL_POPUP_UNAVAILABLE)
+        dlscene_unavailable_footer(app, y);
     if (widget_button(app, (float [4]){1455, y, 200, 52}, "Fermer"))
         scene->popup = DL_POPUP_NONE;
 }
@@ -136,14 +142,17 @@ static void tabs(app_t *app)
     tab(app, 300, label, DL_POPUP_FLAGGED);
     snprintf(label, sizeof(label), "Refusés (%d)",
         rejected_count(app->lib));
-    tab(app, 572, label, DL_POPUP_REFUSED);
+    tab(app, 525, label, DL_POPUP_REFUSED);
     snprintf(label, sizeof(label), "Retirés (%d)",
         app->download.nb_absent);
-    tab(app, 844, label, DL_POPUP_ABSENT);
+    tab(app, 750, label, DL_POPUP_ABSENT);
     snprintf(label, sizeof(label), "Exclus (%d)",
         excluded_count(app->lib));
-    tab(app, 1116, label, DL_POPUP_EXCLUDED);
-    tab(app, 1388, "Bilan", DL_POPUP_REPORT);
+    tab(app, 975, label, DL_POPUP_EXCLUDED);
+    snprintf(label, sizeof(label), "Indisponibles (%d)",
+        unavailable_count(app->lib));
+    tab(app, 1200, label, DL_POPUP_UNAVAILABLE);
+    tab(app, 1460, "Bilan", DL_POPUP_REPORT);
 }
 
 static void page(app_t *app, dl_popup_t popup)
@@ -158,6 +167,8 @@ static void page(app_t *app, dl_popup_t popup)
         dlscene_excluded(app);
     if (popup == DL_POPUP_REPORT)
         dlscene_report(app);
+    if (popup == DL_POPUP_UNAVAILABLE)
+        dlscene_unavailable(app);
 }
 
 void dlscene_popup(app_t *app)

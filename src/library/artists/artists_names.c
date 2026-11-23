@@ -77,8 +77,10 @@ static void append_role(library_t *lib, song_t *song, char *buf,
     int count = 0;
 
     for (link_t *link = lib->links; link; link = link->next) {
+        if (link->song_id != song->id || link->role != role)
+            continue;
         artist = artist_by_id(lib, link->artist_id);
-        if (link->song_id != song->id || link->role != role || !artist)
+        if (!artist)
             continue;
         strcat(buf, count == 0 ? prefix[role] : ", ");
         strcat(buf, artist->name);
@@ -97,8 +99,10 @@ void song_build_artists(library_t *lib, song_t *song)
     artist_t *artist = NULL;
 
     for (link_t *link = lib->links; link; link = link->next) {
+        if (link->song_id != song->id)
+            continue;
         artist = artist_by_id(lib, link->artist_id);
-        if (link->song_id == song->id && artist)
+        if (artist)
             size += strlen(artist->name) + 10;
     }
     free(song->artists);

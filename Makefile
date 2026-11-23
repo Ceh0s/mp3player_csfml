@@ -16,6 +16,11 @@ SRC_CORE	=	src/core/app_destroy.c\
 SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/scene_table.c\
 		src/scene/settings/settings_scene.c\
+		src/scene/stats/stats_bar.c\
+		src/scene/stats/stats_build.c\
+		src/scene/stats/stats_dates.c\
+		src/scene/stats/stats_scene.c\
+		src/scene/stats/stats_view.c\
 		src/scene/battle/battle_listen.c\
 		src/scene/battle/battle_scene.c\
 		src/scene/battle/battle_view.c\
@@ -34,6 +39,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/download/download_stats_view.c\
 		src/scene/download/download_summary.c\
 		src/scene/download/download_targets.c\
+		src/scene/download/download_unavailable_view.c\
 		src/scene/download/download_view.c\
 		src/scene/duplicates/dup_analysis.c\
 		src/scene/duplicates/dup_refresh.c\
@@ -55,6 +61,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/library/library_bar.c\
 		src/scene/library/library_layout.c\
 		src/scene/library/library_likes.c\
+		src/scene/library/library_modes.c\
 		src/scene/library/library_list.c\
 		src/scene/library/library_action_rows.c\
 		src/scene/library/library_actions.c\
@@ -95,7 +102,8 @@ SRC_UI	=	src/ui/image_cache.c\
 		src/ui/widget_help.c\
 		src/ui/widget_image.c\
 		src/ui/widget_shapes.c\
-		src/ui/widgets.c
+		src/ui/widgets.c\
+		src/ui/widget_field.c
 
 SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pair.c\
@@ -107,11 +115,15 @@ SRC_ELO	=	src/elo/elo_categories.c\
 SRC_AUDIO	=	src/audio/listen_tracker.c\
 		src/audio/player.c\
 		src/audio/player_queue.c\
+		src/audio/player_shuffle.c\
 		src/audio/preview.c
 
 SRC_LIBRARY	=	src/library/library.c\
 		src/library/library_destroy.c\
 		src/library/library_rescan.c\
+		src/library/stats/stat_sort.c\
+		src/library/stats/stat_sums.c\
+		src/library/stats/stats_log.c\
 		src/library/artists/artist_breakdown.c\
 		src/library/boards/board_members.c\
 		src/library/boards/board_playlists.c\
@@ -134,6 +146,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/file/mp3_check.c\
 		src/library/file/scan_music.c\
 		src/library/file/same_files.c\
+		src/library/file/missing_files.c\
 		src/library/id3/id3_cover.c\
 		src/library/id3/id3_frames.c\
 		src/library/id3/id3_read.c\
@@ -168,11 +181,13 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/songs/song_merge.c\
 		src/library/songs/song_resolve.c\
 		src/library/videos/excluded.c\
+		src/library/videos/unavailable.c\
 		src/library/videos/rejected.c\
 		src/library/videos/sources.c\
 		src/library/videos/video_source.c
 
-SRC_DOWNLOAD	=	src/download/download_absent.c\
+SRC_DOWNLOAD	=	src/download/dl_reason.c\
+		src/download/download_absent.c\
 		src/download/download_add.c\
 		src/download/download_archive.c\
 		src/download/download_flagged.c\
@@ -199,6 +214,7 @@ SRC_DATA	=	src/data/db_all.c\
 		src/data/db_suggest.c\
 		src/data/db_tables.c\
 		src/data/db_excluded.c\
+		src/data/db_unavailable.c\
 		src/data/db_likes.c\
 		src/data/db_ties.c\
 		src/data/logs.c\
@@ -207,6 +223,8 @@ SRC_DATA	=	src/data/db_all.c\
 SRC_UTILS	=	src/utils/str_split.c\
 		src/utils/str_utils.c\
 		src/utils/text_input.c\
+		src/utils/text_caret.c\
+		src/utils/utf8_step.c\
 		src/utils/utf8.c
 
 SRC	=	main.c\

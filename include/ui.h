@@ -47,8 +47,22 @@ typedef enum wg_mode_e {
     #define TIP_LEN 256
 
 /*
+** cursor of the field receiving the keys (one at a time): buf : its
+** text, pos : byte where the next character goes, first : first byte
+** shown (a long text scrolls), shown : 1 if the field was drawn with
+** the focus at the last frame (the arrows move the cursor only then)
+*/
+typedef struct caret_s {
+    char *buf;
+    size_t pos;
+    size_t first;
+    int shown;
+} caret_t;
+
+/*
 ** picture / circle : shapes drawing the images (square or round)
 ** tip : text of the hovered element, drawn last by widget_tip_draw
+** caret : cursor of the field being typed in (text_caret.c)
 */
 typedef struct widgets_s {
     sfText *text;
@@ -57,6 +71,7 @@ typedef struct widgets_s {
     sfCircleShape *circle;
     char tip[TIP_LEN];
     wg_mode_t mode;
+    caret_t caret;
 } widgets_t;
 
 /*

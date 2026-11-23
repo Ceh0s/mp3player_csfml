@@ -30,6 +30,8 @@ static int typing(app_t *app)
         return app->ranking && app->ranking->reset;
     if (scene == LIBRARY)
         return app->libscene && app->libscene->sel.open;
+    if (scene == STATS)
+        return app->stats && app->stats->focus;
     return scene == EDIT || scene == PLAYLIST || scene == BOARDS
         || scene == DOWNLOAD;
 }
@@ -40,7 +42,7 @@ static int typing(app_t *app)
 static int own_escape(scene_id_t scene)
 {
     return scene == EDIT || scene == BOARDS || scene == DOWNLOAD
-        || scene == RANKING || scene == LIBRARY;
+        || scene == RANKING || scene == LIBRARY || scene == STATS;
 }
 
 static void global_event(app_t *app, sfEvent *event)
@@ -72,6 +74,7 @@ static void draw(app_t *app)
 {
     sfRenderWindow_clear(app->window, sfBlack);
     app->search.shown = 0;
+    app->wg->caret.shown = 0;
     scenes[app->scene].draw(app);
     sfRenderWindow_display(app->window);
 }
@@ -92,7 +95,10 @@ static void poll_events(app_t *app)
     sfEvent event;
 
     while (sfRenderWindow_pollEvent(app->window, &event)) {
-        if (key_repeated(app, &event) || search_event(app, &event))
+        if (key_repeated(app, &event))
+            continue;
+        if ((typing(app) && caret_key(app, &event))
+            || search_event(app, &event))
             continue;
         global_event(app, &event);
         scenes[app->scene].event(app, &event);

@@ -64,8 +64,8 @@ song_t *same_file_video(library_t *lib, char const *id)
 }
 
 /*
-** removes the file from music/ (written in edits.log); the list is
-** rebuilt by the next scan
+** removes the file from music/ (written in edits.log); it leaves the
+** list with library_drop_missing
 */
 void same_file_delete(same_file_t *same)
 {

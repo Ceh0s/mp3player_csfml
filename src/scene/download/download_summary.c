@@ -36,10 +36,27 @@ static void left_out(app_t *app, download_t const *dl)
         "en attente");
     len = add_part(line, len, dl->refused, "déjà refusée(s)");
     len = add_part(line, len, dl->excluded, "exclue(s)");
-    add_part(line, len, dl->unavailable, "privée(s), supprimée(s) ou en "
-        "direct");
+    add_part(line, len, dl->unavailable, "indisponible(s) (privée, "
+        "supprimée, réupload ou en direct)");
     if (line[0] != '\0')
         widget_text(app, line, (float [3]){130, 645, 22}, &sfWhite);
+}
+
+/*
+** "3 échec(s), le dernier : <reason>" (in French when it is known, the
+** whole line of yt-dlp is in the report), also while the queue runs
+*/
+void dlscene_failures(app_t *app, download_t const *dl, float y)
+{
+    char reason[DL_LINE];
+    char line[DL_LINE + 64];
+
+    if (dl->failed <= 0)
+        return;
+    dl_reason(reason, sizeof(reason), dl->error);
+    snprintf(line, sizeof(line), "%d échec(s), le dernier : %s",
+        dl->failed, reason);
+    widget_text(app, line, (float [3]){130, y, 22}, &orange);
 }
 
 static void done_lines(app_t *app, download_t const *dl)
@@ -54,12 +71,7 @@ static void done_lines(app_t *app, download_t const *dl)
         "%s en %s, dans la bibliothèque.", dl->ok, size, time);
     widget_text(app, line, (float [3]){130, 600, 26}, &green);
     left_out(app, dl);
-    if (dl->failed > 0) {
-        snprintf(line, sizeof(line), "%d échec(s), le dernier :",
-            dl->failed);
-        widget_text(app, line, (float [3]){130, 690, 22}, &orange);
-        widget_text(app, dl->error, (float [3]){130, 725, 20}, &gray);
-    }
+    dlscene_failures(app, dl, 700);
 }
 
 /*

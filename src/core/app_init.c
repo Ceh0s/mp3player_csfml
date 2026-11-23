@@ -37,6 +37,8 @@ static int load_shared(app_t *app)
     srand(time(NULL));
     app->player->index = -1;
     app->show_images = 1;
+    app->dl_range[0] = -1;
+    app->dl_range[1] = -1;
     return 0;
 }
 

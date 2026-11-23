@@ -78,7 +78,7 @@ static void click(app_t *app)
 }
 
 /*
-** shortcuts to the download, battle and rankings screens (widgets);
+** shortcuts to the download, battle, rankings and statistics screens;
 ** a playlist linked to an address can be downloaded again
 */
 static void shortcuts(app_t *app)
@@ -98,6 +98,8 @@ static void shortcuts(app_t *app)
         scene_open(app, BATTLE);
     if (widget_button(app, (float [4]){1580, 20, 250, 56}, "Classements"))
         scene_open(app, RANKING);
+    if (widget_button(app, (float [4]){540, 20, 230, 56}, "Statistiques"))
+        scene_open(app, STATS);
 }
 
 /*
@@ -110,6 +112,7 @@ static void widgets(app_t *app)
 
     library_likes(app);
     shortcuts(app);
+    library_play_modes(app);
     library_select_toggle(app);
     library_tabs(app);
     if (app->libscene->selecting) {

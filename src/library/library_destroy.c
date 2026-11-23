@@ -50,6 +50,17 @@ static void destroy_links(link_t *link)
     }
 }
 
+/*
+** the lists about the videos of the sites
+*/
+static void destroy_videos(library_t *lib)
+{
+    rejected_remove(lib, NULL);
+    excluded_remove(lib, NULL);
+    unavailable_remove(lib, NULL);
+    source_remove(lib, -1);
+}
+
 void library_destroy(library_t *lib)
 {
     if (!lib)
@@ -62,9 +73,7 @@ void library_destroy(library_t *lib)
     playlist_remove(lib, NULL);
     sort_remove(lib, -1);
     board_remove(lib, NULL);
-    rejected_remove(lib, NULL);
-    excluded_remove(lib, NULL);
-    source_remove(lib, -1);
+    destroy_videos(lib);
     envelopes_free(lib);
     not_dups_free(lib);
     ties_free(lib);

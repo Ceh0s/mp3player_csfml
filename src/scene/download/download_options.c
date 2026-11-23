@@ -49,11 +49,11 @@ void dlscene_text(app_t *app, sfUint32 code)
     char *buf = scene->focus == DL_FIELD_MIN ? scene->min : scene->max;
 
     if (scene->focus == DL_FIELD_URL) {
-        text_input_n(scene->url, URLS_LEN, code);
+        text_input_n(app, scene->url, URLS_LEN, code);
         return;
     }
     if (code == 8 || code == ':' || (code >= '0' && code <= '9'))
-        text_input_n(buf, DURATION_LEN, code);
+        text_input_n(app, buf, DURATION_LEN, code);
 }
 
 /*

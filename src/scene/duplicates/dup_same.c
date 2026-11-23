@@ -77,7 +77,7 @@ int dup_same_row(app_t *app, int n, float y)
     if (!asked)
         return 0;
     same_file_delete(same);
-    library_rescan(app);
+    library_drop_missing(app);
     dupscene_clean(app);
     return 1;
 }

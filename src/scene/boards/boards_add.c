@@ -43,6 +43,7 @@ static void search(app_t *app, boards_t *bd)
 void boards_text(app_t *app, sfUint32 code)
 {
     boards_t *bd = app->boards;
+    char *field = NULL;
 
     if (bd->mode != BOARDS_EDIT || bd->board->id == BOARD_GENERAL)
         return;
@@ -50,7 +51,8 @@ void boards_text(app_t *app, sfUint32 code)
         bd->focus = !bd->focus;
         return;
     }
-    if (text_input(bd->focus ? bd->search : bd->name, code) && bd->focus)
+    field = bd->focus ? bd->search : bd->name;
+    if (text_input(app, field, code) && bd->focus)
         search(app, bd);
 }
 

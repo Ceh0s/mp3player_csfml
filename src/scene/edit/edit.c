@@ -14,9 +14,11 @@ static void load_role(app_t *app, edit_t *edit, role_t role)
     artist_role_t *slot = NULL;
 
     for (link_t *link = app->lib->links; link; link = link->next) {
-        artist = artist_by_id(app->lib, link->artist_id);
         if (link->song_id != edit->song->id || link->role != role
-            || !artist || edit->nb_artists >= EDIT_ARTISTS)
+            || edit->nb_artists >= EDIT_ARTISTS)
+            continue;
+        artist = artist_by_id(app->lib, link->artist_id);
+        if (!artist)
             continue;
         slot = &edit->artists[edit->nb_artists];
         snprintf(slot->name, NAME_LEN, "%s", artist->name);

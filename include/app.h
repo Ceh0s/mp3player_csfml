@@ -26,6 +26,9 @@
 ** search : search field of the screen shown (search_field.c)
 ** battle_keep : ids of the two songs of the battle while one of them is
 ** edited (right click), shown again when coming back (0 = none)
+** dl_range : duration range typed last on the download screen (seconds,
+** -1 = no limit), kept until the app closes
+** stats_opt : choices of the statistics screen, kept until the app closes
 */
 struct app_s {
     sfRenderWindow *window;
@@ -62,14 +65,17 @@ struct app_s {
     dlscene_t *dlscene;
     dupscene_t *dupscene;
     setscene_t *settings;
+    statscene_t *stats;
     song_t *edit_song;
     int battle_keep[2];
+    int dl_range[2];
     playlist_t *edit_playlist;
     int sync_playlist;
     long dup_since;
     int library_tab;
     arena_t arena;
     search_t search;
+    stats_opt_t stats_opt;
     widgets_t *wg;
     library_t *lib;
     player_t *player;

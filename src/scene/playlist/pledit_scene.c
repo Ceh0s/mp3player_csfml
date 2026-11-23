@@ -41,11 +41,12 @@ void pledit_event(app_t *app, sfEvent *event)
 {
     pledit_t *pl = app->pledit;
     sfUint32 code = event->text.unicode;
+    char *field = pl->focus ? pl->search : pl->name;
 
     if (event->type == sfEvtTextEntered && code == 9)
         pl->focus = !pl->focus;
     else if (event->type == sfEvtTextEntered
-        && text_input(pl->focus ? pl->search : pl->name, code) && pl->focus)
+        && text_input(app, field, code) && pl->focus)
         pledit_search(app);
     if (event->type == sfEvtMouseWheelScrolled)
         pledit_scroll(app, event->mouseWheelScroll.delta);

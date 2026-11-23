@@ -224,6 +224,8 @@ typedef struct sort_item_s {
 ** is left out again while its duration stays out of the allowed one
 ** (saved in rejected.tsv); in_range = 1 once refused again while in the
 ** allowed duration: left out for good (until the refusal is cancelled)
+** The same struct keeps the excluded videos and the unavailable ones;
+** reason : why a video is unavailable (error of yt-dlp), NULL else
 */
 typedef struct rejected_s {
     char id[VIDEO_ID];
@@ -231,6 +233,7 @@ typedef struct rejected_s {
     int duration;
     long date;
     int in_range;
+    char *reason;
     struct rejected_s *next;
 } rejected_t;
 
@@ -415,14 +418,18 @@ typedef struct cover_sig_s {
 ** screen; help : 1 to explain the buttons when the mouse is over them
 ** dup_remove : 1 to remove the file of a song merged as a duplicate
 ** (switch of the duplicates screen)
-** dl_min_s / dl_max_s : duration range typed last on the download
-** screen, in seconds (-1 = no limit)
+** shuffle : 1 to play the queue in a random order, repeat : REPEAT_OFF,
+** REPEAT_QUEUE (the queue starts again) or REPEAT_ONE (the same song)
 */
+    #define REPEAT_OFF 0
+    #define REPEAT_QUEUE 1
+    #define REPEAT_ONE 2
+
 typedef struct settings_s {
     int help;
     int dup_remove;
-    int dl_min_s;
-    int dl_max_s;
+    int shuffle;
+    int repeat;
 } settings_t;
 
 typedef struct library_s {
@@ -437,6 +444,7 @@ typedef struct library_s {
     view_sort_t *sorts;
     rejected_t *rejected;
     rejected_t *excluded;
+    rejected_t *unavailable;
     source_t *sources;
     envelope_t *envelopes;
     not_dup_t *not_dups;

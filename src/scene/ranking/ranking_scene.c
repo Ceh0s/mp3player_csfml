@@ -34,7 +34,7 @@ static void ranking_key(app_t *app, sfEvent *event)
     ranking_t *ranking = app->ranking;
 
     if (event->type == sfEvtTextEntered && ranking->reset)
-        text_input_n(ranking->confirm, sizeof(ranking->confirm),
+        text_input_n(app, ranking->confirm, sizeof(ranking->confirm),
             event->text.unicode);
     if (event->type != sfEvtKeyPressed || event->key.code != sfKeyEscape)
         return;

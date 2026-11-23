@@ -47,6 +47,7 @@
     #define TIES_DB "data/tie_orders.tsv"
     #define LIKES_DB "data/likes.tsv"
     #define EXCLUDED_DB "data/excluded.tsv"
+    #define UNAVAILABLE_DB "data/unavailable.tsv"
     #define SUGGEST_DB "data/suggestions.tsv"
     #define SETTINGS_DB "data/settings.tsv"
     #define DOWNLOADS_LOG "data/downloads.log"
@@ -74,6 +75,7 @@
     #define PLAYLISTS_COLUMNS "id\tname\tauto"
     #define LIKES_COLUMNS "kind\tid\tvalue"
     #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle"
+    #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason"
     #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
     #define SETTINGS_COLUMNS "key\tvalue"
     #define DOWNLOADS_COLUMNS "timestamp\tstatus\ttitle\tdetail"
@@ -112,6 +114,8 @@
     #define CONTENT_Y 350
     #define BATTLE_CARD_Y 340
     #define BATTLE_CARD_H 450
+    #define FIELD_SHOWN 400
+    #define STATS_Y 330
     #define CONTENT_BOTTOM 820
     #define BOARD_STEP 46
     #define TILES_X 250
@@ -317,6 +321,7 @@ void dlscene_start(app_t *app);
 void dlscene_view(app_t *app);
 void dlscene_stats(app_t *app, download_t const *dl);
 void dlscene_status(app_t *app, download_t const *dl);
+void dlscene_failures(app_t *app, download_t const *dl, float y);
 void dlscene_options(app_t *app, dl_options_t *opt);
 void dlscene_text(app_t *app, sfUint32 code);
 void dlscene_durations(app_t *app, float y);
@@ -427,8 +432,10 @@ void widgets_destroy(widgets_t *wg);
 void widget_text(app_t *app, char const *str, float const *pos,
     sfColor const *color);
 int widget_button(app_t *app, float const *rect, char const *label);
-int widget_field(app_t *app, float const *rect, char const *value,
+int widget_field(app_t *app, float const *rect, char *value,
     int focused);
+void widget_box(app_t *app, float const *rect, int focused);
+void widget_place(app_t *app, float const *rect);
 void widget_rect(app_t *app, float const *rect, sfColor const *color);
 float widget_text_width(app_t *app, char const *str, unsigned int size);
 void widget_image(app_t *app, sfTexture *texture, float const *rect,
@@ -446,6 +453,28 @@ void player_skip(app_t *app, int direction);
 void player_stop(app_t *app, end_reason_t reason);
 void player_update(app_t *app);
 void player_resync(app_t *app);
+void player_shuffle_toggle(app_t *app);
+void player_repeat_next(app_t *app);
+void queue_shuffle(song_t **queue, int nb, song_t const *first);
+int queue_keep_order(song_t **fresh, int nb, player_t const *old);
+void library_play_modes(app_t *app);
+int stats_init(app_t *app);
+void stats_event(app_t *app, sfEvent *event);
+void stats_draw(app_t *app);
+void stats_layout(app_t *app);
+void stats_destroy(app_t *app);
+void stats_build(app_t *app);
+void stats_bar(app_t *app);
+void stats_dates(app_t *app);
+void stats_view(app_t *app);
+void stats_scroll(app_t *app, float delta);
+int stats_rows_shown(app_t *app);
+int stats_log_load(listen_t **out);
+void stat_totals(library_t *lib, stat_row_t *row);
+void stat_period(library_t *lib, statscene_t const *scene,
+    long const *range, stat_row_t *by_id);
+long stat_date(char const *text, int end);
+void stat_sort(stat_row_t *rows, int nb, int sort, int ascending);
 void player_queue(app_t *app, int playlist_id, char const *filter);
 void preview_stop(app_t *app);
 void preview_toggle(app_t *app, song_t *song);
@@ -458,6 +487,7 @@ library_t *library_load(void);
 int library_refresh(library_t *lib);
 void library_destroy(library_t *lib);
 void library_rescan(app_t *app);
+void library_drop_missing(app_t *app);
 
 // src/library/file : files on disk
 long id3_synchsafe(unsigned char const *bytes);
@@ -525,6 +555,15 @@ rejected_t *excluded_add(library_t *lib, char const *id, char const *title);
 void excluded_remove(library_t *lib, char const *id);
 int song_exclude(app_t *app, song_t *song);
 int excluded_count(library_t const *lib);
+rejected_t *unavailable_find(library_t *lib, char const *id);
+rejected_t *unavailable_add(library_t *lib, char const *id,
+    char const *title, char const *reason);
+void unavailable_remove(library_t *lib, char const *id);
+int unavailable_count(library_t const *lib);
+void dl_reason(char *out, size_t size, char const *detail);
+int dl_reason_lasting(char const *detail);
+void dlscene_unavailable(app_t *app);
+void dlscene_unavailable_footer(app_t *app, float y);
 song_t *song_by_video(library_t *lib, char const *id);
 rejected_t *rejected_find(library_t *lib, char const *id);
 rejected_t *rejected_add(library_t *lib, char const *id, char const *title,
@@ -725,6 +764,8 @@ void db_parse_like(library_t *lib, char **fields, int nb);
 int db_save_likes(library_t *lib);
 void db_parse_excluded(library_t *lib, char **fields, int nb);
 int db_save_excluded(library_t *lib);
+void db_parse_unavailable(library_t *lib, char **fields, int nb);
+int db_save_unavailable(library_t *lib);
 void db_parse_suggestion(library_t *lib, char **fields, int nb);
 void db_parse_setting(library_t *lib, char **fields, int nb);
 void db_load_settings(library_t *lib);
@@ -742,8 +783,15 @@ char *str_lower(char const *str);
 char *str_or_null(char const *str);
 int str_contains(char const *hay, char const *needle);
 int split_tab(char *line, char **fields, int max);
-int text_input(char *buf, sfUint32 code);
-int text_input_n(char *buf, size_t size, sfUint32 code);
+int text_input(app_t *app, char *buf, sfUint32 code);
+int text_input_n(app_t *app, char *buf, size_t size, sfUint32 code);
+size_t utf8_prev(char const *str, size_t pos);
+size_t utf8_next(char const *str, size_t pos);
+int utf8_count(char const *str, size_t bytes);
+caret_t *caret_of(app_t *app, char *buf);
+int caret_insert(app_t *app, char *buf, size_t size, sfUint32 code);
+int caret_erase(app_t *app, char *buf, int forward);
+int caret_key(app_t *app, sfEvent const *event);
 char **stwa_delimiter(char const *str, char const *delim, int didx,
     int empty);
 void str_array_free(char **arr);

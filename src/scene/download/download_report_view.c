@@ -42,16 +42,25 @@ static void summary(app_t *app, download_t const *dl)
         "l'instant.", (float [3]){300, 265, 22}, &sfWhite);
 }
 
+/*
+** the reason is said in French when it is known; the whole line of
+** yt-dlp is shown when the mouse is over the row
+*/
 static void report_row(app_t *app, dl_report_t const *line, float y)
 {
+    float row[4] = {300, y, 1355, DLPOPUP_STEP - 4};
     char cut[64 + 4];
+    char reason[DL_LINE];
 
     widget_text(app, labels[line->status], (float [3]){300, y + 8, 22},
         &colors[line->status]);
-    utf8_cut(cut, line->title, 64);
+    utf8_cut(cut, line->title, 48);
     widget_text(app, cut, (float [3]){480, y + 8, 22}, &sfWhite);
-    utf8_cut(cut, line->detail, 40);
-    widget_text(app, cut, (float [3]){1200, y + 8, 20}, &gray);
+    dl_reason(reason, sizeof(reason), line->detail);
+    utf8_cut(cut, reason, 60);
+    widget_text(app, cut, (float [3]){1060, y + 8, 20}, &gray);
+    if (line->detail[0] != '\0')
+        widget_tip(app, row, line->detail);
 }
 
 /*

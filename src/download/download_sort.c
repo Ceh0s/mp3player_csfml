@@ -5,6 +5,7 @@
 ** once a link is listed, each of its videos is sorted:
 ** - already in music/ : not downloaded, only added to the playlists
 ** - excluded for good (excluded.tsv) : left out
+** - not served by YouTube the last time (unavailable.tsv) : left out
 ** - private, deleted or live stream : left out
 ** - out of the allowed duration : left out if it was already refused,
 **   else put aside (flagged) until a decision
@@ -35,6 +36,24 @@ static int unavailable(dl_entry_t const *entry)
         return 1;
     return entry->title[0] == '[' && len > 7
         && strcmp(entry->title + len - 7, " video]") == 0;
+}
+
+/*
+** a video that already failed for good (unavailable.tsv) is not tried
+** again: the report gives the reason it failed
+*/
+static int known_unavailable(app_t *app, download_t *dl,
+    dl_entry_t const *entry)
+{
+    rejected_t *un = unavailable_find(app->lib, entry->id);
+    char reason[DL_LINE];
+
+    if (!un)
+        return 0;
+    dl->unavailable++;
+    dl_reason(reason, sizeof(reason), un->reason);
+    report_add(dl, REP_UNAVAILABLE, entry->title, reason);
+    return 1;
 }
 
 /*
@@ -90,6 +109,8 @@ static int left_out(app_t *app, download_t *dl, dl_entry_t *entry,
         report_add(dl, REP_EXCLUDED, entry->title, "");
         return 1;
     }
+    if (known_unavailable(app, dl, entry))
+        return 1;
     if (!unavailable(entry))
         return 0;
     dl->unavailable++;

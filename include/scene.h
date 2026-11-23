@@ -32,6 +32,7 @@ typedef enum scene_id_e {
     DOWNLOAD,
     DUPLICATES,
     SETTINGS,
+    STATS,
     NB_SCENES
 } scene_id_t;
 
@@ -322,7 +323,8 @@ typedef enum dl_popup_e {
     DL_POPUP_REFUSED,
     DL_POPUP_ABSENT,
     DL_POPUP_EXCLUDED,
-    DL_POPUP_REPORT
+    DL_POPUP_REPORT,
+    DL_POPUP_UNAVAILABLE
 } dl_popup_t;
 
 typedef struct dlscene_s {
@@ -364,5 +366,73 @@ typedef struct dupscene_s {
     int scroll;
     int confirm;
 } dupscene_t;
+
+/*
+** a listening session of listens.log: date (seconds), raw id of the
+** song, time really listened (ms), skip : 1 if it was skipped
+*/
+typedef struct listen_s {
+    long date;
+    int song_id;
+    long ms;
+    int skip;
+} listen_t;
+
+/*
+** a row of the statistics: a song or an artist (the sum of its songs),
+** time listened, sessions, skips, and its Elo in the category chosen
+*/
+typedef struct stat_row_s {
+    song_t *song;
+    artist_t *artist;
+    long ms;
+    int plays;
+    int skips;
+    double elo;
+} stat_row_t;
+
+/*
+** choices of the statistics screen, kept during the session
+** (app->stats_opt): playlist_id : 0 = every present song, artists : 1
+** for the artists, elo : 0 = no Elo column, else category + 1 (TOTAL
+** included), sort : STAT_SORT_..., ascending : 1 for the smallest first,
+** from / to : dates typed (AAAA-MM-JJ, empty = no limit)
+*/
+    #define STAT_SORT_TIME 0
+    #define STAT_SORT_PLAYS 1
+    #define STAT_SORT_SKIPS 2
+    #define STAT_SORT_ELO 3
+    #define STAT_SORT_NAME 4
+    #define NB_STAT_SORTS 5
+    #define STAT_DATE_LEN 11
+
+typedef struct stats_opt_s {
+    int playlist_id;
+    int artists;
+    int elo;
+    int sort;
+    int ascending;
+    char from[STAT_DATE_LEN];
+    char to[STAT_DATE_LEN];
+} stats_opt_t;
+
+/*
+** statistics screen: log : listens.log read when the screen opens (nb_log
+** sessions), rows : the leaderboard (nb of them), rebuilt when a choice
+** changes (dirty), scroll : first row shown, focus : 0, or the date field
+** receiving the keys (1 = from, 2 = to)
+*/
+typedef struct statscene_s {
+    sfTexture *bg_texture;
+    sfSprite *bg;
+    sfRectangleShape *panel;
+    listen_t *log;
+    int nb_log;
+    stat_row_t *rows;
+    int nb;
+    int scroll;
+    int focus;
+    int dirty;
+} statscene_t;
 
 #endif

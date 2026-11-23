@@ -90,11 +90,15 @@ src/scene/             table des scènes
     ranking/           tier list (noms ou images : ranking_tiles.c), leaderboard (ex æquo
                        « - »), départage (ranking_ties, _drag, _order), reset (_reset)
     settings/          paramètres (aide au survol)
+    stats/             statistiques d'écoute : leaderboard des titres ou artistes, par
+                       playlist, entre deux dates, Elo à côté si voulu (_bar, _dates,
+                       _build, _view)
     playlist/          édition d'une playlist (nom, titres cochés, suppression)
     boards/            gestion des classements personnalisés (liste, règles, ajout)
     download/          écran de téléchargement (adresse, options : durée, playlists de
                        réception, lien ; progression, résumé) et liste par-dessus
-                       (download_popup : hors durée / refusés / retirés)
+                       (download_popup : hors durée / refusés / retirés / exclus /
+                       indisponibles / bilan)
     duplicates/        doublons : analyse du son une musique par tick, groupes
                        (_row, _block), fusions à la main et automatiques (_merge),
                        fichiers au son identique (_same), tri après un choix (_refresh)
@@ -102,21 +106,24 @@ src/scene/             table des scènes
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
                        lecteur, search_field : champ de recherche)
-src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
+src/ui/                tables d'éléments (atlas), collisions, formes, widgets, champ de
+                       saisie (widget_field.c : curseur cliquable, texte qui défile),
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
 src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires,
                        reset (ligne « reset » dans battles.log)
-src/audio/             lecteur (un seul sfMusic ouvert), file de lecture, temps d'écoute,
+src/audio/             lecteur (un seul sfMusic ouvert), file de lecture (aléatoire :
+                       player_shuffle.c, boucle), temps d'écoute,
                        écoute en battle (preview.c : second sfMusic, jamais compté)
 src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo), suivi à
                        chaque tick, lecture de la liste, tri des vidéos, ajout du mp3,
                        titres hors durée, titres retirés d'une playlist du site, bilan
-                       (download_report.c)
+                       (download_report.c), raisons des échecs en français (dl_reason.c)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
     file/              fichiers sur disque : validation mp3, empreinte audio, scan du
                        dossier, durées, fichiers au son identique à un autre
-                       (same_files.c : même empreinte, gardés à part)
+                       (same_files.c : même empreinte, gardés à part), oubli des
+                       fichiers effacés sans rescan (missing_files.c)
     id3/               lecture des tags ID3 et de la pochette (APIC)
     images/            images des musiques/artistes : miniatures, import, nettoyage du
                        chemin, réparation unique des images décalées (cover_check.c)
@@ -129,14 +136,18 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
                        suppression des fichiers (demandée seulement)
-    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus, adresses
-                       liées aux playlists
+    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus,
+                       indisponibles, adresses liées aux playlists
     duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires
                        regroupées (dup_groups.c), enveloppe sonore et comparaison,
                        paires « pas un doublon »
     artists/           artistes, liens, noms affichés, stats et détail par artiste
+    stats/             statistiques : lecture de listens.log, sommes (compteurs ou
+                       période), tri
 src/data/              lecture/écriture TSV, migration, journaux
-src/utils/             UTF-8, chaînes, découpage en mots, saisie de texte (avec Ctrl+V)
+src/utils/             UTF-8 (pas à pas : utf8_step.c), chaînes, découpage en mots,
+                       saisie de texte au curseur (text_caret.c : flèches, Début, Fin,
+                       Suppr ; avec Ctrl+V)
 assets/       atlas.png (6 icônes 256 px), fonds JPEG, font.ttf, no_cover.png (image par
               défaut, provisoire : l'auteur fournira la sienne)
 ```
@@ -179,7 +190,8 @@ Principes en place :
   la playlist ouverte dans la bibliothèque est présélectionnée). Un échec est compté et la
   file continue. Options copiées au démarrage d'une file (`dl_options_t`), donc modifier
   l'écran ne change pas une file en cours.
-  **Durée min / max** (vide = sans limite) : les titres hors plage attendent une décision
+  **Durée min / max** (vide = sans limite, la dernière tapée est gardée jusqu'à la
+  fermeture, `app->dl_range`) : les titres hors plage attendent une décision
   dans la liste « Hors durée » (ouverte seule à la fin de la file, ou à la main) :
   télécharger (rejoint la file, ou en démarre une sans lien) ou refuser. Un refus est gardé
   dans `rejected.tsv` et écarte la vidéo **tant qu'elle reste hors de la plage**. Revenue
@@ -229,7 +241,7 @@ Principes en place :
   (sa vidéo compte comme présente) et l'écran propose de l'effacer (« Fichiers
   identiques », demandé deux fois).
 - **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (fenêtre des
-  actions, puis mode sélection). Les écrans avec saisie gèrent Espace eux-mêmes.
+  actions, puis mode sélection), statistiques (champ de date). Les écrans avec saisie gèrent Espace eux-mêmes.
 - **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran) :
   bibliothèque (la file de lecture suit le filtre, `player_t.filter`), doublons,
   classements (trois onglets, vrai rang gardé), liste du téléchargement. Clic dessus = elle
@@ -269,9 +281,10 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
 | `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre |
+| `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle, texte retiré, état |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre) |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -295,7 +308,9 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
   si une règle l'inclut et aucune ne l'exclut (règle artiste = tous rôles). Les artistes
   d'un classement sont ceux liés à ses musiques.
 - **Playlists** : ids bruts résolus à l'usage ; « Tous les titres » = musiques présentes.
-  Le lecteur joue dans la file de la playlist choisie (`player_queue`), dans l'ordre affiché :
+  Le lecteur joue dans la file de la playlist choisie (`player_queue`), dans l'ordre affiché
+  (ou au hasard, le titre en cours en tête, ordre gardé quand la file est reconstruite ;
+  boucle de la file ou du titre, boutons de la barre de lecture) :
   liste et file passent toutes deux par `playlist_sorted_view` (tri fusion stable écrit à la
   main, valeurs inconnues toujours en fin). Critères : ajout à la playlist (= ordre de
   `playlist_songs.tsv`, les ajouts se font en fin), personnalisé (glisser-déposer), titre,
@@ -313,12 +328,26 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 
 ## Plan de développement
 
+### Phase 4.9 — Troisième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Gel** de plusieurs secondes après chaque choix : `song_build_artists` cherchait
+  l'artiste de chaque lien avant de tester la musique (1,5 s → 10 ms) ; une suppression
+  oublie seulement les fichiers effacés au lieu de relire tout `music/` (0,6 s).
+- **Saisie** : curseur (flèches, Début, Fin, Suppr, clic), texte long qui défile.
+- **Lecture** : aléatoire et boucle (non / file / titre), gardés dans `settings.tsv`.
+- **Téléchargement** : plage de durée gardée pendant la session ; raisons des échecs
+  traduites (Bilan, dernier échec, texte complet au survol) ; 473 des 489 échecs
+  étaient « This video is not available » : d'anciennes versions de titres republiés
+  (constaté par l'auteur), retenues dans `unavailable.tsv` et sautées (ce message
+  seulement).
+- **Statistiques** (accueil, bibliothèque) : voir la phase 5.
+
 ### Phase 4.8 — Deuxième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Doublons** : groupes de plus de deux (bug des trois « My Heart »), version
   auto-générée conseillée et fusion automatique à ≥ 99 %, écoute de chaque version,
   recherche, fichiers au son identique (bug « Same file twice », plus de message).
 - **Recherche** : bibliothèque, doublons, classements, liste du téléchargement.
-- **Battle** : clic droit sur une carte de musique = son édition ; l'édition gagne
+- **Battle** : clic droit sur une carte de musique = son édition (même paire au retour,
+  `battle_restore`) ; l'édition gagne
   « Supprimer du lecteur » (demandé deux fois) à côté d'« Exclure ».
 - **Téléchargement** : un titre refusé revenu dans la durée est redemandé, plus téléchargé
   tout seul.
@@ -380,14 +409,17 @@ playlist (« Synchroniser », titres retirés), écran des doublons (métadonné
 - Toujours utiliser l'id **résolu** (`song_resolve`) : une fusion doit regrouper les Elo.
 - Écrire `elo.tsv` (`song_id category rating battles wins`) et `battles.log` (rejouable).
 
-### Phase 5 — Écran de statistiques
-Temps d'écoute réel (total / 7 j / 30 j depuis `listens.log`), top artistes (co-artistes
-comptés, avec le détail de `artist_page`), albums, genres, taux de skip, historique. L'auteur ajoutera ses propres idées.
+### Phase 5 — Écran de statistiques (commencée en 4.9)
+Fait : leaderboard par temps d'écoute (titres ou artistes = somme de leurs titres, tous
+rôles), Général ou une playlist, écoutes et skips, Elo d'une catégorie à côté (classement
+Général), tri au choix, recherche. Période « Du / au » : avec une date, seules les
+écoutes de `listens.log` comptent (les seules datées) ; sans date, les compteurs (tout
+l'historique, alias compris). Seules les musiques présentes sont listées.
+À faire : albums, genres, historique, autres idées de l'auteur.
 
 ### Idées notées pour plus tard
 - Reconnaissance audio (AcoustID / MusicBrainz) pour identifier automatiquement artiste et
   titre : demande Internet et des bibliothèques en plus.
-- Saisie de texte : curseur déplaçable, texte trop long qui dépasse du champ.
 - Onglets de playlists : défilement quand il y en a trop (ceux qui dépassent sont cachés).
 - Page artiste accessible ailleurs que depuis l'édition d'une musique (pour l'image).
 - Fusion d'artistes (les Elo d'artistes ne sont pas encore résolus).
