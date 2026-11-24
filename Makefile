@@ -83,6 +83,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/pages/category_bar.c\
 		src/scene/pages/image_box.c\
 		src/scene/pages/like_buttons.c\
+		src/scene/pages/page_open.c\
 		src/scene/pages/listen_bar.c\
 		src/scene/pages/search_field.c\
 		src/scene/playlist/pledit_scene.c\
@@ -145,6 +146,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/artists/artist_rename.c\
 		src/library/artists/artist_split.c\
 		src/library/artists/split_choices.c\
+		src/library/artists/link_order.c\
 		src/library/duplicates/dup_artists.c\
 		src/library/duplicates/dup_audio.c\
 		src/library/duplicates/dup_clean.c\

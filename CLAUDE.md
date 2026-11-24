@@ -73,6 +73,8 @@ src/scene/             table des scènes
     stats/             statistiques d'écoute : leaderboard des titres ou artistes, par
                        playlist, entre deux dates, Elo à côté si voulu (_bar, _dates,
                        _build, _view)
+                       ; clic droit sur une ligne = page de la musique ou de
+                       l'artiste (pages/page_open.c)
     playlist/          édition d'une playlist (nom, titres cochés, suppression)
     boards/            gestion des classements personnalisés (liste, règles, ajout)
     download/          écran de téléchargement (adresse, options : durée, playlists de
@@ -136,7 +138,8 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
     artists/           artistes, liens, noms affichés, stats et détail par artiste,
                        renommage (artist_rename.c : un nom déjà pris = fusion), noms
                        en liste séparés (artist_split.c, choix gardés :
-                       split_choices.c)
+                       split_choices.c), ordre des artistes d'une musique
+                       (link_order.c)
     stats/             statistiques : lecture de listens.log, sommes (compteurs ou
                        période), tri
 src/data/              lecture/écriture TSV, migration, journaux
@@ -315,7 +318,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
 | `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -358,6 +361,16 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.13 — Septième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Statistiques** : clic droit sur une ligne = page de la musique ou de l'artiste
+  (`page_open`, aussi utilisé par les classements), défilement gardé au retour.
+- **Bibliothèque** : « Lire » (onglet affiché depuis son premier titre, aléatoire coupé)
+  et « Aléatoire » (ordre tiré à nouveau, premier titre compris, aléatoire activé),
+  `player_start`.
+- **Bug** : l'ordre des artistes d'une musique s'inversait à chaque lancement
+  (`db_parse_link` ajoutait chaque lien en tête) ; la liste est remise dans l'ordre du
+  fichier (`links_reverse`), et l'ordre du tag est rétabli une fois (`links_order_repair`).
 
 ### Phase 4.12 — Sixième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Battle** : paires au hasard par défaut, « Rencontres : équilibrées » en option.

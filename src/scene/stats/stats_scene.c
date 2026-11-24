@@ -70,6 +70,13 @@ void stats_event(app_t *app, sfEvent *event)
         stats_scroll(app, event->mouseWheelScroll.delta);
     if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape)
         escape(app);
+    if (event->type == sfEvtMouseButtonPressed
+        && event->mouseButton.button == sfMouseRight
+        && (app->stats->hover.song || app->stats->hover.artist)) {
+        app->stats_opt.scroll = app->stats->scroll;
+        page_open(app, &app->stats->hover);
+        return;
+    }
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;
@@ -87,6 +94,8 @@ void stats_draw(app_t *app)
     sfRenderWindow_drawRectangleShape(app->window, app->stats->panel,
         NULL);
     app->wg->mode = WG_DRAW;
+    app->stats->hover.song = NULL;
+    app->stats->hover.artist = NULL;
     stats_view(app);
     widget_tip_draw(app);
 }

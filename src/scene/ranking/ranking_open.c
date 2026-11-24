@@ -29,9 +29,7 @@ void ranking_open_hover(app_t *app)
     if (!ranking->hover.song && !ranking->hover.artist)
         return;
     app->ranking_keep = keep;
-    app->edit_song = ranking->hover.song;
-    app->edit_artist = ranking->hover.song ? NULL : ranking->hover.artist;
-    scene_open(app, EDIT);
+    page_open(app, &ranking->hover);
 }
 
 /*

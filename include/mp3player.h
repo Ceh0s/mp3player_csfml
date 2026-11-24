@@ -60,6 +60,7 @@
     #define SPLITS_DB "data/artist_splits.tsv"
     #define SPLITS_COLUMNS "name\tchoice"
     #define SPLIT_MAX 8
+    #define LINK_SORT_MAX 64
     #define SETTINGS_DB "data/settings.tsv"
     #define DOWNLOADS_LOG "data/downloads.log"
     #define BOARDS_DB "data/boards.tsv"
@@ -296,6 +297,7 @@ int ranking_match(app_t *app, rank_t const *rank);
 void ranking_hover(app_t *app, rank_t const *rank, float const *rect);
 void ranking_open_hover(app_t *app);
 void ranking_restore(app_t *app);
+int page_open(app_t *app, rank_t const *rank);
 int ranking_count(app_t *app);
 void ranking_search(app_t *app);
 int ranking_rows(app_t *app);
@@ -505,6 +507,8 @@ void player_stop(app_t *app, end_reason_t reason);
 void player_update(app_t *app);
 void player_resync(app_t *app);
 void player_shuffle_toggle(app_t *app);
+void player_start(app_t *app, int playlist_id, char const *filter,
+    int shuffled);
 void player_repeat_next(app_t *app);
 void player_seek(app_t *app, long delta);
 void player_halt(app_t *app);
@@ -586,6 +590,8 @@ int artist_split_doubtful(char (*parts)[NAME_LEN], int nb);
 void artist_split_apply(library_t *lib, artist_t *artist);
 int artist_split_state(library_t *lib, artist_t const *artist);
 void artists_split_auto(library_t *lib);
+void links_reverse(library_t *lib);
+void links_order_repair(library_t *lib);
 split_choice_t *split_choice_find(library_t *lib, char const *name);
 void split_choice_set(library_t *lib, char const *name, int keep);
 void split_choices_free(library_t *lib);

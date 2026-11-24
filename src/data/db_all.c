@@ -34,6 +34,7 @@ void db_load_all(library_t *lib)
     tsv_read(SONGS_DB, &db_parse_song, lib);
     tsv_read(FPRINTS_DB, &db_parse_fprint, lib);
     tsv_read(LINKS_DB, &db_parse_link, lib);
+    links_reverse(lib);
     tsv_read(PLAYLISTS_DB, &db_parse_playlist, lib);
     tsv_read(PLAYLIST_SONGS_DB, &db_parse_playlist_song, lib);
     tsv_read(SORTS_DB, &db_parse_sort, lib);

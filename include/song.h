@@ -460,6 +460,7 @@ typedef struct settings_s {
     int mute;
     int ellipsis;
     int battle_match;
+    int links_ordered;
 } settings_t;
 
 typedef struct library_s {

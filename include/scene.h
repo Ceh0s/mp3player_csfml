@@ -426,6 +426,7 @@ typedef struct stat_row_s {
 ** for the artists, elo : 0 = no Elo column, else category + 1 (TOTAL
 ** included), sort : STAT_SORT_..., ascending : 1 for the smallest first,
 ** from / to : dates typed (AAAA-MM-JJ, empty = no limit)
+** scroll : first row shown again when coming back from a page
 */
     #define STAT_SORT_TIME 0
     #define STAT_SORT_PLAYS 1
@@ -443,13 +444,15 @@ typedef struct stats_opt_s {
     int ascending;
     char from[STAT_DATE_LEN];
     char to[STAT_DATE_LEN];
+    int scroll;
 } stats_opt_t;
 
 /*
 ** statistics screen: log : listens.log read when the screen opens (nb_log
 ** sessions), rows : the leaderboard (nb of them), rebuilt when a choice
 ** changes (dirty), scroll : first row shown, focus : 0, or the date field
-** receiving the keys (1 = from, 2 = to)
+** receiving the keys (1 = from, 2 = to); hover : song or artist under
+** the mouse at the last drawing, opened by a right click (page_open.c)
 */
 typedef struct statscene_s {
     sfTexture *bg_texture;
@@ -462,6 +465,7 @@ typedef struct statscene_s {
     int scroll;
     int focus;
     int dirty;
+    rank_t hover;
 } statscene_t;
 
 #endif

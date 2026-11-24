@@ -102,6 +102,25 @@ static int choose(app_t *app, int id, view_sort_t const *sort)
     return chosen;
 }
 
+/*
+** the tab shown is played from its first song, or in a random order
+*/
+static void launch(app_t *app)
+{
+    float play[4] = {LIST_X + 480, SORT_Y, 190, 52};
+    float random[4] = {LIST_X + 690, SORT_Y, 230, 52};
+    libscene_t *scene = app->libscene;
+
+    widget_help(app, play, "Lit l'onglet affiché depuis son premier titre "
+        "(aléatoire désactivé)");
+    widget_help(app, random, "Lit l'onglet affiché dans un ordre au hasard "
+        "(aléatoire activé)");
+    if (widget_icon_button(app, play, ICON_PLAY, "Lire"))
+        player_start(app, scene->playlist_id, app->search.text, 0);
+    if (widget_icon_button(app, random, ICON_SHUFFLE, "Aléatoire"))
+        player_start(app, scene->playlist_id, app->search.text, 1);
+}
+
 void library_sort_bar(app_t *app)
 {
     int id = app->libscene->playlist_id;
@@ -110,6 +129,7 @@ void library_sort_bar(app_t *app)
 
     if (!sort)
         return;
+    launch(app);
     chosen = choose(app, id, sort);
     if (chosen == -1)
         return;

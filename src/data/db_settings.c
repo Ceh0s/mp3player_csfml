@@ -44,6 +44,8 @@ void db_parse_setting(library_t *lib, char **fields, int nb)
         lib->settings.ellipsis = value != 0;
     if (strcmp(fields[0], "battle_match") == 0)
         lib->settings.battle_match = value != 0;
+    if (strcmp(fields[0], "links_ordered") == 0)
+        lib->settings.links_ordered = value != 0;
     if (strcmp(fields[0], "next_song") == 0 && value > lib->next_song)
         lib->next_song = value;
     if (strcmp(fields[0], "next_artist") == 0 && value > lib->next_artist)
@@ -78,5 +80,6 @@ int db_save_settings(library_t *lib)
     fprintf(file, "next_song\t%d\n", lib->next_song);
     fprintf(file, "next_artist\t%d\n", lib->next_artist);
     fprintf(file, "battle_match\t%d\n", lib->settings.battle_match);
+    fprintf(file, "links_ordered\t%d\n", lib->settings.links_ordered);
     return tsv_commit(file, SETTINGS_DB);
 }

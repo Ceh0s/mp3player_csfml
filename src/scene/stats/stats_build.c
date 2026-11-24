@@ -134,5 +134,9 @@ void stats_build(app_t *app)
     stat_sort(scene->rows, scene->nb, sort, opt->ascending);
     free(by_id);
     free(view);
+    if (app->stats_opt.scroll > 0) {
+        scene->scroll = app->stats_opt.scroll;
+        app->stats_opt.scroll = 0;
+    }
     stats_scroll(app, 0);
 }

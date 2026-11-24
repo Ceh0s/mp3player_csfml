@@ -108,6 +108,7 @@ library_t *library_load(void)
     if (!lib)
         return NULL;
     db_load_all(lib);
+    links_order_repair(lib);
     db_merge(lib, scan_music(MUSIC_DIR));
     if (library_refresh(lib) == 84) {
         library_destroy(lib);

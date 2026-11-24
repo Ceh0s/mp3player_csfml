@@ -76,7 +76,10 @@ static void draw_line(app_t *app, int i, float y)
     stat_row_t const *row = &app->stats->rows[i];
     rank_t rank = {row->song, row->artist, 0, 0, 0};
     char text[16];
+    float line[4] = {130, y - 8, 1650, BOARD_STEP - 4};
 
+    if (app->wg->mode == WG_DRAW && mouse_in_rect(app, line))
+        app->stats->hover = rank;
     snprintf(text, sizeof(text), "%d", i + 1);
     widget_text(app, text, (float [3]){130, y, 26}, &gray);
     widget_image(app, image_get(app, &rank, 1),
@@ -116,6 +119,8 @@ void stats_view(app_t *app)
     lines(app, scene);
     if (scene->nb == 0)
         widget_text(app, "Aucun titre ici.", empty, &gray);
+    widget_text(app, "Clic droit sur une ligne : page de la musique ou de "
+        "l'artiste", (float [3]){420, 856 + app->extra_h, 22}, &gray);
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))
         scene_back(app);

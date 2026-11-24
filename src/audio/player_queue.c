@@ -69,6 +69,27 @@ void player_queue(app_t *app, int playlist_id, char const *filter)
 }
 
 /*
+** "Lire" / "Aléatoire" of the library: the queue (tab shown and search)
+** is built again from its first song, or in an order drawn again where
+** even the first song is random; shuffle is set to match (saved)
+*/
+void player_start(app_t *app, int playlist_id, char const *filter,
+    int shuffled)
+{
+    player_t *player = app->player;
+
+    app->lib->settings.shuffle = shuffled;
+    db_save_settings(app->lib);
+    player->playlist_id = playlist_id;
+    snprintf(player->filter, NAME_LEN, "%s", filter);
+    if (queue_build(app, 0) == 84 || player->nb == 0)
+        return;
+    if (shuffled)
+        queue_shuffle(player->queue, player->nb, NULL);
+    player_play(app, 0);
+}
+
+/*
 ** the present songs or the playlists changed (edit, merge): the queue
 ** is rebuilt; the song stops only if its file is not there anymore
 ** (removed from its playlist, it ends then the queue starts again)
