@@ -11,6 +11,11 @@ static void destroy_shared(app_t *app)
 {
     if (app->font)
         sfFont_destroy(app->font);
+    for (int i = 0; i < NB_FALLBACK; i++)
+        if (app->fallback[i])
+            sfFont_destroy(app->fallback[i]);
+    if (app->run_text)
+        sfText_destroy(app->run_text);
     if (app->atlas)
         sfTexture_destroy(app->atlas);
     if (app->no_cover)

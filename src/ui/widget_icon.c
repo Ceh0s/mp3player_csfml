@@ -67,6 +67,6 @@ int widget_icon_button(app_t *app, float const *rect, int icon,
     widget_place(app, box);
     text_set(app->wg->text, label);
     sfText_setFillColor(app->wg->text, sfWhite);
-    sfRenderWindow_drawText(app->window, app->wg->text, NULL);
+    text_draw(app, app->wg->text);
     return 0;
 }

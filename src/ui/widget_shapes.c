@@ -29,10 +29,7 @@ void widget_rect(app_t *app, float const *rect, sfColor const *color)
 */
 float widget_text_width(app_t *app, char const *str, unsigned int size)
 {
-    sfFloatRect bounds;
-
     text_set(app->wg->text, str);
     sfText_setCharacterSize(app->wg->text, size);
-    bounds = sfText_getLocalBounds(app->wg->text);
-    return bounds.width;
+    return text_width(app, app->wg->text);
 }

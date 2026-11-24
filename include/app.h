@@ -14,6 +14,9 @@
     #include "player.h"
     #include "download.h"
 
+    /* fallback fonts for the characters missing from font.ttf */
+    #define NB_FALLBACK 2
+
 /*
 ** arena : ranking, kind and category chosen in the battle and rankings
 ** screens, kept when going from one to the other
@@ -41,6 +44,8 @@ struct app_s {
     int fullscreen;
     int toggle_fullscreen;
     sfFont *font;
+    sfFont *fallback[NB_FALLBACK];
+    sfText *run_text;
     sfTexture *atlas;
     sfTexture *no_cover;
     image_t *images;

@@ -50,7 +50,7 @@ static float set_part(app_t *app, char const *value, size_t first,
 
     copy_part(part, value + first);
     text_set(app->wg->text, part);
-    return sfText_findCharacterPos(app->wg->text, index).x;
+    return text_char_x(app, app->wg->text, index);
 }
 
 /*
@@ -91,8 +91,8 @@ static void click(app_t *app, float const *rect, char *value, int focused)
     set_part(app, value, caret->first, 0);
     for (int i = 0; value[pos] != '\0' && pos - caret->first < FIELD_SHOWN;
         i++) {
-        middle = (sfText_findCharacterPos(text, i).x
-            + sfText_findCharacterPos(text, i + 1).x) / 2;
+        middle = (text_char_x(app, text, i)
+            + text_char_x(app, text, i + 1)) / 2;
         if (middle >= app->mouse.x)
             break;
         pos = utf8_next(value, pos);
@@ -112,12 +112,12 @@ static void draw_clipped(app_t *app, char const *str, float const *rect)
     copy_part(part, str);
     text_set(app->wg->text, part);
     for (int i = 1; part[end] != '\0'
-        && sfText_findCharacterPos(app->wg->text, i).x <= right; i++)
+        && text_char_x(app, app->wg->text, i) <= right; i++)
         end = utf8_next(part, end);
     part[end] = '\0';
     text_set(app->wg->text, part);
     sfText_setFillColor(app->wg->text, sfWhite);
-    sfRenderWindow_drawText(app->window, app->wg->text, NULL);
+    text_draw(app, app->wg->text);
 }
 
 static void draw_caret(app_t *app, float const *rect, float x)

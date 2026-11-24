@@ -118,6 +118,8 @@ static void widgets(app_t *app)
 
     library_likes(app);
     list_likes(app);
+    if (app->wg->mode == WG_DRAW)
+        bar_cover(app);
     shortcuts(app);
     library_play_modes(app);
     library_select_toggle(app);
@@ -154,7 +156,7 @@ static void left_release(app_t *app)
         app->wg->mode = WG_DRAW;
         return;
     }
-    if (drag_release(app))
+    if (drag_release(app) || bar_open_song(app))
         return;
     if (bar_seek(app) == 0)
         click(app);

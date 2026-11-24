@@ -112,7 +112,8 @@ SRC_UI	=	src/ui/image_cache.c\
 		src/ui/widget_field.c\
 		src/ui/widget_icon.c\
 		src/ui/widget_song.c\
-		src/ui/text_fit.c
+		src/ui/text_fit.c\
+		src/ui/text_fallback.c
 
 SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pair.c\

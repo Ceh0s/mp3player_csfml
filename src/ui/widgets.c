@@ -59,7 +59,7 @@ void widget_text(app_t *app, char const *str, float const *pos,
     sfText_setCharacterSize(wg->text, pos[2]);
     sfText_setFillColor(wg->text, *color);
     sfText_setPosition(wg->text, (sfVector2f){pos[0], pos[1]});
-    sfRenderWindow_drawText(app->window, wg->text, NULL);
+    text_draw(app, wg->text);
 }
 
 /*
@@ -99,6 +99,6 @@ int widget_button(app_t *app, float const *rect, char const *label)
     widget_box(app, rect, 0);
     text_set(wg->text, label);
     sfText_setFillColor(wg->text, sfWhite);
-    sfRenderWindow_drawText(app->window, wg->text, NULL);
+    text_draw(app, wg->text);
     return 0;
 }

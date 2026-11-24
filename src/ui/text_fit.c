@@ -24,7 +24,7 @@ static size_t char_start(char const *str, size_t pos)
 ** width of the first len bytes of str followed by "…" (the text keeps
 ** this string)
 */
-static float cut_width(sfText *text, char const *str, size_t len)
+static float cut_width(app_t *app, sfText *text, char const *str, size_t len)
 {
     char buf[FIT_LEN + 4];
 
@@ -33,7 +33,7 @@ static float cut_width(sfText *text, char const *str, size_t len)
     memcpy(buf, str, len);
     strcpy(buf + len, "…");
     text_set(text, buf);
-    return sfText_getLocalBounds(text).width;
+    return text_width(app, text);
 }
 
 /*
@@ -47,7 +47,7 @@ void text_fit(app_t *app, sfText *text, char const *str, float max_w)
 
     text_set(text, str);
     if (!app->lib->settings.ellipsis
-        || sfText_getLocalBounds(text).width <= max_w)
+        || text_width(app, text) <= max_w)
         return;
     while (over - keep > 1) {
         mid = char_start(str, (keep + over) / 2);
@@ -55,10 +55,10 @@ void text_fit(app_t *app, sfText *text, char const *str, float max_w)
             mid = utf8_next(str, keep);
         if (mid >= over)
             break;
-        if (cut_width(text, str, mid) <= max_w)
+        if (cut_width(app, text, str, mid) <= max_w)
             keep = mid;
         else
             over = mid;
     }
-    cut_width(text, str, keep);
+    cut_width(app, text, str, keep);
 }

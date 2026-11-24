@@ -17,6 +17,8 @@
     #define AUTOSAVE_US 30000000
 
     #define FONT_PATH "assets/font.ttf"
+    #define FONT_JP_PATH "assets/font_jp.otf"
+    #define FONT_SERIF_PATH "assets/font_serif.otf"
     #define ATLAS_PATH "assets/atlas.png"
     #define BG_PATH "assets/background.jpg"
     #define BG_BLUR_PATH "assets/background_blurred.jpg"
@@ -126,7 +128,7 @@
     #define LIST_LIKES_X 1556
     #define LIST_RIGHT 1830
     #define FIT_LEN 1024
-    #define BAR_TEXT_W 570
+    #define BAR_TEXT_W 460
     #define PANEL_H 790
     #define BOARD_BAR_Y 190
     #define CAT_BAR_Y 260
@@ -215,6 +217,8 @@ void list_likes(app_t *app);
 void list_draw(app_t *app);
 int bar_create(app_t *app);
 int bar_seek(app_t *app);
+void bar_cover(app_t *app);
+int bar_open_song(app_t *app);
 void bar_update(app_t *app);
 void bar_draw(app_t *app);
 void bar_layout(app_t *app);
@@ -467,6 +471,11 @@ int ui_hit(app_t *app, ui_t *ui);
 int mouse_in_rect(app_t *app, float const *rect);
 sfText *text_create(app_t *app, unsigned int size, float x, float y);
 void text_set(sfText *text, char const *str);
+sfFont *text_font(app_t *app, sfUint32 c, unsigned int size);
+int text_mixed(app_t *app, sfText const *text);
+float text_char_x(app_t *app, sfText const *text, size_t index);
+float text_width(app_t *app, sfText const *text);
+void text_draw(app_t *app, sfText const *text);
 sfSprite *background_create(char const *path, sfTexture **texture);
 void background_layout(app_t *app, sfSprite *sprite);
 sfRectangleShape *rect_create(float const *rect, sfColor const *color);

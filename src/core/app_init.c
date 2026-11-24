@@ -24,6 +24,9 @@ static int load_textures(app_t *app)
 static int load_shared(app_t *app)
 {
     app->font = sfFont_createFromFile(FONT_PATH);
+    app->fallback[0] = sfFont_createFromFile(FONT_JP_PATH);
+    app->fallback[1] = sfFont_createFromFile(FONT_SERIF_PATH);
+    app->run_text = sfText_create();
     app->ticks = sfClock_create();
     app->delta = sfClock_create();
     app->player = calloc(1, sizeof(player_t));

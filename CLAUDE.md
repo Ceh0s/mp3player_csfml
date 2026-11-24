@@ -55,7 +55,8 @@ src/core/              création/destruction de l'app, boucle à tick, fenêtre,
 src/scene/             table des scènes
     home/              écran d'accueil (bouton play + menu Bibliothèque / Battle /
                        Classements / Doublons / Paramètres)
-    library/           liste des musiques + barre de lecture + onglets de playlists
+    library/           liste des musiques + barre de lecture (pochette du titre en
+                       cours, clic = sa page) + onglets de playlists
                        + barre de tri et glisser-déposer (library_scene.c, _list,
                        _view, _tabs, _bar, _layout, _sort, _drag), avis (_likes),
                        mode sélection (_select, _select_view) et ses actions en lot
@@ -95,6 +96,10 @@ src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
                        estompé = inactif), ligne de titre (widget_song.c : titre en
                        gros, artistes dessous), « … » (text_fit.c), champ de
                        saisie (widget_field.c : curseur cliquable, texte qui défile),
+                       polices de secours (text_fallback.c : un caractère absent de
+                       font.ttf prend Noto Sans JP puis FreeSerif, caractère par
+                       caractère ; tout texte passe par text_draw / text_width /
+                       text_char_x),
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
 src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires,
@@ -147,7 +152,10 @@ src/utils/             UTF-8 (pas à pas : utf8_step.c), chaînes, découpage en
                        saisie de texte au curseur (text_caret.c : flèches, Début, Fin,
                        Suppr ; avec Ctrl+V)
 assets/       atlas.png (25 icônes 256 px sur 10 colonnes : contours, puis les mêmes
-              en disque plein à l'indice + NB_ICONS, enum icon_e de ui.h), fonds JPEG, font.ttf, no_cover.png (image par
+              en disque plein à l'indice + NB_ICONS, enum icon_e de ui.h), fonds JPEG, font.ttf,
+              font_jp.otf (Noto Sans JP Medium, licence OFL : japonais, chinois,
+              cyrillique, grec), font_serif.otf (FreeSerif, GPL avec exception
+              pour les polices : thaï, « ⧸ », maths), no_cover.png (image par
               défaut, provisoire : l'auteur fournira la sienne)
 ```
 
@@ -368,6 +376,12 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - **Bibliothèque** : « Lire » (onglet affiché depuis son premier titre, aléatoire coupé)
   et « Aléatoire » (ordre tiré à nouveau, premier titre compris, aléatoire activé),
   `player_start`.
+- **Barre de lecture** : pochette du titre en cours avant son titre ; un clic sur la
+  pochette, le titre ou les artistes ouvre sa page (`bar_open_song`).
+- **Polices de secours** : japonais, thaï, cyrillique, « ⧸ », « – », « ’ »… s'affichaient
+  en points (font.ttf n'a que 220 caractères) ; chaque caractère absent prend la première
+  police de secours qui l'a (`text_fallback.c`). Les emojis restent sans rendu (CSFML
+  ne dessine pas les emojis en couleur).
 - **Indisponibles** : « Vider la liste » et « Voir les archivés » comme Refusés / Exclus
   (les archivées restent sautées) ; « Tout retenter » ne vise que la liste affichée.
 - **Bug** : l'ordre des artistes d'une musique s'inversait à chaque lancement

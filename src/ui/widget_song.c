@@ -25,7 +25,7 @@ void widget_fit(app_t *app, char const *str, float const *pos,
     sfText_setFillColor(text, *color);
     text_fit(app, text, str, pos[3]);
     sfText_setPosition(text, (sfVector2f){pos[0], pos[1]});
-    sfRenderWindow_drawText(app->window, text, NULL);
+    text_draw(app, text);
 }
 
 /*
