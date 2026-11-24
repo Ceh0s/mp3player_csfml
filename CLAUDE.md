@@ -392,6 +392,9 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   perte, gris = rien), face à face dans la catégorie depuis le dernier reset.
   `playlist_has_song` ne cherche plus chaque id de la playlist dans la liste des
   musiques (poule d'un classement de playlist : 500 → 18 ms).
+- **Ligne d'artistes** (sous chaque titre) : « A, B, C » dans l'ordre des liens, sans
+  « feat. » ni « (remix …) », comme YouTube Music ; les rôles restent sur la page de
+  la musique et la page artiste.
 - **Indisponibles** : « Vider la liste » et « Voir les archivés » comme Refusés / Exclus
   (les archivées restent sautées) ; « Tout retenter » ne vise que la liste affichée.
 - **Bug** : l'ordre des artistes d'une musique s'inversait à chaque lancement

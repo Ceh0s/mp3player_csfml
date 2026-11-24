@@ -69,29 +69,26 @@ void artists_from_source(library_t *lib, song_t *song)
     }
 }
 
-static void append_role(library_t *lib, song_t *song, char *buf,
-    role_t role)
+static void append_names(library_t *lib, song_t *song, char *buf)
 {
-    char const *prefix[NB_ROLES] = {"", " feat. ", " (remix "};
     artist_t *artist = NULL;
-    int count = 0;
 
     for (link_t *link = lib->links; link; link = link->next) {
-        if (link->song_id != song->id || link->role != role)
+        if (link->song_id != song->id)
             continue;
         artist = artist_by_id(lib, link->artist_id);
         if (!artist)
             continue;
-        strcat(buf, count == 0 ? prefix[role] : ", ");
+        if (buf[0] != '\0')
+            strcat(buf, ", ");
         strcat(buf, artist->name);
-        count++;
     }
-    if (count > 0 && role == ROLE_REMIX)
-        strcat(buf, ")");
 }
 
 /*
-** "Main, Main feat. Feat, Feat (remix Remixer)"
+** "A, B, C" in the order of the links, like YouTube Music: the roles
+** (feat., remix) are kept in the links and shown on the song's page,
+** the title says who did what
 */
 void song_build_artists(library_t *lib, song_t *song)
 {
@@ -109,8 +106,7 @@ void song_build_artists(library_t *lib, song_t *song)
     song->artists = calloc(size, sizeof(char));
     if (!song->artists)
         return;
-    for (int role = 0; role < NB_ROLES; role++)
-        append_role(lib, song, song->artists, role);
+    append_names(lib, song, song->artists);
     if (song->artists[0] == '\0') {
         free(song->artists);
         song->artists = NULL;
