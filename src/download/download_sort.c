@@ -103,7 +103,7 @@ static int left_out(app_t *app, download_t *dl, dl_entry_t *entry,
     if (song) {
         playlists_append(app->lib, entry->targets, entry->nb_targets, song);
         dl->skipped++;
-        report_add(dl, REP_PRESENT, entry->title, "");
+        report_add(dl, REP_PRESENT, entry->title, swap_detail(entry));
         return 1;
     }
     if (excluded_find(app->lib, entry->id)) {

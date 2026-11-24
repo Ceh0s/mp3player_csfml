@@ -19,6 +19,23 @@
     #define DL_FORMAT_1 "%(id)s\t%(duration)s\t%(live_status)s"
     #define DL_FORMAT_2 "\t%(webpage_url)s\t%(channel)s\t%(title)s"
     #define DL_FORMAT DL_FORMAT_1 DL_FORMAT_2
+    #define DL_WATCH "https://www.youtube.com/watch?v="
+    #define DL_LIST_ID 128
+    #define DL_TOKEN 1024
+    #define DL_SWAP_PAGES 20
+    #define DL_SWAP_FILE "data/ytm_page.json"
+    #define DL_YTM_SITE "https://music.youtube.com"
+    #define DL_YTM_API DL_YTM_SITE "/youtubei/v1/browse?prettyPrint=false"
+    #define DL_YTM_CLIENT_1 "{\"context\":{\"client\":{\"clientName\":"
+    #define DL_YTM_CLIENT_2 "\"WEB_REMIX\",\"clientVersion\":"
+    #define DL_YTM_CLIENT_3 "\"1.20251101.01.00\","
+    #define DL_YTM_CLIENT_4 "\"hl\":\"fr\",\"gl\":\"FR\"}},"
+    #define DL_YTM_CLIENT DL_YTM_CLIENT_1 DL_YTM_CLIENT_2 DL_YTM_CLIENT_3
+    #define DL_YTM_CONTEXT DL_YTM_CLIENT DL_YTM_CLIENT_4
+    #define DL_LIKE_KEY "\"likeButtonRenderer\":{\"target\":{\"videoId\":\""
+    #define DL_ITEM_KEY "\"playlistItemData\":{"
+    #define DL_ID_KEY "\"videoId\":\""
+    #define DL_TOKEN_KEY "\"continuationCommand\":{\"token\":\""
 
 typedef enum dl_state_e {
     DL_IDLE,
@@ -29,11 +46,14 @@ typedef enum dl_state_e {
 
 /*
 ** a link is first listed (LIST: yt-dlp only writes the videos it holds,
-** with their duration), then each video kept is downloaded (GET)
+** with their duration), then each video kept is downloaded (GET); the
+** pages of a playlist on YouTube Music are read between both (SWAP, by
+** curl: the videos it replaces, download_swap.c)
 */
 typedef enum dl_step_e {
     DL_STEP_LIST,
-    DL_STEP_GET
+    DL_STEP_GET,
+    DL_STEP_SWAP
 } dl_step_t;
 
 /*
@@ -59,7 +79,9 @@ typedef struct dl_options_s {
 ** page, title, duration in seconds (-1 if unknown), live = 1 for a live
 ** stream (never ending: not downloaded) and the playlists it goes to;
 ** was_refused = 1 if it was refused before for its duration and is now
-** in the allowed one (asked again instead of downloaded)
+** in the allowed one (asked again instead of downloaded); swapped = 1
+** if YouTube Music plays another video in place of the one listed (no
+** longer served): the entry took the id of that one
 */
 typedef struct dl_entry_s {
     char id[VIDEO_ID];
@@ -69,6 +91,7 @@ typedef struct dl_entry_s {
     int duration;
     int live;
     int was_refused;
+    int swapped;
     int targets[DL_TARGETS];
     int nb_targets;
     struct dl_entry_s *next;
@@ -148,6 +171,8 @@ typedef struct dl_stats_s {
 ** download screen then opens the report once
 ** order / nb_order : ids of the videos of an imported playlist (one
 ** link, one playlist), in the order of the site (download_order.c)
+** token / page : where the next page of the playlist on YouTube Music
+** starts, and the number of pages read (download_swap.c)
 */
 typedef struct download_s {
     pid_t pid;
@@ -187,6 +212,8 @@ typedef struct download_s {
     dl_stats_t stats;
     char **order;
     int nb_order;
+    char token[DL_TOKEN];
+    int page;
 } download_t;
 
 /*

@@ -52,7 +52,9 @@ Exemple : Ctrl+C est géré sans variable globale, en bloquant les signaux avec
 
 **Dépendance externe acceptée** : le téléchargement lance le programme `yt-dlp` (avec
 `ffmpeg`), installé à part (`sudo pacman -S yt-dlp`). Ce n'est pas une bibliothèque liée :
-sans lui, l'appli fonctionne et l'écran de téléchargement l'indique.
+sans lui, l'appli fonctionne et l'écran de téléchargement l'indique. De même, `curl`
+(présent sur Arch, pacman en dépend) lit les pages d'une playlist sur YouTube Music ;
+sans lui, aucune vidéo n'est remplacée (voir Téléchargement).
 
 ### Avant de rendre la main
 1. `make re` sans warning (`-Wall -Wextra`).
@@ -120,7 +122,9 @@ src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo)
                        titres hors durée, titres retirés d'une playlist du site, bilan
                        (download_report.c), raisons des échecs en français (dl_reason.c),
                        ordre de la playlist du site (download_order.c), nouvelle
-                       version d'un réupload retrouvée (download_reupload.c)
+                       version d'un réupload retrouvée (download_reupload.c),
+                       vidéo jouée à la place par YouTube Music (download_swap.c,
+                       lecture des pages : swap_parse.c)
 src/library/           chargement / rafraîchissement / destruction de la bibliothèque
     file/              fichiers sur disque : validation mp3, empreinte audio, scan du
                        dossier, durées, fichiers au son identique à un autre
@@ -212,8 +216,20 @@ Principes en place :
   et version, chaîne de la vidéo parmi les artistes, durée à 15 s près ; la liste de
   yt-dlp donne la chaîne même pour une vidéo indisponible). Une seule correspondance, ou
   une seule auto-générée : elle est ajoutée aux playlists à la place, à sa place dans
-  l'ordre du site (« réupload : remplacé par … » dans le bilan). Les titres de la playlist locale dont la vidéo n'est plus
-  listée sont proposés (garder / retirer de la playlist / supprimer le fichier, demandé
+  l'ordre du site (« réupload : remplacé par … » dans le bilan).
+  **Versions jouées par YouTube Music** : une playlist garde l'id d'une vidéo qui n'est
+  plus servie, et le site joue une autre version à sa place ; yt-dlp ne liste que
+  l'ancien id. Après la liste d'une adresse `list=`, l'étape `DL_STEP_SWAP` lance `curl`
+  sur l'API web de YouTube Music (`youtubei/v1/browse`, client `WEB_REMIX`, pages de
+  100, jeton `continuationCommand`, au plus 20 pages), page écrite dans
+  `data/ytm_page.json` puis effacée. Chaque titre y donne l'id gardé (cible du bouton
+  J'aime) puis l'id joué (`playlistItemData`) : l'entrée listée prend l'id joué
+  (`dl_entry_t.swapped`, « version jouée par YouTube Music » dans le bilan), avant le
+  repérage des titres retirés et le tri. L'ancien id est gardé s'il est déjà dans
+  `music/`, ou si une autre version y est retrouvée par les règles des réuploads (sauf
+  si c'est la version jouée) : pas de doublon téléchargé. API interne : si elle change
+  ou échoue (réseau, playlist privée), rien n'est remplacé.
+  Les titres de la playlist locale dont la vidéo n'est plus listée sont proposés (garder / retirer de la playlist / supprimer le fichier, demandé
   deux fois) ; seulement si la liste a réussi et n'est pas vide, et jamais un titre sans
   vidéo connue. Progression « élément x / n » sur les vidéos retenues. Bascule « Cookies
   firefox » (`DL_BROWSER`, session seulement) pour les playlists privées
@@ -348,6 +364,10 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
   total » pendant une recherche).
 - Rangée du haut de la bibliothèque resserrée (« Statistiques » passait sous
   « Sélection »).
+- **Versions jouées par YouTube Music** : « Dark World » et « Nights » paraissaient
+  disponibles sur le site mais pas pour yt-dlp (anciens ids gardés par la playlist).
+  Lus dans l'API de YouTube Music : 307 titres sur 308 (seul « Leaked flavor » est
+  vraiment supprimé).
 
 ### Phase 4.9 — Troisième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Gel** de plusieurs secondes après chaque choix : `song_build_artists` cherchait

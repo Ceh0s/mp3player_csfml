@@ -17,7 +17,7 @@ static void end_line(download_t *dl)
 
     dl->line[dl->len] = '\0';
     dl->len = 0;
-    if (dl->line[0] == '\0')
+    if (dl->line[0] == '\0' || dl->step == DL_STEP_SWAP)
         return;
     if (dl->step == DL_STEP_LIST && download_list_line(dl, dl->line)) {
         dl->found++;
@@ -103,15 +103,20 @@ static void not_done(app_t *app, download_t *dl)
     failed(dl);
 }
 
+/*
+** a listing goes on with the pages of YouTube Music (download_swap.c)
+** before its videos are sorted
+*/
 static void step_done(app_t *app, download_t *dl, int success)
 {
+    if (dl->step == DL_STEP_SWAP) {
+        download_swap_done(app, success);
+        return;
+    }
     if (!success)
         not_done(app, dl);
     if (dl->step == DL_STEP_LIST) {
-        if (success && dl->found > 0)
-            download_find_absent(app);
-        dl->found = 0;
-        download_sort(app);
+        download_list_done(app, success);
         return;
     }
     stats_item_done(&dl->stats);
@@ -119,7 +124,7 @@ static void step_done(app_t *app, download_t *dl, int success)
         return;
     dl->ok++;
     dl->percent = 100;
-    report_add(dl, REP_ADDED, dl->cur->title, "");
+    report_add(dl, REP_ADDED, dl->cur->title, swap_detail(dl->cur));
     download_added(app, dl->cur);
 }
 
@@ -132,7 +137,8 @@ static void finish(app_t *app, int status)
     close(dl->fd);
     dl->state = DL_IDLE;
     step_done(app, dl, WIFEXITED(status) && WEXITSTATUS(status) == 0);
-    download_next(app);
+    if (dl->state != DL_RUNNING)
+        download_next(app);
 }
 
 void download_poll(app_t *app)

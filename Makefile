@@ -198,6 +198,8 @@ SRC_DOWNLOAD	=	src/download/dl_reason.c\
 		src/download/download_queue.c\
 		src/download/download_report.c\
 		src/download/download_sort.c\
+		src/download/download_swap.c\
+		src/download/swap_parse.c\
 		src/download/download_stats.c\
 		src/download/download_run.c
 

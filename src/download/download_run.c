@@ -67,18 +67,20 @@ static void child_exec(int const *fds, char const *url, download_t *dl)
     close(fds[1]);
     if (dl->step == DL_STEP_LIST)
         exec_list(url, dl->cookies);
-    else
+    if (dl->step == DL_STEP_GET)
         exec_get(url, dl->cookies);
+    if (dl->step == DL_STEP_SWAP)
+        swap_exec(dl, url);
     if (write(STDOUT_FILENO, failed, strlen(failed)) < 0)
         _exit(127);
     _exit(127);
 }
 
 /*
-** yt-dlp is looked for in the folders of PATH before starting, so the
-** app does not create a child process for nothing
+** yt-dlp (or curl) is looked for in the folders of PATH before
+** starting, so the app does not create a child process for nothing
 */
-static int ytdlp_found(void)
+int program_found(char const *name)
 {
     char *paths = getenv("PATH") ? strdup(getenv("PATH")) : NULL;
     char file[PATH_LEN];
@@ -86,18 +88,21 @@ static int ytdlp_found(void)
 
     for (char *dir = paths ? strtok(paths, ":") : NULL; dir && !found;
         dir = strtok(NULL, ":")) {
-        snprintf(file, sizeof(file), "%s/yt-dlp", dir);
+        snprintf(file, sizeof(file), "%s/%s", dir, name);
         found = access(file, X_OK) == 0;
     }
     free(paths);
     return found;
 }
 
-static int can_start(download_t *dl, char const *url)
+/*
+** curl (SWAP) is looked for before: without it, nothing is replaced
+*/
+static int can_start(download_t *dl, char const *url, dl_step_t step)
 {
     if (dl->state == DL_RUNNING || url[0] == '\0')
         return 0;
-    if (ytdlp_found())
+    if (step == DL_STEP_SWAP || program_found("yt-dlp"))
         return 1;
     dl->state = DL_FAILED;
     snprintf(dl->last, DL_LINE, "yt-dlp n'est pas installé "
@@ -107,13 +112,15 @@ static int can_start(download_t *dl, char const *url)
 
 static void reset(download_t *dl, dl_step_t step)
 {
+    char const *status[] = {"Lecture de la liste des vidéos...",
+        "Démarrage...", "Recherche des versions de YouTube Music..."};
+
     dl->state = DL_RUNNING;
     dl->step = step;
     dl->percent = 0;
     dl->len = 0;
     dl->line[0] = '\0';
-    snprintf(dl->last, DL_LINE, step == DL_STEP_LIST ?
-        "Lecture de la liste des vidéos..." : "Démarrage...");
+    snprintf(dl->last, DL_LINE, "%s", status[step]);
 }
 
 /*
@@ -124,7 +131,7 @@ int download_launch(app_t *app, char const *url, dl_step_t step)
     download_t *dl = &app->download;
     int fds[2];
 
-    if (!can_start(dl, url) || pipe(fds) != 0)
+    if (!can_start(dl, url, step) || pipe(fds) != 0)
         return 84;
     reset(dl, step);
     dl->pid = fork();
