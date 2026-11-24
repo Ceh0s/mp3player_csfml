@@ -87,7 +87,7 @@
     #define PLAYLISTS_COLUMNS "id\tname\tauto"
     #define LIKES_COLUMNS "kind\tid\tvalue"
     #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle\tarchived"
-    #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason"
+    #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason\tarchived"
     #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
     #define SETTINGS_COLUMNS "key\tvalue"
     #define DOWNLOADS_COLUMNS "timestamp\tstatus\ttitle\tdetail"
@@ -637,7 +637,7 @@ rejected_t *unavailable_find(library_t *lib, char const *id);
 rejected_t *unavailable_add(library_t *lib, char const *id,
     char const *title, char const *reason);
 void unavailable_remove(library_t *lib, char const *id);
-int unavailable_count(library_t const *lib);
+int unavailable_count(library_t const *lib, int archived);
 void dl_reason(char *out, size_t size, char const *detail);
 int dl_reason_lasting(char const *detail);
 void dlscene_unavailable(app_t *app);

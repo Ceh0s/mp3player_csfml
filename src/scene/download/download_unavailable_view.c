@@ -5,22 +5,12 @@
 ** page "Indisponibles" of the list over the download screen: the old
 ** versions of songs uploaded again ("not available"), left out of the
 ** downloads; "Retenter" lets the next download of their playlist try
-** them again
+** them again; "Vider la liste" archives them (download_archive_view.c)
 */
 
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
-
-static int shown(app_t *app, char const *title, int *i)
-{
-    int first = app->dlscene->scroll;
-
-    if (!search_text(app, title))
-        return 0;
-    (*i)++;
-    return *i >= first && *i - first < dlpopup_rows(app);
-}
 
 static void row_text(app_t *app, rejected_t const *un, float y)
 {
@@ -46,7 +36,7 @@ void dlscene_unavailable(app_t *app)
     float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
 
     for (rejected_t *un = lib->unavailable; un; un = un->next) {
-        if (!shown(app, un->title, &i))
+        if (!dlpopup_shown(app, un, &i))
             continue;
         y += DLPOPUP_STEP;
         row_text(app, un, y);
@@ -58,17 +48,30 @@ void dlscene_unavailable(app_t *app)
     }
 }
 
+/*
+** only the rows of the list shown (not the archived ones) are retried
+*/
+static void retry_all(app_t *app)
+{
+    rejected_t *next = NULL;
+
+    for (rejected_t *un = app->lib->unavailable; un; un = next) {
+        next = un->next;
+        if (!un->archived && search_text(app, un->title))
+            unavailable_remove(app->lib, un->id);
+    }
+    db_save_unavailable(app->lib);
+    app->dlscene->scroll = 0;
+}
+
 void dlscene_unavailable_footer(app_t *app, float y)
 {
-    float all[4] = {300, y, 300, 52};
+    float all[4] = {970, y, 300, 52};
 
-    if (!app->lib->unavailable)
+    if (app->dlscene->archived || unavailable_count(app->lib, 0) == 0)
         return;
     widget_help(app, all, "Elles seront essayées au prochain "
         "téléchargement de leur playlist");
-    if (!widget_button(app, all, "Tout retenter"))
-        return;
-    unavailable_remove(app->lib, NULL);
-    db_save_unavailable(app->lib);
-    app->dlscene->scroll = 0;
+    if (widget_button(app, all, "Tout retenter"))
+        retry_all(app);
 }

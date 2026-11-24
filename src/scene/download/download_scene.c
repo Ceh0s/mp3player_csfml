@@ -55,7 +55,7 @@ static void wheel(app_t *app, float delta)
     if (scene->popup == DL_POPUP_EXCLUDED)
         nb = excluded_count(app->lib, scene->archived);
     if (scene->popup == DL_POPUP_UNAVAILABLE)
-        nb = unavailable_count(app->lib);
+        nb = unavailable_count(app->lib, scene->archived);
     if (scene->popup == DL_POPUP_REPORT)
         nb = dlscene_report_lines(app);
     if (scene->popup == DL_POPUP_SPLITS)

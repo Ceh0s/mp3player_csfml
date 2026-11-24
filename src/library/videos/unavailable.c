@@ -63,11 +63,14 @@ void unavailable_remove(library_t *lib, char const *id)
     }
 }
 
-int unavailable_count(library_t const *lib)
+/*
+** archived : 1 to count those of "Voir les archivés", 0 the others
+*/
+int unavailable_count(library_t const *lib, int archived)
 {
     int nb = 0;
 
     for (rejected_t const *un = lib->unavailable; un; un = un->next)
-        nb++;
+        nb += un->archived == archived;
     return nb;
 }

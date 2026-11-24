@@ -134,7 +134,8 @@ static void footer(app_t *app, dlscene_t *scene)
         dlscene_absent_footer(app, y);
     if (scene->popup == DL_POPUP_UNAVAILABLE)
         dlscene_unavailable_footer(app, y);
-    if (scene->popup == DL_POPUP_REFUSED || scene->popup == DL_POPUP_EXCLUDED)
+    if (scene->popup == DL_POPUP_REFUSED || scene->popup == DL_POPUP_EXCLUDED
+        || scene->popup == DL_POPUP_UNAVAILABLE)
         dlscene_archive_footer(app, y);
     if (widget_button(app, (float [4]){1455, y, 200, 52}, "Fermer"))
         scene->popup = DL_POPUP_NONE;
@@ -157,7 +158,7 @@ static void tabs(app_t *app)
         excluded_count(app->lib, 0));
     tab(app, (float [2]){865, 160}, label, DL_POPUP_EXCLUDED);
     snprintf(label, sizeof(label), "Indisponibles (%d)",
-        unavailable_count(app->lib));
+        unavailable_count(app->lib, 0));
     tab(app, (float [2]){1035, 235}, label, DL_POPUP_UNAVAILABLE);
     snprintf(label, sizeof(label), "À vérifier (%d)",
         dlscene_split_count(app));

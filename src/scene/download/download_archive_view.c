@@ -2,9 +2,11 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** shared by the pages "Refusés" and "Exclus" of the list over the
+** shared by the pages "Refusés", "Exclus" and "Indisponibles" of the
+** list over the
 ** download screen: "Vider la liste" archives the rows shown (asked a
-** second time; they stay refused or excluded), "Voir les archivés"
+** second time; they stay refused, excluded or unavailable), "Voir les
+** archivés"
 ** shows them again, where they can still be taken back (or forgotten)
 */
 
@@ -30,16 +32,22 @@ int dlpopup_shown(app_t *app, rejected_t const *item, int *i)
 */
 static void archive_all(app_t *app)
 {
-    int refused = app->dlscene->popup == DL_POPUP_REFUSED;
-    rejected_t *list = refused ? app->lib->rejected : app->lib->excluded;
+    dl_popup_t popup = app->dlscene->popup;
+    rejected_t *list = app->lib->excluded;
 
+    if (popup == DL_POPUP_REFUSED)
+        list = app->lib->rejected;
+    if (popup == DL_POPUP_UNAVAILABLE)
+        list = app->lib->unavailable;
     for (rejected_t *item = list; item; item = item->next)
         if (search_text(app, item->title))
             item->archived = 1;
-    if (refused)
+    if (popup == DL_POPUP_REFUSED)
         db_save_rejected(app->lib);
-    else
+    if (popup == DL_POPUP_EXCLUDED)
         db_save_excluded(app->lib);
+    if (popup == DL_POPUP_UNAVAILABLE)
+        db_save_unavailable(app->lib);
     app->dlscene->scroll = 0;
 }
 

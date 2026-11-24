@@ -314,7 +314,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
 | `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre, archivée (absente des anciens fichiers) |
-| `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
+| `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp, archivée (« Vider la liste », absente des anciens fichiers) ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
 | `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
@@ -368,6 +368,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - **Bibliothèque** : « Lire » (onglet affiché depuis son premier titre, aléatoire coupé)
   et « Aléatoire » (ordre tiré à nouveau, premier titre compris, aléatoire activé),
   `player_start`.
+- **Indisponibles** : « Vider la liste » et « Voir les archivés » comme Refusés / Exclus
+  (les archivées restent sautées) ; « Tout retenter » ne vise que la liste affichée.
 - **Bug** : l'ordre des artistes d'une musique s'inversait à chaque lancement
   (`db_parse_link` ajoutait chaque lien en tête) ; la liste est remise dans l'ordre du
   fichier (`links_reverse`), et l'ordre du tag est rétabli une fois (`links_order_repair`).
