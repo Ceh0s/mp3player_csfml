@@ -9,28 +9,46 @@
 #include "mp3player.h"
 
 /*
-** tier list or leaderboard, images or names in the tier list
+** tier list, leaderboard, order between ex aequo or history; images
+** or names in the tier list
 */
-static void tabs(app_t *app, ranking_t *ranking)
+static void tab_button(app_t *app, float const *rect, ranking_tab_t tab,
+    char const *label)
 {
-    ranking_tab_t tab = ranking->tab;
+    char text[64];
 
-    if (widget_button(app, (float [4]){1030, CAT_BAR_Y, 220, 56},
-            tab == TAB_TIERS ? "> Tier list <" : "Tier list"))
-        ranking->tab = TAB_TIERS;
-    if (widget_button(app, (float [4]){1270, CAT_BAR_Y, 250, 56},
-            tab == TAB_BOARD ? "> Leaderboard <" : "Leaderboard"))
-        ranking->tab = TAB_BOARD;
-    if (widget_button(app, (float [4]){1540, CAT_BAR_Y, 240, 56},
-            tab == TAB_TIES ? "> Départage <" : "Départage"))
-        ranking->tab = TAB_TIES;
-    if (widget_button(app, (float [4]){700, CAT_BAR_Y, 300, 56},
-            app->show_images ? "Afficher les noms" : "Afficher les images"))
+    snprintf(text, sizeof(text), app->ranking->tab == tab ? "> %s <" : "%s",
+        label);
+    if (!widget_button(app, rect, text))
+        return;
+    app->ranking->tab = tab;
+    app->ranking->scroll = 0;
+}
+
+static void tabs(app_t *app)
+{
+    float names[4] = {650, CAT_BAR_Y, 230, 56};
+
+    tab_button(app, (float [4]){895, CAT_BAR_Y, 200, 56}, TAB_TIERS,
+        "Tier list");
+    tab_button(app, (float [4]){1110, CAT_BAR_Y, 240, 56}, TAB_BOARD,
+        "Leaderboard");
+    tab_button(app, (float [4]){1365, CAT_BAR_Y, 205, 56}, TAB_TIES,
+        "Départage");
+    tab_button(app, (float [4]){1585, CAT_BAR_Y, 195, 56}, TAB_HISTORY,
+        "Historique");
+    widget_help(app, names, "Tier list : images ou noms des titres");
+    if (widget_button(app, names, app->show_images ? "Voir les noms"
+            : "Voir les images"))
         app->show_images = !app->show_images;
 }
 
 static void content(app_t *app, ranking_t const *ranking)
 {
+    if (ranking->tab == TAB_HISTORY) {
+        ranking_history(app);
+        return;
+    }
     if (ranking->nb == 0) {
         widget_text(app, "Rien à classer dans ce classement.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
@@ -74,7 +92,7 @@ void ranking_view(app_t *app)
         ranking_build(app);
     if (category_bar(app, &app->arena.category, NB_CATEGORIES + 1, 0))
         ranking_build(app);
-    tabs(app, ranking);
+    tabs(app);
     content(app, ranking);
     bottom(app, ranking);
     if (ranking->reset)

@@ -230,7 +230,8 @@ typedef struct battle_s {
 typedef enum ranking_tab_e {
     TAB_TIERS,
     TAB_BOARD,
-    TAB_TIES
+    TAB_TIES,
+    TAB_HISTORY
 } ranking_tab_t;
 
 /*
@@ -261,6 +262,8 @@ typedef struct ranking_s {
     char confirm[16];
     int open_tier;
     rank_t hover;
+    history_t history;
+    int history_dirty;
 } ranking_t;
 
 /*

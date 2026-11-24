@@ -48,6 +48,24 @@ static void battle_key(app_t *app, sfKeyCode code)
 ** it, for example); the battle is built again when coming back, with
 ** the same pair if both songs are still in it
 */
+/*
+** the rankings screen on its "Historique" tab; the same pair is shown
+** again when coming back (battle_restore)
+*/
+void battle_open_history(app_t *app)
+{
+    battle_t *battle = app->battle;
+    ranking_keep_t keep = {1, TAB_HISTORY, 0, -1};
+
+    preview_stop(app);
+    if (battle->has_pair && battle->pair[0].song && battle->pair[1].song) {
+        app->battle_keep[0] = battle->pair[0].song->id;
+        app->battle_keep[1] = battle->pair[1].song->id;
+    }
+    app->ranking_keep = keep;
+    scene_open(app, RANKING);
+}
+
 static void right_click(app_t *app)
 {
     battle_t *battle = app->battle;

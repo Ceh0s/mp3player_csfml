@@ -99,6 +99,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/ranking/ranking_tiers.c\
 		src/scene/ranking/ranking_ties.c\
 		src/scene/ranking/ranking_tiles.c\
+		src/scene/ranking/ranking_history.c\
 		src/scene/ranking/ranking_view.c
 
 SRC_UI	=	src/ui/image_cache.c\
@@ -120,7 +121,8 @@ SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pool.c\
 		src/elo/elo_rating.c\
 		src/elo/elo_reset.c\
-		src/elo/elo_score.c
+		src/elo/elo_score.c\
+		src/elo/elo_history.c
 
 SRC_AUDIO	=	src/audio/listen_tracker.c\
 		src/audio/player.c\

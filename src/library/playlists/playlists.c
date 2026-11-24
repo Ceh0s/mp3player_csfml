@@ -67,14 +67,32 @@ void playlist_remove(library_t *lib, playlist_t *playlist)
     }
 }
 
+static int has_id(playlist_t const *playlist, int id)
+{
+    for (int i = 0; i < playlist->nb; i++)
+        if (playlist->songs[i] == id)
+            return 1;
+    return 0;
+}
+
 /*
-** song is a resolved song
+** song is a resolved song: in the playlist by its own id, or by the id
+** of a song merged into it (only the merged songs are resolved, a
+** lookup for each id of the playlist made the rankings of a playlist
+** take half a second)
 */
 int playlist_has_song(library_t *lib, playlist_t const *playlist,
     song_t const *song)
 {
-    for (int i = 0; i < playlist->nb; i++)
-        if (song_resolve(lib, song_by_id(lib, playlist->songs[i])) == song)
+    if (song->merged_into != 0
+        && song_resolve(lib, (song_t *)song) != song)
+        return 0;
+    if (has_id(playlist, song->id))
+        return 1;
+    for (song_t *alias = lib->songs; alias; alias = alias->next)
+        if (alias->merged_into != 0 && alias != song
+            && has_id(playlist, alias->id)
+            && song_resolve(lib, alias) == song)
             return 1;
     return 0;
 }

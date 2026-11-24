@@ -92,6 +92,7 @@ void ranking_build(app_t *app)
     pool_t pool = {NULL, 0};
 
     ranking_clear(app->ranking);
+    app->ranking->history_dirty = 1;
     if (!board_by_id(app->lib, app->arena.board))
         app->arena.board = BOARD_GENERAL;
     if (pool_build(app->lib, &app->arena, &pool) == 84)

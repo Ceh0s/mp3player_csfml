@@ -97,10 +97,17 @@ static void bottom(app_t *app, battle_t *battle)
     float skip[4] = {1530, y, 260, 56};
 
     float match[4] = {1090, y, 420, 56};
+    float history[4] = {410, y, 260, 56};
     int *on = &app->lib->settings.battle_match;
 
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
         scene_back(app);
+    widget_help(app, history, "Les battles de ce classement, la dernière "
+        "en haut (Elo et places gagnés ou perdus)");
+    if (widget_button(app, history, "Historique")) {
+        battle_open_history(app);
+        return;
+    }
     widget_help(app, match, "Au hasard : deux titres quelconques. "
         "Équilibrées : ceux qui ont peu de battles, contre un Elo proche");
     if (widget_button(app, match, *on ? "Rencontres : équilibrées"

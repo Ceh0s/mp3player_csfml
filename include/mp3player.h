@@ -145,6 +145,7 @@
     #define TILE_MIN 40
     #define TILE_GAP 8
     #define THUMB 48
+    #define HISTORY_STEP 100
     #define PL_ROWS_Y 330
     #define PL_ROW_STEP 60
     #define BOARDS_ROWS_Y 330
@@ -303,6 +304,10 @@ void ranking_open_hover(app_t *app);
 void ranking_restore(app_t *app);
 int page_open(app_t *app, rank_t const *rank);
 int ranking_count(app_t *app);
+int ranking_history_count(app_t *app);
+int ranking_history_rows(app_t *app);
+void ranking_history(app_t *app);
+void battle_open_history(app_t *app);
 void ranking_search(app_t *app);
 int ranking_rows(app_t *app);
 void ranking_ties(app_t *app);
@@ -803,6 +808,9 @@ int kind_find(char const *name);
 char const *kind_name(elo_kind_t kind);
 elo_t *elo_find(library_t *lib, arena_t const *arena, int subject);
 elo_t *elo_get(library_t *lib, arena_t const *arena, int subject);
+void elo_update(double *ratings, int const *battles);
+void elo_history(library_t *lib, arena_t const *arena, history_t *out);
+void history_free(history_t *history);
 void elo_battle(library_t *lib, arena_t const *arena, int winner,
     int loser);
 void elo_clear(library_t *lib);

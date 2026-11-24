@@ -83,4 +83,29 @@ typedef struct pool_s {
     int nb;
 } pool_t;
 
+/*
+** a battle of the history of an arena (elo_history.c), or a reset of its
+** ratings (reset = 1, only date is set); [0] is the winner, [1] the
+** loser: resolved ids, Elo and place (shared rank, as the leaderboard)
+** before and after, and their wins against each other in this category
+** since the last reset, this battle included
+*/
+typedef struct hist_s {
+    long date;
+    int reset;
+    int category;
+    int ids[2];
+    double before[2];
+    double after[2];
+    int place_before[2];
+    int place_after[2];
+    int wins[2];
+} hist_t;
+
+typedef struct history_s {
+    hist_t *items;
+    int nb;
+    int size;
+} history_t;
+
 #endif

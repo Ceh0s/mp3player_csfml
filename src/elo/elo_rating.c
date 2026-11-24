@@ -47,9 +47,19 @@ static double expected(double rating, double other)
     return 1.0 / (1.0 + pow(10.0, (other - rating) / 400.0));
 }
 
-static double k_factor(elo_t const *elo)
+/*
+** the two ratings after a battle (the battles before it give K); also
+** used by the replay of the history (elo_history.c)
+*/
+void elo_update(double *ratings, int const *battles)
 {
-    return elo->battles < ELO_NEW_BATTLES ? ELO_K_NEW : ELO_K_OLD;
+    double win_expected = expected(ratings[0], ratings[1]);
+    double lose_expected = expected(ratings[1], ratings[0]);
+
+    ratings[0] += (battles[0] < ELO_NEW_BATTLES ? ELO_K_NEW : ELO_K_OLD)
+        * (1.0 - win_expected);
+    ratings[1] += (battles[1] < ELO_NEW_BATTLES ? ELO_K_NEW : ELO_K_OLD)
+        * (0.0 - lose_expected);
 }
 
 /*
@@ -60,8 +70,8 @@ void elo_battle(library_t *lib, arena_t const *arena, int winner,
 {
     elo_t *win = NULL;
     elo_t *lose = NULL;
-    double win_expected = 0;
-    double lose_expected = 0;
+    double ratings[2];
+    int battles[2];
 
     if (winner == loser)
         return;
@@ -69,10 +79,13 @@ void elo_battle(library_t *lib, arena_t const *arena, int winner,
     lose = elo_get(lib, arena, loser);
     if (!win || !lose)
         return;
-    win_expected = expected(win->rating, lose->rating);
-    lose_expected = expected(lose->rating, win->rating);
-    win->rating += k_factor(win) * (1.0 - win_expected);
-    lose->rating += k_factor(lose) * (0.0 - lose_expected);
+    ratings[0] = win->rating;
+    ratings[1] = lose->rating;
+    battles[0] = win->battles;
+    battles[1] = lose->battles;
+    elo_update(ratings, battles);
+    win->rating = ratings[0];
+    lose->rating = ratings[1];
     win->battles++;
     lose->battles++;
     win->wins++;

@@ -67,9 +67,12 @@ src/scene/             table des scènes
                        battle_listen : écoute, avis, cadre du choix au clavier)
     ranking/           tier list (noms ou images : ranking_tiles.c ; clic sur un tier =
                        lui seul en grand), leaderboard (ex æquo « - », vue par défaut),
-                       départage (ranking_ties, _drag, _order), reset (_reset), clic
-                       droit = page de la musique ou de l'artiste, état gardé au
-                       retour (_open, app->ranking_keep)
+                       départage (ranking_ties, _drag, _order), reset (_reset),
+                       historique des battles (ranking_history.c : dernière en
+                       haut, Elo et places avant / après en vert / rouge / gris,
+                       face à face ; aussi ouvert par le bouton « Historique » de
+                       la battle), clic droit = page de la musique ou de
+                       l'artiste, état gardé au retour (_open, app->ranking_keep)
     settings/          paramètres (aide au survol)
     stats/             statistiques d'écoute : leaderboard des titres ou artistes, par
                        playlist, entre deux dates, Elo à côté si voulu (_bar, _dates,
@@ -103,7 +106,9 @@ src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
 src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires,
-                       reset (ligne « reset » dans battles.log)
+                       reset (ligne « reset » dans battles.log), historique d'une
+                       arène (elo_history.c : battles.log rejoué pour ce type et ce
+                       classement, places comptées dans la poule actuelle)
 src/audio/             lecteur (un seul sfMusic ouvert), file de lecture (aléatoire :
                        player_shuffle.c, boucle), temps d'écoute,
                        écoute en battle (preview.c : second sfMusic, jamais compté),
@@ -382,6 +387,11 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   en points (font.ttf n'a que 220 caractères) ; chaque caractère absent prend la première
   police de secours qui l'a (`text_fallback.c`). Les emojis restent sans rendu (CSFML
   ne dessine pas les emojis en couleur).
+- **Historique des battles** (onglet « Historique » des Classements, bouton sur l'écran
+  Battle) : heure, Elo et place de chaque côté avant / après (vert = gain, rouge =
+  perte, gris = rien), face à face dans la catégorie depuis le dernier reset.
+  `playlist_has_song` ne cherche plus chaque id de la playlist dans la liste des
+  musiques (poule d'un classement de playlist : 500 → 18 ms).
 - **Indisponibles** : « Vider la liste » et « Voir les archivés » comme Refusés / Exclus
   (les archivées restent sautées) ; « Tout retenter » ne vise que la liste affichée.
 - **Bug** : l'ordre des artistes d'une musique s'inversait à chaque lancement

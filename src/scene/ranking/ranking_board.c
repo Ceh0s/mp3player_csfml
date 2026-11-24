@@ -18,6 +18,8 @@ static const sfColor gray = {180, 180, 180, 255};
 */
 int ranking_rows(app_t *app)
 {
+    if (app->ranking->tab == TAB_HISTORY)
+        return ranking_history_rows(app);
     return (CONTENT_BOTTOM + app->extra_h - CONTENT_Y - BOARD_STEP)
         / BOARD_STEP;
 }

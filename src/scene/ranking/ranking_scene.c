@@ -116,6 +116,7 @@ void ranking_destroy(app_t *app)
     free(app->ranking->ranks);
     free(app->ranking->order);
     free(app->ranking->tiers);
+    history_free(&app->ranking->history);
     free(app->ranking);
     app->ranking = NULL;
 }
