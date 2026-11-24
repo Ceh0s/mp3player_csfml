@@ -41,6 +41,22 @@ static int pick_first(rank_t const *ranks, int nb)
 }
 
 /*
+** number of opponents to draw from: the 3 closest ratings, and all
+** those as close as the third one (most songs are still at 1500: the
+** tie would else always give the first ones of the library, in the
+** alphabetical order)
+*/
+static int closest(rank_t const *ranks, int nb)
+{
+    int choices = nb < 3 ? nb : 3;
+    double limit = ranks[choices - 1].rating;
+
+    while (choices < nb && ranks[choices].rating <= limit)
+        choices++;
+    return choices;
+}
+
+/*
 ** the first one is removed from the array, the others are sorted by
 ** the gap between their rating and its rating; the side of each one is
 ** random too, so none is always on the left
@@ -49,7 +65,6 @@ static void draw_pair(rank_t *ranks, int nb, rank_t *pair)
 {
     int first = pick_first(ranks, nb);
     int side = rand() % 2;
-    int choices = nb - 1 < 3 ? nb - 1 : 3;
     rank_t chosen = ranks[first];
 
     pair[side] = chosen;
@@ -57,7 +72,7 @@ static void draw_pair(rank_t *ranks, int nb, rank_t *pair)
     for (int i = 0; i < nb - 1; i++)
         ranks[i].rating = fabs(ranks[i].rating - chosen.rating);
     qsort(ranks, nb - 1, sizeof(rank_t), &compare_gap);
-    pair[1 - side] = ranks[rand() % choices];
+    pair[1 - side] = ranks[rand() % closest(ranks, nb - 1)];
 }
 
 static int same(rank_t const *a, rank_t const *b)

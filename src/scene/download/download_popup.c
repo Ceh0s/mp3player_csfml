@@ -112,6 +112,9 @@ static void tab(app_t *app, float x, char const *name, dl_popup_t popup)
     scene->popup = popup;
     scene->scroll = 0;
     scene->confirm = 0;
+    scene->archived = 0;
+    scene->clear = 0;
+    scene->forget = 0;
 }
 
 static void footer(app_t *app, dlscene_t *scene)
@@ -129,6 +132,8 @@ static void footer(app_t *app, dlscene_t *scene)
         dlscene_absent_footer(app, y);
     if (scene->popup == DL_POPUP_UNAVAILABLE)
         dlscene_unavailable_footer(app, y);
+    if (scene->popup == DL_POPUP_REFUSED || scene->popup == DL_POPUP_EXCLUDED)
+        dlscene_archive_footer(app, y);
     if (widget_button(app, (float [4]){1455, y, 200, 52}, "Fermer"))
         scene->popup = DL_POPUP_NONE;
 }
@@ -141,13 +146,13 @@ static void tabs(app_t *app)
         entries_count(app->download.flagged));
     tab(app, 300, label, DL_POPUP_FLAGGED);
     snprintf(label, sizeof(label), "Refusés (%d)",
-        rejected_count(app->lib));
+        rejected_count(app->lib, 0));
     tab(app, 525, label, DL_POPUP_REFUSED);
     snprintf(label, sizeof(label), "Retirés (%d)",
         app->download.nb_absent);
     tab(app, 750, label, DL_POPUP_ABSENT);
     snprintf(label, sizeof(label), "Exclus (%d)",
-        excluded_count(app->lib));
+        excluded_count(app->lib, 0));
     tab(app, 975, label, DL_POPUP_EXCLUDED);
     snprintf(label, sizeof(label), "Indisponibles (%d)",
         unavailable_count(app->lib));

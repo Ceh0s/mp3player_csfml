@@ -18,11 +18,13 @@ widgets_t *widgets_create(app_t *app)
     wg->box = sfRectangleShape_create();
     wg->picture = sfRectangleShape_create();
     wg->circle = sfCircleShape_create();
-    if (!wg->text || !wg->box || !wg->picture || !wg->circle) {
+    wg->icon = sfSprite_create();
+    if (!wg->text || !wg->box || !wg->picture || !wg->circle || !wg->icon) {
         widgets_destroy(wg);
         return NULL;
     }
     sfCircleShape_setPointCount(wg->circle, 64);
+    sfSprite_setTexture(wg->icon, app->atlas, sfFalse);
     return wg;
 }
 
@@ -38,6 +40,8 @@ void widgets_destroy(widgets_t *wg)
         sfRectangleShape_destroy(wg->picture);
     if (wg->circle)
         sfCircleShape_destroy(wg->circle);
+    if (wg->icon)
+        sfSprite_destroy(wg->icon);
     free(wg);
 }
 

@@ -26,6 +26,50 @@ typedef enum anchor_e {
 ** between the top and the bottom of the design: elements anchored at
 ** the bottom move down by all of it, centered ones by half of it.
 */
+/*
+** icons of the atlas (assets/atlas.png, cells of ATLAS_CELL pixels on
+** ATLAS_COLS columns): each one is drawn once in outline, then a second
+** time as a filled disc (ICON_X / ICON_Y in mp3player.h)
+*/
+typedef enum icon_e {
+    ICON_PLAY,
+    ICON_PAUSE,
+    ICON_PREV,
+    ICON_NEXT,
+    ICON_STOP,
+    ICON_REWIND,
+    ICON_FORWARD,
+    ICON_VOL_DOWN,
+    ICON_VOL_UP,
+    ICON_MUTE,
+    ICON_VOLUME,
+    ICON_SHUFFLE,
+    ICON_REPEAT,
+    ICON_LIKE,
+    ICON_DISLIKE,
+    ICON_LIST,
+    ICON_ASC,
+    ICON_DESC,
+    ICON_NOTE,
+    ICON_STAR,
+    ICON_SLIDERS,
+    ICON_SHARE,
+    ICON_GEAR,
+    ICON_POWER,
+    ICON_BACK,
+    NB_ICONS
+} icon_t;
+
+/*
+** how an icon is drawn: in outline, as a filled disc (a state that is
+** on), or dimmed (a state that is off)
+*/
+typedef enum icon_state_e {
+    ICON_OUTLINE,
+    ICON_FILLED,
+    ICON_DIM
+} icon_state_t;
+
 typedef struct ui_def_s {
     int id;
     anchor_t anchor;
@@ -63,9 +107,11 @@ typedef struct caret_s {
 ** picture / circle : shapes drawing the images (square or round)
 ** tip : text of the hovered element, drawn last by widget_tip_draw
 ** caret : cursor of the field being typed in (text_caret.c)
+** icon : sprite of the atlas drawing the icons (widget_icon.c)
 */
 typedef struct widgets_s {
     sfText *text;
+    sfSprite *icon;
     sfRectangleShape *box;
     sfRectangleShape *picture;
     sfCircleShape *circle;

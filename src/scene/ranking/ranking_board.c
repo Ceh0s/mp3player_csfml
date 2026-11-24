@@ -65,15 +65,13 @@ static void position(app_t *app, int i, float y)
 static void draw_line(app_t *app, int i, float y)
 {
     rank_t const *rank = &app->ranking->ranks[i];
-    char text[NAME_LEN * 2];
-    char const *artists = rank->song ? rank->song->artists : NULL;
-    float thumb[4] = {200, y - 2, THUMB, THUMB};
+    char text[32];
+    float thumb[4] = {190, y - 8, THUMB, THUMB};
 
     position(app, i, y);
     widget_image(app, image_get(app, rank, 1), thumb, rank->artist != NULL);
-    snprintf(text, sizeof(text), "%s%s%s", rank_name(rank),
-        artists ? " - " : "", artists ? artists : "");
-    widget_text(app, text, (float [3]){252, y, 26}, &sfWhite);
+    widget_rank(app, rank, (float [4]){252, y - 8, 1050, BOARD_STEP - 4},
+        &sfWhite);
     snprintf(text, sizeof(text), "%.0f", rank->rating);
     widget_text(app, text, (float [3]){1330, y, 26}, &sfWhite);
     snprintf(text, sizeof(text), "%d", rank->battles);

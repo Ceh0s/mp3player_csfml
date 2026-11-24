@@ -226,6 +226,9 @@ typedef struct sort_item_s {
 ** allowed duration: left out for good (until the refusal is cancelled)
 ** The same struct keeps the excluded videos and the unavailable ones;
 ** reason : why a video is unavailable (error of yt-dlp), NULL else
+** archived : 1 once its list was emptied ("Vider la liste": still
+** refused or excluded, shown only with "Voir les archivés")
+** song_id : song of an excluded video (0 if none, -1 not looked for)
 */
 typedef struct rejected_s {
     char id[VIDEO_ID];
@@ -233,6 +236,8 @@ typedef struct rejected_s {
     int duration;
     long date;
     int in_range;
+    int archived;
+    int song_id;
     char *reason;
     struct rejected_s *next;
 } rejected_t;
@@ -420,6 +425,9 @@ typedef struct cover_sig_s {
 ** (switch of the duplicates screen)
 ** shuffle : 1 to play the queue in a random order, repeat : REPEAT_OFF,
 ** REPEAT_QUEUE (the queue starts again) or REPEAT_ONE (the same song)
+** volume : of the player and the previews, from 0 to 100; mute : 1 if
+** the sound is cut (the volume is kept for later)
+** ellipsis : 1 to end a text too long for its place with "…"
 */
     #define REPEAT_OFF 0
     #define REPEAT_QUEUE 1
@@ -430,6 +438,9 @@ typedef struct settings_s {
     int dup_remove;
     int shuffle;
     int repeat;
+    int volume;
+    int mute;
+    int ellipsis;
 } settings_t;
 
 typedef struct library_s {

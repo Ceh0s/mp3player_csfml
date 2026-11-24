@@ -27,6 +27,17 @@ void player_stop(app_t *app, end_reason_t reason)
         db_save_all(app->lib);
 }
 
+/*
+** the song at index of the queue becomes the current one
+*/
+static void set_current(player_t *player, song_t *song, int index)
+{
+    player->index = index;
+    player->song = song;
+    player->session_ms = 0;
+    player->carry_us = 0;
+}
+
 void player_play(app_t *app, int index)
 {
     player_t *player = app->player;
@@ -41,13 +52,11 @@ void player_play(app_t *app, int index)
         fprintf(stderr, "Cannot play %s\n", song->path);
         return;
     }
-    player->index = index;
-    player->song = song;
-    player->session_ms = 0;
-    player->carry_us = 0;
+    set_current(player, song, index);
     song->play_count++;
     song->duration_ms = sfTime_asMilliseconds(
         sfMusic_getDuration(player->music));
+    player_volume_apply(app);
     sfMusic_play(player->music);
 }
 

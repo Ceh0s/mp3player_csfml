@@ -2,24 +2,42 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** scrollable list of the songs of the library screen
+** scrollable list of the songs of the library screen: each row shows
+** the small image of its song, its title with its artists under it, and
+** its like (both like icons while the mouse is over the row)
 */
 
 #include "mp3player.h"
 
+static const sfColor hover = {200, 200, 255, 255};
+
+/*
+** rect = {x, y, w, h} of the row shown at the position pos (0 = first)
+*/
+static void row_rect(int pos, float *rect)
+{
+    rect[0] = LIST_X;
+    rect[1] = LIST_Y + pos * LIST_STEP;
+    rect[2] = LIST_RIGHT - LIST_X;
+    rect[3] = LIST_STEP;
+}
+
+/*
+** the row under the mouse (-1 if none); the like icons of a row are not
+** part of it, nor is the list while the sort criteria are open
+*/
 int list_click(app_t *app)
 {
-    sfText **titles = app->libscene->titles;
-    int scroll = app->libscene->scroll;
-    int rows = app->libscene->rows;
-    sfFloatRect box;
+    libscene_t *scene = app->libscene;
+    int row = 0;
 
-    for (int i = scroll; titles[i] && i < scroll + rows; i++) {
-        box = sfText_getGlobalBounds(titles[i]);
-        if (sfFloatRect_contains(&box, app->mouse.x, app->mouse.y))
-            return i;
-    }
-    return -1;
+    if (scene->sort_open || app->mouse.y < LIST_Y
+        || app->mouse.x < LIST_X || app->mouse.x > LIST_LIKES_X - 8)
+        return -1;
+    row = (app->mouse.y - LIST_Y) / LIST_STEP;
+    if (row >= scene->rows || scene->scroll + row >= scene->nb_view)
+        return -1;
+    return scene->scroll + row;
 }
 
 /*
@@ -46,42 +64,54 @@ void list_scroll(app_t *app, float delta)
     app->libscene->scroll = scroll;
 }
 
-void list_update(app_t *app)
+/*
+** the song playing is yellow, the one under the mouse light blue
+*/
+static sfColor const *row_color(app_t *app, int i, int over)
 {
-    sfText **titles = app->libscene->titles;
-    int scroll = app->libscene->scroll;
-    int rows = app->libscene->rows;
-    sfColor hover = {200, 200, 255, 255};
-    sfVector2f pos = {LIST_X + LIST_THUMB + 18, 0};
-
-    for (int i = scroll; titles[i] && i < scroll + rows; i++) {
-        pos.y = LIST_Y + (i - scroll) * LIST_STEP;
-        sfText_setPosition(titles[i], pos);
-        if (app->libscene->view[i] == app->player->song)
-            sfText_setFillColor(titles[i], sfYellow);
-        else
-            sfText_setFillColor(titles[i], sfWhite);
-        if (app->libscene->view[i] != app->player->song
-            && list_click(app) == i)
-            sfText_setFillColor(titles[i], hover);
-    }
+    if (app->libscene->view[i] == app->player->song)
+        return &sfYellow;
+    return i == over ? &hover : &sfWhite;
 }
 
-/*
-** each title has the small image of its song on its left
-*/
 void list_draw(app_t *app)
 {
     libscene_t *scene = app->libscene;
     rank_t rank = {NULL, NULL, 0, 0, 0};
-    float y = 0;
+    float thumb[4] = {LIST_X, 0, LIST_THUMB, LIST_THUMB};
+    float text[4] = {LIST_TEXT_X, 0, LIST_LIKES_X - LIST_TEXT_X - 20,
+        LIST_STEP - 8};
+    int over = list_click(app);
 
-    for (int i = scene->scroll; scene->titles[i]
+    for (int i = scene->scroll; i < scene->nb_view
         && i < scene->scroll + scene->rows; i++) {
         rank.song = scene->view[i];
-        y = LIST_Y + (i - scene->scroll) * LIST_STEP + 4;
-        widget_image(app, image_get(app, &rank, 1),
-            (float [4]){LIST_X, y, LIST_THUMB, LIST_THUMB}, 0);
-        sfRenderWindow_drawText(app->window, scene->titles[i], NULL);
+        thumb[1] = LIST_Y + (i - scene->scroll) * LIST_STEP + 4;
+        text[1] = thumb[1] + 2;
+        widget_image(app, image_get(app, &rank, 1), thumb, 0);
+        widget_song(app, rank.song, text, row_color(app, i, over));
+    }
+}
+
+/*
+** drawn and clicked with the other widgets; the list follows when an
+** automatic playlist ("Titres likés") is shown
+*/
+void list_likes(app_t *app)
+{
+    libscene_t *scene = app->libscene;
+    playlist_t *shown = playlist_by_id(app->lib, scene->playlist_id);
+    float rect[4];
+
+    if (scene->sort_open)
+        return;
+    for (int i = scene->scroll; i < scene->nb_view
+        && i < scene->scroll + scene->rows; i++) {
+        row_rect(i - scene->scroll, rect);
+        if (!like_row(app, scene->view[i], rect, LIST_LIKES_X))
+            continue;
+        if (shown && shown->auto_like != 0)
+            list_create(app);
+        return;
     }
 }

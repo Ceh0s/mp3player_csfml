@@ -10,6 +10,20 @@
 
 static const sfColor gray = {180, 180, 180, 255};
 
+/*
+** texts of a switch: on, off, help shown over it
+*/
+static char const *const help[3] = {
+    "Aide au survol : activée",
+    "Aide au survol : désactivée",
+    "Explique les boutons qui ne disent pas ce qu'ils font."
+};
+static char const *const ellipsis[3] = {
+    "Points de suspension : oui",
+    "Points de suspension : non",
+    "Coupe les titres trop longs au lieu de les laisser déborder."
+};
+
 int settings_init(app_t *app)
 {
     float panel[4] = {87, 110, 1745, PANEL_H};
@@ -26,21 +40,33 @@ int settings_init(app_t *app)
     return 0;
 }
 
+/*
+** a switch of the settings, and what it does on its right;
+** texts = {label when on, label when off, detail}
+*/
+static void switch_row(app_t *app, float y, int *value,
+    char const *const *texts)
+{
+    float rect[4] = {130, y, 520, 56};
+
+    widget_text(app, texts[2], (float [3]){680, y + 14, 24}, &gray);
+    if (!widget_button(app, rect, *value ? texts[0] : texts[1]))
+        return;
+    *value = !*value;
+    db_save_settings(app->lib);
+}
+
 static void view(app_t *app)
 {
     settings_t *set = &app->lib->settings;
-    float help[4] = {130, 250, 460, 56};
 
     widget_text(app, "Paramètres", (float [3]){130, 125, 40}, &sfWhite);
-    widget_help(app, help, "Comme ceci : une explication quand la souris "
-        "reste sur un bouton");
-    if (widget_button(app, help, set->help ? "Aide au survol : activée"
-            : "Aide au survol : désactivée")) {
-        set->help = !set->help;
-        db_save_settings(app->lib);
-    }
-    widget_text(app, "Explique les boutons qui ne disent pas tout seuls ce "
-        "qu'ils font.", (float [3]){620, 264, 24}, &gray);
+    widget_help(app, (float [4]){130, 250, 520, 56}, "Comme ceci : une "
+        "explication quand la souris reste sur un bouton");
+    switch_row(app, 250, &set->help, help);
+    widget_help(app, (float [4]){130, 330, 520, 56}, "Comme ceci : un "
+        "titre trop long pour sa place finit par…");
+    switch_row(app, 330, &set->ellipsis, ellipsis);
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))
         scene_back(app);

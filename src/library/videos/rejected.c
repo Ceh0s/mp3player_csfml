@@ -64,11 +64,14 @@ void rejected_remove(library_t *lib, char const *id)
     }
 }
 
-int rejected_count(library_t const *lib)
+/*
+** archived : 1 to count those of "Voir les archivés", 0 the others
+*/
+int rejected_count(library_t const *lib, int archived)
 {
     int nb = 0;
 
     for (rejected_t const *rej = lib->rejected; rej; rej = rej->next)
-        nb++;
+        nb += rej->archived == archived;
     return nb;
 }

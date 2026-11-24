@@ -2,10 +2,8 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** pages "Bilan" (what became of each video of the last queue, grouped
-** by status), "Refusés" and "Exclus" (videos refused for their duration
-** or never to download again; both can be cancelled) of the list over
-** the download screen
+** page "Bilan" of the list over the download screen: what became of
+** each video of the last queue, grouped by status
 */
 
 #include "mp3player.h"
@@ -93,45 +91,6 @@ void dlscene_report(app_t *app)
         status_rows(app, s, &i);
 }
 
-/*
-** 1 if the row of this title is on the screen; i counts the rows
-** matching the search, this one included
-*/
-static int visible(app_t *app, char const *title, int *i)
-{
-    int first = app->dlscene->scroll;
-
-    if (!search_text(app, title))
-        return 0;
-    (*i)++;
-    return *i >= first && *i - first < dlpopup_rows(app);
-}
-
-/*
-** the list changes after a decision: the loop stops there
-*/
-void dlscene_refused(app_t *app)
-{
-    int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
-    char text[80 + 4];
-
-    for (rejected_t *rej = app->lib->rejected; rej; rej = rej->next) {
-        if (!visible(app, rej->title, &i))
-            continue;
-        y += DLPOPUP_STEP;
-        utf8_cut(text, rej->title, 70);
-        widget_text(app, text, (float [3]){300, y + 8, 22}, &sfWhite);
-        format_time(text, sizeof(text), rej->duration * 1000L);
-        widget_text(app, text, (float [3]){1070, y + 8, 22}, &gray);
-        if (widget_button(app, (float [4]){1405, y, 250, 44}, "Reprendre")) {
-            rejected_remove(app->lib, rej->id);
-            db_save_rejected(app->lib);
-            return;
-        }
-    }
-}
-
 int dlscene_report_lines(app_t *app)
 {
     int nb = 0;
@@ -139,28 +98,4 @@ int dlscene_report_lines(app_t *app)
     for (dl_report_t *line = app->download.report; line; line = line->next)
         nb++;
     return nb;
-}
-
-/*
-** the list changes after a decision: the loop stops there
-*/
-void dlscene_excluded(app_t *app)
-{
-    library_t *lib = app->lib;
-    int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
-    char cut[80 + 4];
-
-    for (rejected_t *ex = lib->excluded; ex; ex = ex->next) {
-        if (!visible(app, ex->title, &i))
-            continue;
-        y += DLPOPUP_STEP;
-        utf8_cut(cut, ex->title, 80);
-        widget_text(app, cut, (float [3]){300, y + 8, 22}, &sfWhite);
-        if (widget_button(app, (float [4]){1405, y, 250, 44}, "Reprendre")) {
-            excluded_remove(lib, ex->id);
-            db_save_excluded(lib);
-            return;
-        }
-    }
 }

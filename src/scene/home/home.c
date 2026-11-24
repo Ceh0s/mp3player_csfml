@@ -15,9 +15,11 @@ enum home_ids {
 
 static const ui_def_t home_ui[] = {
     {HOME_PLAY, ANCHOR_CENTER,
-        {806, 386, 307, 307, 0, 0, ATLAS_CELL, ATLAS_CELL}},
+        {806, 386, 307, 307, ICON_X(ICON_PLAY, 1), ICON_Y(ICON_PLAY, 1),
+            ATLAS_CELL, ATLAS_CELL}},
     {HOME_CLOSE, ANCHOR_TOP,
-        {24, 16, 64, 64, ATLAS_CELL * 5, 0, ATLAS_CELL, ATLAS_CELL}}
+        {24, 16, 64, 64, ICON_X(ICON_POWER, 0), ICON_Y(ICON_POWER, 0),
+            ATLAS_CELL, ATLAS_CELL}}
 };
 
 int home_init(app_t *app)
@@ -35,23 +37,34 @@ int home_init(app_t *app)
 /*
 ** drawn with the widgets, under the play button (centered anchor)
 */
+static void menu_left(app_t *app, float y)
+{
+    if (widget_icon_button(app, (float [4]){160, y, 250, 64}, ICON_NOTE,
+            "Bibliothèque"))
+        scene_open(app, LIBRARY);
+    if (widget_icon_button(app, (float [4]){430, y, 250, 64}, ICON_STAR,
+            "Battle"))
+        scene_open(app, BATTLE);
+    if (widget_icon_button(app, (float [4]){700, y, 250, 64}, ICON_LIST,
+            "Classements"))
+        scene_open(app, RANKING);
+}
+
 static void menu(app_t *app)
 {
     float y = 740 + app->extra_h / 2;
 
-    if (widget_button(app, (float [4]){160, y, 250, 64}, "Bibliothèque"))
-        scene_open(app, LIBRARY);
-    if (widget_button(app, (float [4]){430, y, 250, 64}, "Battle"))
-        scene_open(app, BATTLE);
-    if (widget_button(app, (float [4]){700, y, 250, 64}, "Classements"))
-        scene_open(app, RANKING);
-    if (widget_button(app, (float [4]){970, y, 250, 64}, "Statistiques"))
+    menu_left(app, y);
+    if (widget_icon_button(app, (float [4]){970, y, 250, 64}, ICON_SLIDERS,
+            "Statistiques"))
         scene_open(app, STATS);
-    if (widget_button(app, (float [4]){1240, y, 250, 64}, "Doublons")) {
+    if (widget_icon_button(app, (float [4]){1240, y, 250, 64}, ICON_SHARE,
+            "Doublons")) {
         app->dup_since = 0;
         scene_open(app, DUPLICATES);
     }
-    if (widget_button(app, (float [4]){1510, y, 250, 64}, "Paramètres"))
+    if (widget_icon_button(app, (float [4]){1510, y, 250, 64}, ICON_GEAR,
+            "Paramètres"))
         scene_open(app, SETTINGS);
 }
 

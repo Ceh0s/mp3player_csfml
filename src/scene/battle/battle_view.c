@@ -13,15 +13,15 @@ static const sfColor gray = {180, 180, 180, 255};
 static void card_stats(app_t *app, rank_t const *rank, float x)
 {
     rank_t score = *rank;
-    char line[96];
+    char line[160];
     int percent = 0;
 
     elo_score(app->lib, &app->arena, &score);
     if (score.battles > 0)
         percent = score.wins * 100 / score.battles;
-    snprintf(line, sizeof(line), "Elo %.0f   -   %d battle%s   -   %d %% "
-        "de victoires", score.rating, score.battles,
-        score.battles > 1 ? "s" : "", percent);
+    snprintf(line, sizeof(line), "Elo %.0f en %s   -   %d battle%s   -   "
+        "%d %%", score.rating, category_name(app->arena.category),
+        score.battles, score.battles > 1 ? "s" : "", percent);
     widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 404, 22}, &gray);
 }
 
@@ -54,6 +54,7 @@ static void card_detail(app_t *app, rank_t const *rank, float x)
 static int card(app_t *app, rank_t const *rank, float x)
 {
     float picture[4] = {x + 235, BATTLE_CARD_Y + 16, 290, 290};
+    float name[4] = {x + 30, BATTLE_CARD_Y + 320, 32, 700};
     int clicked = 0;
 
     if (app->wg->mode == WG_CLICK && battle_listen(app, rank, x))
@@ -61,8 +62,7 @@ static int card(app_t *app, rank_t const *rank, float x)
     clicked = widget_button(app,
         (float [4]){x, BATTLE_CARD_Y, 760, BATTLE_CARD_H}, "");
     widget_image(app, image_get(app, rank, 0), picture, rank->artist != NULL);
-    widget_text(app, rank_name(rank),
-        (float [3]){x + 30, BATTLE_CARD_Y + 320, 32}, &sfWhite);
+    widget_fit(app, rank_name(rank), name, &sfWhite);
     card_detail(app, rank, x + 30);
     card_stats(app, rank, x + 30);
     if (app->wg->mode == WG_DRAW)

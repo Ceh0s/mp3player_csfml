@@ -68,16 +68,14 @@ static void buttons(app_t *app, ranking_t *ranking)
 
 static void tie_line(app_t *app, rank_t const *rank, int i, float y)
 {
-    char text[NAME_LEN * 2];
-    char const *artists = rank->song ? rank->song->artists : NULL;
+    char text[16];
 
     snprintf(text, sizeof(text), "%d", i + 1);
     widget_text(app, text, (float [3]){130, y, 26}, &gray);
     widget_image(app, image_get(app, rank, 1),
-        (float [4]){200, y - 2, THUMB, THUMB}, rank->artist != NULL);
-    snprintf(text, sizeof(text), "%s%s%s", rank_name(rank),
-        artists ? " - " : "", artists ? artists : "");
-    widget_text(app, text, (float [3]){252, y, 26}, &sfWhite);
+        (float [4]){190, y - 8, THUMB, THUMB}, rank->artist != NULL);
+    widget_rank(app, rank, (float [4]){252, y - 8, 1400, BOARD_STEP - 4},
+        &sfWhite);
 }
 
 void ranking_ties(app_t *app)

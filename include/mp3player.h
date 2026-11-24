@@ -22,6 +22,14 @@
     #define BG_BLUR_PATH "assets/background_blurred.jpg"
     #define NO_COVER_PATH "assets/no_cover.png"
     #define ATLAS_CELL 256
+    #define ATLAS_COLS 10
+    #define ICON_CELL(icon, filled) ((icon) + (filled) * NB_ICONS)
+    #define ICON_TX(icon, filled) (ICON_CELL(icon, filled) % ATLAS_COLS)
+    #define ICON_TY(icon, filled) (ICON_CELL(icon, filled) / ATLAS_COLS)
+    #define ICON_X(icon, filled) (ICON_TX(icon, filled) * ATLAS_CELL)
+    #define ICON_Y(icon, filled) (ICON_TY(icon, filled) * ATLAS_CELL)
+    #define VOLUME_STEP 10
+    #define SEEK_MS 10000
 
     #define MUSIC_DIR "music"
     #define DATA_DIR "data"
@@ -74,7 +82,7 @@
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
     #define PLAYLISTS_COLUMNS "id\tname\tauto"
     #define LIKES_COLUMNS "kind\tid\tvalue"
-    #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle"
+    #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle\tarchived"
     #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason"
     #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
     #define SETTINGS_COLUMNS "key\tvalue"
@@ -84,7 +92,9 @@
     #define CUSTOM_COLUMNS "playlist_id\tsong_id\tposition"
     #define BOARDS_COLUMNS "id\tname"
     #define RULES_COLUMNS "board_id\tmode\ttype\ttarget"
-    #define REJECTED_COLUMNS "video_id\tduration_s\ttimestamp\ttitle\tin_range"
+    #define REJECTED_COLUMNS_1 "video_id\tduration_s\ttimestamp\ttitle"
+    #define REJECTED_COLUMNS_2 "\tin_range\tarchived"
+    #define REJECTED_COLUMNS REJECTED_COLUMNS_1 REJECTED_COLUMNS_2
     #define SOURCES_COLUMNS "playlist_id\turl\tmin_s\tmax_s\treport_absent"
     #define ENVELOPES_COLUMNS "hash\tenvelope"
     #define NOT_DUPS_COLUMNS "song_a\tsong_b"
@@ -106,8 +116,13 @@
     #define SORT_Y 190
     #define TABS_Y 124
     #define TABS_RIGHT 1530
-    #define LIST_STEP 52
-    #define LIST_THUMB 44
+    #define LIST_STEP 64
+    #define LIST_THUMB 56
+    #define LIST_TEXT_X (LIST_X + LIST_THUMB + 18)
+    #define LIST_LIKES_X 1556
+    #define LIST_RIGHT 1830
+    #define FIT_LEN 1024
+    #define BAR_TEXT_W 570
     #define PANEL_H 790
     #define BOARD_BAR_Y 190
     #define CAT_BAR_Y 260
@@ -117,19 +132,20 @@
     #define FIELD_SHOWN 400
     #define STATS_Y 330
     #define CONTENT_BOTTOM 820
-    #define BOARD_STEP 46
+    #define BOARD_STEP 56
     #define TILES_X 250
     #define TILES_RIGHT 1700
     #define TILE_MAX 96
     #define TILE_MIN 40
     #define TILE_GAP 8
-    #define THUMB 38
+    #define THUMB 48
     #define PL_ROWS_Y 330
-    #define PL_ROW_STEP 52
+    #define PL_ROW_STEP 60
     #define BOARDS_ROWS_Y 330
     #define DUP_ROWS_Y 250
     #define DUP_HEAD_H 44
     #define DUP_ROW_H 76
+    #define DUP_TEXT_W 610
     #define DUP_SAME_H 56
     #define DLPOPUP_ROWS_Y 290
     #define DLPOPUP_STEP 54
@@ -191,7 +207,7 @@ int list_create(app_t *app);
 int list_click(app_t *app);
 void list_play(app_t *app, int row);
 void list_scroll(app_t *app, float delta);
-void list_update(app_t *app);
+void list_likes(app_t *app);
 void list_draw(app_t *app);
 int bar_create(app_t *app);
 int bar_seek(app_t *app);
@@ -347,6 +363,8 @@ void dlscene_report(app_t *app);
 int dlscene_report_lines(app_t *app);
 void dlscene_excluded(app_t *app);
 void dlscene_refused(app_t *app);
+int dlpopup_shown(app_t *app, rejected_t const *item, int *i);
+void dlscene_archive_footer(app_t *app, float y);
 int dlpopup_rows(app_t *app);
 void format_size(char *buf, size_t size, double bytes);
 
@@ -413,6 +431,7 @@ long download_estimate(download_t const *dl, double *size);
 
 // src/scene/pages : pieces of screens usable by several scenes
 void artist_page(app_t *app, artist_t *artist, int *back);
+int like_row(app_t *app, song_t const *song, float const *rect, float x);
 int like_buttons(app_t *app, elo_kind_t kind, int id, float const *pos);
 int category_bar(app_t *app, int *category, int nb, int random);
 int board_bar(app_t *app, arena_t *arena);
@@ -456,6 +475,16 @@ void widget_image(app_t *app, sfTexture *texture, float const *rect,
 void widget_tip(app_t *app, float const *rect, char const *str);
 void widget_tip_draw(app_t *app);
 void widget_help(app_t *app, float const *rect, char const *str);
+int widget_icon(app_t *app, float const *rect, int icon, int state);
+void text_fit(app_t *app, sfText *text, char const *str, float max_w);
+void widget_fit(app_t *app, char const *str, float const *pos,
+    sfColor const *color);
+void widget_song(app_t *app, song_t const *song, float const *rect,
+    sfColor const *color);
+void widget_rank(app_t *app, rank_t const *rank, float const *rect,
+    sfColor const *color);
+int widget_icon_button(app_t *app, float const *rect, int icon,
+    char const *label);
 sfTexture *image_get(app_t *app, rank_t const *rank, int small);
 void image_cache_clear(app_t *app);
 
@@ -468,6 +497,11 @@ void player_update(app_t *app);
 void player_resync(app_t *app);
 void player_shuffle_toggle(app_t *app);
 void player_repeat_next(app_t *app);
+void player_seek(app_t *app, long delta);
+void player_halt(app_t *app);
+void player_volume_apply(app_t *app);
+void player_volume_step(app_t *app, int step);
+void player_mute_toggle(app_t *app);
 void queue_shuffle(song_t **queue, int nb, song_t const *first);
 int queue_keep_order(song_t **fresh, int nb, player_t const *old);
 void library_play_modes(app_t *app);
@@ -532,6 +566,10 @@ void path_clean(char const *in, char *out);
 // src/library/songs
 song_t *song_create(void);
 void song_destroy(song_t *song);
+int song_forgettable(library_t *lib, song_t const *song);
+int song_forget(app_t *app, song_t *song);
+void song_forget_refs(library_t *lib, int id);
+void song_forget_logs(song_t *song);
 void song_list_destroy(song_t *song);
 char const *song_title(song_t const *song);
 char *song_make_key(song_t const *song);
@@ -567,7 +605,7 @@ rejected_t *excluded_find(library_t *lib, char const *id);
 rejected_t *excluded_add(library_t *lib, char const *id, char const *title);
 void excluded_remove(library_t *lib, char const *id);
 int song_exclude(app_t *app, song_t *song);
-int excluded_count(library_t const *lib);
+int excluded_count(library_t const *lib, int archived);
 rejected_t *unavailable_find(library_t *lib, char const *id);
 rejected_t *unavailable_add(library_t *lib, char const *id,
     char const *title, char const *reason);
@@ -578,11 +616,12 @@ int dl_reason_lasting(char const *detail);
 void dlscene_unavailable(app_t *app);
 void dlscene_unavailable_footer(app_t *app, float y);
 song_t *song_by_video(library_t *lib, char const *id);
+void excluded_songs(library_t *lib);
 rejected_t *rejected_find(library_t *lib, char const *id);
 rejected_t *rejected_add(library_t *lib, char const *id, char const *title,
     int duration);
 void rejected_remove(library_t *lib, char const *id);
-int rejected_count(library_t const *lib);
+int rejected_count(library_t const *lib, int archived);
 source_t *source_get(library_t *lib, int playlist_id);
 source_t *source_set(library_t *lib, int playlist_id, char const *url);
 void source_remove(library_t *lib, int playlist_id);

@@ -18,23 +18,29 @@ enum lib_ids {
 
 static const ui_def_t lib_ui[] = {
     {LIB_CLOSE, ANCHOR_TOP,
-        {24, 16, 64, 64, ATLAS_CELL * 5, 0, ATLAS_CELL, ATLAS_CELL}},
+        {24, 16, 64, 64, ICON_X(ICON_POWER, 0), ICON_Y(ICON_POWER, 0),
+            ATLAS_CELL, ATLAS_CELL}},
     {LIB_BACK, ANCHOR_TOP,
-        {104, 16, 64, 64, ATLAS_CELL * 4, 0, ATLAS_CELL, ATLAS_CELL}},
+        {104, 16, 64, 64, ICON_X(ICON_BACK, 0), ICON_Y(ICON_BACK, 0),
+            ATLAS_CELL, ATLAS_CELL}},
     {LIB_PLAY, ANCHOR_BOTTOM,
-        {912, 966, 96, 96, 0, 0, ATLAS_CELL, ATLAS_CELL}},
+        {912, 966, 96, 96, ICON_X(ICON_PLAY, 1), ICON_Y(ICON_PLAY, 1),
+            ATLAS_CELL, ATLAS_CELL}},
     {LIB_PAUSE, ANCHOR_BOTTOM,
-        {912, 966, 96, 96, ATLAS_CELL, 0, ATLAS_CELL, ATLAS_CELL}},
+        {912, 966, 96, 96, ICON_X(ICON_PAUSE, 1), ICON_Y(ICON_PAUSE, 1),
+            ATLAS_CELL, ATLAS_CELL}},
     {LIB_PREV, ANCHOR_BOTTOM,
-        {786, 974, 80, 80, ATLAS_CELL * 3, 0, ATLAS_CELL, ATLAS_CELL}},
+        {794, 978, 72, 72, ICON_X(ICON_PREV, 0), ICON_Y(ICON_PREV, 0),
+            ATLAS_CELL, ATLAS_CELL}},
     {LIB_NEXT, ANCHOR_BOTTOM,
-        {1054, 974, 80, 80, ATLAS_CELL * 2, 0, ATLAS_CELL, ATLAS_CELL}}
+        {1054, 978, 72, 72, ICON_X(ICON_NEXT, 0), ICON_Y(ICON_NEXT, 0),
+            ATLAS_CELL, ATLAS_CELL}}
 };
 
 int libscene_init(app_t *app)
 {
     float panel[4] = {87, 110, 1745, PANEL_H};
-    sfColor white = {255, 255, 255, 60};
+    sfColor white = {10, 6, 24, 120};
 
     app->libscene = calloc(1, sizeof(libscene_t));
     if (!app->libscene)
@@ -111,6 +117,7 @@ static void widgets(app_t *app)
     float search[4] = {1350, SORT_Y, 480, 52};
 
     library_likes(app);
+    list_likes(app);
     shortcuts(app);
     library_play_modes(app);
     library_select_toggle(app);
@@ -157,7 +164,8 @@ static void left_release(app_t *app)
 }
 
 /*
-** escape closes the actions window, then leaves the selection mode
+** escape closes the list of the sort criteria or the actions window,
+** then leaves the selection mode
 */
 static void key(app_t *app, sfEvent const *event)
 {
@@ -167,13 +175,17 @@ static void key(app_t *app, sfEvent const *event)
         library_actions_key(app, event->text.unicode);
     if (event->type != sfEvtKeyPressed || event->key.code != sfKeyEscape)
         return;
-    if (scene->sel.open)
+    if (scene->sort_open || scene->sel.open) {
+        scene->sort_open = 0;
         scene->sel.open = 0;
-    else if (scene->selecting) {
+        return;
+    }
+    if (scene->selecting) {
         scene->selecting = 0;
         select_all(app, 0);
-    } else
-        scene_back(app);
+        return;
+    }
+    scene_back(app);
 }
 
 void libscene_event(app_t *app, sfEvent *event)
@@ -204,7 +216,6 @@ void libscene_update(app_t *app)
         app->search.changed = 0;
         list_create(app);
     }
-    list_update(app);
     drag_update(app);
     bar_update(app);
 }

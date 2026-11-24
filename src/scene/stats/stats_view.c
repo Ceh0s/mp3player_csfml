@@ -75,18 +75,14 @@ static void draw_line(app_t *app, int i, float y)
 {
     stat_row_t const *row = &app->stats->rows[i];
     rank_t rank = {row->song, row->artist, 0, 0, 0};
-    char const *artists = row->song ? row->song->artists : NULL;
-    char text[NAME_LEN * 2];
-    char cut[NAME_LEN * 2];
+    char text[16];
 
     snprintf(text, sizeof(text), "%d", i + 1);
     widget_text(app, text, (float [3]){130, y, 26}, &gray);
     widget_image(app, image_get(app, &rank, 1),
-        (float [4]){200, y - 2, THUMB, THUMB}, row->artist != NULL);
-    snprintf(text, sizeof(text), "%s%s%s", rank_name(&rank),
-        artists ? " - " : "", artists ? artists : "");
-    utf8_cut(cut, text, 56);
-    widget_text(app, cut, (float [3]){252, y, 26}, &sfWhite);
+        (float [4]){190, y - 8, THUMB, THUMB}, row->artist != NULL);
+    widget_rank(app, &rank, (float [4]){252, y - 8, 870, BOARD_STEP - 4},
+        &sfWhite);
     numbers(app, row, y);
 }
 

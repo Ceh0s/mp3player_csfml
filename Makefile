@@ -30,6 +30,9 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/boards/boards_list.c\
 		src/scene/boards/boards_scene.c\
 		src/scene/download/download_absent_view.c\
+		src/scene/download/download_archive_view.c\
+		src/scene/download/download_excluded_view.c\
+		src/scene/download/download_refused_view.c\
 		src/scene/download/download_link.c\
 		src/scene/download/download_options.c\
 		src/scene/download/download_popup.c\
@@ -103,7 +106,10 @@ SRC_UI	=	src/ui/image_cache.c\
 		src/ui/widget_image.c\
 		src/ui/widget_shapes.c\
 		src/ui/widgets.c\
-		src/ui/widget_field.c
+		src/ui/widget_field.c\
+		src/ui/widget_icon.c\
+		src/ui/widget_song.c\
+		src/ui/text_fit.c
 
 SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pair.c\
@@ -116,7 +122,8 @@ SRC_AUDIO	=	src/audio/listen_tracker.c\
 		src/audio/player.c\
 		src/audio/player_queue.c\
 		src/audio/player_shuffle.c\
-		src/audio/preview.c
+		src/audio/preview.c\
+		src/audio/player_controls.c
 
 SRC_LIBRARY	=	src/library/library.c\
 		src/library/library_destroy.c\
@@ -176,11 +183,15 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/songs/fprints.c\
 		src/library/songs/song.c\
 		src/library/songs/song_delete.c\
+		src/library/songs/song_forget.c\
+		src/library/songs/song_forget_refs.c\
+		src/library/songs/song_forget_logs.c\
 		src/library/songs/song_edit.c\
 		src/library/songs/song_key.c\
 		src/library/songs/song_merge.c\
 		src/library/songs/song_resolve.c\
 		src/library/videos/excluded.c\
+		src/library/videos/excluded_song.c\
 		src/library/videos/unavailable.c\
 		src/library/videos/rejected.c\
 		src/library/videos/sources.c\

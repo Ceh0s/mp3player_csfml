@@ -16,39 +16,14 @@ artistes, playlists, et classements Elo par « battles » entre deux musiques ou
   d'astuces obscures, préférer le simple et lisible.
 - Répondre en français.
 
-### Norme Epitech
-Document : `/home/ceh0s/Documents/epitech_c_coding_style.pdf`.
-Le vérificateur officiel est le compilateur **epiclang**, utilisé par `make debug` : les
-violations s'affichent comme des warnings sur stderr. Objectif : **zéro remarque**.
-Ne plus utiliser coding-style-checker.
-
-Rappels principaux :
-- 20 lignes max par fonction, 80 colonnes, 4 paramètres max ;
-- 10 fonctions max par fichier, dont 5 non `static` max ;
-- pas d'imbrication de conditions de profondeur 3 ou plus ;
-- pas de variable globale non `const` ;
-- structures passées par pointeur, déclarations en début de fonction ;
-- continuation d'une condition de `if` : un niveau d'indentation de plus que le corps ;
-- pas de macro sur plusieurs lignes (découper en plusieurs macros d'une ligne).
-
-**Pourquoi cette norme** : pour garantir une utilisation efficace des ressources du PC,
-mais aussi et surtout pour garder une **lisibilité et une organisation propres**. L'idée de
-la norme est de forcer à construire le projet de manière **structurée et logique**, et c'est
-ce qui est attendu ici aussi :
-- **Fractionner** les gros fichiers en fichiers plus petits et plus explicites **avant**
-  d'arriver à la limite de fonctions, plutôt que de tasser du code pour rester en dessous.
-- Utiliser des **sous-dossiers** dans le même but (comme dans wolf3d :
-  `src/init`, `src/update`, `src/destroy`...).
-- Trouver l'équilibre entre trop compact et trop étalé : **chaque fichier remplit sa
-  propre tâche**, et son nom dit laquelle.
-- Chaque fichier commence par l'en-tête Epitech avec une description utile.
-
-**Exception** : la norme peut être enfreinte **uniquement** si une fonctionnalité l'exige
-**et** qu'aucune alternative de taille raisonnable et de coût système non excessif n'existe.
-Toujours préférer l'alternative conforme quand elle existe. Chaque écart doit être signalé à
-l'auteur et commenté dans le code.
-Exemple : Ctrl+C est géré sans variable globale, en bloquant les signaux avec
-`sigprocmask` et en les relevant à chaque tick avec `sigpending` (`src/core/signals.c`).
+### Norme Epitech (plus obligatoire depuis le 2026-11-24)
+Décision de l'auteur : la norme (`/home/ceh0s/Documents/epitech_c_coding_style.pdf`,
+vérifiée par epiclang via `make debug`) n'est **plus imposée**. La respecter coûtait du
+temps et des ressources mieux employés ailleurs. Les écarts n'ont plus à être justifiés ni
+signalés.
+Restent **appréciés** (sans obligation) : un code lisible et facile à comprendre, des
+fichiers qui font chacun leur tâche avec un nom qui la dit, des sous-dossiers par thème,
+l'en-tête Epitech avec une description utile, pas de variable globale non `const`.
 
 **Dépendance externe acceptée** : le téléchargement lance le programme `yt-dlp` (avec
 `ffmpeg`), installé à part (`sudo pacman -S yt-dlp`). Ce n'est pas une bibliothèque liée :
@@ -58,7 +33,7 @@ sans lui, aucune vidéo n'est remplacée (voir Téléchargement).
 
 ### Avant de rendre la main
 1. `make re` sans warning (`-Wall -Wextra`).
-2. `make debug` sans aucune remarque epiclang (puis `make fclean`).
+2. `make debug` (epiclang) : facultatif, la norme n'est plus imposée.
 3. `valgrind --leak-check=full ./MP3player` : 0 erreur, 0 fuite.
 4. Ne jamais commiter sans accord. `music/` et `data/` sont ignorés par git.
 
@@ -100,7 +75,8 @@ src/scene/             table des scènes
     download/          écran de téléchargement (adresse, options : durée, playlists de
                        réception, lien ; progression, résumé) et liste par-dessus
                        (download_popup : hors durée / refusés / retirés / exclus /
-                       indisponibles / bilan)
+                       indisponibles / bilan ; refusés et exclus : _refused_view,
+                       _excluded_view, archivage commun : _archive_view)
     duplicates/        doublons : analyse du son une musique par tick, groupes
                        (_row, _block), fusions à la main et automatiques (_merge),
                        fichiers au son identique (_same), tri après un choix (_refresh)
@@ -108,7 +84,10 @@ src/scene/             table des scènes
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
                        lecteur, search_field : champ de recherche)
-src/ui/                tables d'éléments (atlas), collisions, formes, widgets, champ de
+src/ui/                tables d'éléments (atlas), collisions, formes, widgets, icônes de
+                       l'atlas (widget_icon.c : contour, disque plein = état actif,
+                       estompé = inactif), ligne de titre (widget_song.c : titre en
+                       gros, artistes dessous), « … » (text_fit.c), champ de
                        saisie (widget_field.c : curseur cliquable, texte qui défile),
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
@@ -116,7 +95,8 @@ src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène
                        reset (ligne « reset » dans battles.log)
 src/audio/             lecteur (un seul sfMusic ouvert), file de lecture (aléatoire :
                        player_shuffle.c, boucle), temps d'écoute,
-                       écoute en battle (preview.c : second sfMusic, jamais compté)
+                       écoute en battle (preview.c : second sfMusic, jamais compté),
+                       stop, ±10 s, volume et muet (player_controls.c)
 src/download/          téléchargement par yt-dlp : lancement (liste ou vidéo), suivi à
                        chaque tick, lecture de la liste, tri des vidéos, ajout du mp3,
                        titres hors durée, titres retirés d'une playlist du site, bilan
@@ -141,8 +121,10 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
-                       suppression des fichiers (demandée seulement)
-    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus,
+                       suppression des fichiers (demandée seulement), oubli d'un
+                       exclu (song_forget.c, _refs : références, _logs : journaux)
+    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus
+                       (musique d'un exclu retrouvée dans edits.log : excluded_song.c),
                        indisponibles, adresses liées aux playlists
     duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires
                        regroupées (dup_groups.c), enveloppe sonore et comparaison,
@@ -154,7 +136,8 @@ src/data/              lecture/écriture TSV, migration, journaux
 src/utils/             UTF-8 (pas à pas : utf8_step.c), chaînes, découpage en mots,
                        saisie de texte au curseur (text_caret.c : flèches, Début, Fin,
                        Suppr ; avec Ctrl+V)
-assets/       atlas.png (6 icônes 256 px), fonds JPEG, font.ttf, no_cover.png (image par
+assets/       atlas.png (25 icônes 256 px sur 10 colonnes : contours, puis les mêmes
+              en disque plein à l'indice + NB_ICONS, enum icon_e de ui.h), fonds JPEG, font.ttf, no_cover.png (image par
               défaut, provisoire : l'auteur fournira la sienne)
 ```
 
@@ -267,8 +250,14 @@ Principes en place :
   enregistrement) : le second n'est pas une musique, il est gardé dans `lib->same_files`
   (sa vidéo compte comme présente) et l'écran propose de l'effacer (« Fichiers
   identiques », demandé deux fois).
-- **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (fenêtre des
-  actions, puis mode sélection), statistiques (champ de date). Les écrans avec saisie gèrent Espace eux-mêmes.
+- **Lignes de titre** (bibliothèque, classements, statistiques, doublons, playlists,
+  titres retirés, recherche de l'édition) : titre en gros, artistes en gris dessous
+  (`widget_song`), coupés par « … » si le paramètre `ellipsis` est actif. Les lignes de
+  la bibliothèque font 64 px ; un clic est cherché par la position de la souris. Avis
+  à droite de chaque ligne (les deux icônes au survol, l'avis donné toujours visible).
+  Tri : bouton « Tri : … » qui ouvre la liste des critères, sens par une icône.
+- **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (liste des
+  tris, fenêtre des actions, puis mode sélection), statistiques (champ de date). Les écrans avec saisie gèrent Espace eux-mêmes.
 - **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran) :
   bibliothèque (la file de lecture suit le filtre, `player_t.filter`), doublons,
   classements (trois onglets, vrai rang gardé), liste du téléchargement. Clic dessus = elle
@@ -286,6 +275,13 @@ site), « Supprimer le fichier en trop » (doublon fusionné, aussi automatiquem
 bascule est sur oui), « Effacer ce fichier » (son identique), « Exclure » et « Supprimer du
 lecteur » (mode sélection, édition) effacent le mp3 de `music/` (`song_delete_files`,
 ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
+Seule exception à la conservation des stats : **« Oublier »** (liste « Exclus » du
+téléchargement, demandé deux fois, `song_forget`) efface tout d'une musique exclue dont
+le fichier n'est plus là : musique, empreintes, enveloppes, liens, playlists, ordres,
+avis, départage, paires, suggestions, règles, images, ses lignes de `listens.log` et
+`battles.log` (Elo rejoués). Seule la vidéo reste dans `excluded.tsv`. Impossible si
+d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` dans
+`settings.tsv`).
 
 | Fichier | Contenu |
 |---|---|
@@ -301,17 +297,17 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 | `custom_orders.tsv` | ordre personnalisé de chaque playlist (ids bruts), à part de `playlist_songs.tsv` |
 | `boards.tsv` / `board_rules.tsv` | classements personnalisés et leurs règles (include/exclude, all/playlist/artist/song) |
 | `downloads.archive` | vidéos YouTube déjà dans `music/` pour yt-dlp (`youtube <id>`), réécrit avant chaque téléchargement (sécurité : les vidéos présentes sont déjà écartées après la liste) |
-| `rejected.tsv` | vidéos refusées pour leur durée : id, durée (s), date, titre, refusée aussi dans la plage (colonne absente des anciens fichiers) |
+| `rejected.tsv` | vidéos refusées pour leur durée : id, durée (s), date, titre, refusée aussi dans la plage, archivée (« Vider la liste » ; colonnes absentes des anciens fichiers) |
 | `playlist_sources.tsv` | adresse liée à une playlist : playlist, adresse, durée min/max (-1 = aucune), signaler les retirés |
 | `envelopes.tsv` | enveloppe sonore d'un fichier (empreinte → octets en hexadécimal, vide si illisible), écrite en quittant l'écran des doublons |
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
-| `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre |
+| `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre, archivée (absente des anciens fichiers) |
 | `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle, texte retiré, état |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre) |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` = premier id de musique jamais donné |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -354,6 +350,15 @@ ligne dans `edits.log`) ; la musique garde ses stats et passe `present = 0`.
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.11 — Cinquième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Battle** : l'adversaire était tiré parmi les 3 premiers à Elo égal, donc toujours
+  les premiers titres par ordre alphabétique (tous à 1500) ; tiré maintenant parmi
+  tous les Elo aussi proches. Les cartes nomment la catégorie de leurs stats.
+- **Icônes** (atlas refait, nouveau fond) : barre de lecture (stop, ±10 s, aléatoire,
+  boucle, volume et muet), avis, tri, menu d'accueil, fermer / retour.
+- **Lignes de titre** sur deux niveaux et « … » (bascule dans les Paramètres).
+- **Exclus / Refusés** : « Vider la liste » archive, « Voir les archivés », « Oublier ».
 
 ### Phase 4.10 — Quatrième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Ordre de la playlist importée** : celui du site (voir Téléchargement).

@@ -33,6 +33,7 @@ rejected_t *excluded_add(library_t *lib, char const *id, char const *title)
     snprintf(ex->id, VIDEO_ID, "%s", id);
     ex->title = strdup(title ? title : "");
     ex->duration = -1;
+    ex->song_id = -1;
     ex->date = time(NULL);
     while (*last)
         last = &(*last)->next;
@@ -67,20 +68,26 @@ void excluded_remove(library_t *lib, char const *id)
 int song_exclude(app_t *app, song_t *song)
 {
     char id[VIDEO_ID];
+    rejected_t *ex = NULL;
 
     if (!song_video_id(app->lib, song, id))
         return 84;
-    excluded_add(app->lib, id, song_title(song));
+    ex = excluded_add(app->lib, id, song_title(song));
+    if (ex)
+        ex->song_id = song->id;
     db_save_excluded(app->lib);
     song_delete_files(app, song);
     return 0;
 }
 
-int excluded_count(library_t const *lib)
+/*
+** archived : 1 to count those of "Voir les archivés", 0 the others
+*/
+int excluded_count(library_t const *lib, int archived)
 {
     int nb = 0;
 
     for (rejected_t const *ex = lib->excluded; ex; ex = ex->next)
-        nb++;
+        nb += ex->archived == archived;
     return nb;
 }

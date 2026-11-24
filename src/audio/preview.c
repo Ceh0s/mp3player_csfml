@@ -48,6 +48,7 @@ static void preview_start(app_t *app, song_t *song)
         return;
     }
     player->preview_song = song;
+    player_volume_apply(app);
     if (player->music && sfMusic_getStatus(player->music) == sfPlaying) {
         sfMusic_pause(player->music);
         player->resume = 1;

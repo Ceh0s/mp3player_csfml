@@ -51,9 +51,9 @@ static void wheel(app_t *app, float delta)
     if (scene->popup == DL_POPUP_FLAGGED)
         nb = entries_count(app->download.flagged);
     if (scene->popup == DL_POPUP_REFUSED)
-        nb = rejected_count(app->lib);
+        nb = rejected_count(app->lib, scene->archived);
     if (scene->popup == DL_POPUP_EXCLUDED)
-        nb = excluded_count(app->lib);
+        nb = excluded_count(app->lib, scene->archived);
     if (scene->popup == DL_POPUP_UNAVAILABLE)
         nb = unavailable_count(app->lib);
     if (scene->popup == DL_POPUP_REPORT)

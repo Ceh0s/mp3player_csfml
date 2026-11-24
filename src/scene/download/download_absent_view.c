@@ -13,13 +13,7 @@ static const sfColor gray = {180, 180, 180, 255};
 
 static void row_text(app_t *app, song_t const *song, float y)
 {
-    char line[NAME_LEN * 2 + 8];
-    char cut[90 + 4];
-
-    snprintf(line, sizeof(line), "%s%s%s", song_title(song),
-        song->artists ? " - " : "", song->artists ? song->artists : "");
-    utf8_cut(cut, line, 90);
-    widget_text(app, cut, (float [3]){300, y + 8, 22}, &sfWhite);
+    widget_song(app, song, (float [4]){300, y + 2, 690, 42}, &sfWhite);
 }
 
 /*

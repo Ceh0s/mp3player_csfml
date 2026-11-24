@@ -110,12 +110,13 @@ typedef struct selection_s {
 
 /*
 ** playlist_id : tab shown (0 = "Tous les titres"), view / nb_view : its
-** present songs, titles : one text per song of the view
+** present songs (rows drawn with widget_song)
 ** shown : song written in the bottom bar (has_shown = 0 before the 1st)
 ** drag_row : row held by the mouse in the custom order (-1 if none),
 ** press : where it was pressed, dragging : 1 once the mouse moved,
 ** drag_wait : ticks before the list scrolls again while dragging
 ** selecting : 1 in the selection mode (a click checks a song), sel : it
+** sort_open : 1 while the list of the sort criteria is open
 */
 typedef struct libscene_s {
     sfTexture *bg_texture;
@@ -129,7 +130,6 @@ typedef struct libscene_s {
     song_t **view;
     int nb_view;
     int nb_total;
-    sfText **titles;
     sfText *now_title;
     sfText *now_artist;
     sfText *time;
@@ -144,6 +144,7 @@ typedef struct libscene_s {
     int drag_wait;
     int selecting;
     selection_t sel;
+    int sort_open;
 } libscene_t;
 
 typedef enum edit_mode_e {
@@ -308,6 +309,9 @@ typedef struct boards_s {
 ** popup : list shown over the screen (DL_POPUP_...), scroll : its
 ** first row shown, confirm : song whose files are about to be removed
 ** (asked a second time), 0 if none
+** archived : 1 to show the archived rows of "Refusés" / "Exclus",
+** clear : 1 once "Vider la liste" was clicked (asked a second time),
+** forget : row + 1 of the excluded song about to be forgotten, 0 if none
 */
     #define URLS_LEN 4096
     #define DURATION_LEN 10
@@ -343,6 +347,9 @@ typedef struct dlscene_s {
     dl_popup_t popup;
     int scroll;
     int confirm;
+    int archived;
+    int clear;
+    int forget;
 } dlscene_t;
 
 /*

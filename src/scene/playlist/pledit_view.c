@@ -72,21 +72,21 @@ static void header(app_t *app, pledit_t *pl)
 
 static void song_rows(app_t *app, pledit_t *pl)
 {
-    char label[NAME_LEN * 2 + 16];
     song_t *song = NULL;
     int rows = visible_rows(app);
     float y = 0;
+    float text[4] = {210, 0, 1550, PL_ROW_STEP - 12};
 
     for (int i = pl->scroll; i < pl->nb_found && i < pl->scroll + rows;
         i++) {
         song = pl->found[i];
         y = PL_ROWS_Y + (i - pl->scroll) * PL_ROW_STEP;
-        snprintf(label, sizeof(label), "[%s]   %s%s%s",
-            playlist_has_song(app->lib, pl->playlist, song) ? "x" : "  ",
-            song_title(song), song->artists ? " - " : "",
-            song->artists ? song->artists : "");
-        if (widget_button(app, (float [4]){130, y, 1650, 46}, label))
+        if (widget_button(app, (float [4]){130, y, 1650, PL_ROW_STEP - 6},
+                playlist_has_song(app->lib, pl->playlist, song) ? "[x]"
+                : "[  ]"))
             playlist_toggle(app->lib, pl->playlist, song);
+        text[1] = y + 4;
+        widget_song(app, song, text, &sfWhite);
     }
 }
 

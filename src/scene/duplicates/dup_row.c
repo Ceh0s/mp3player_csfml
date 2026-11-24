@@ -45,22 +45,19 @@ static void likeness(app_t *app, dup_group_t const *group, int i, float y)
 
 static void texts(app_t *app, song_t *song, float y)
 {
-    char line[NAME_LEN * 2 + 8];
-    char cut[48 + 4];
+    char line[NAME_LEN + 64];
     char time[32];
     char listen[32];
     char file[36 + 4];
 
-    snprintf(line, sizeof(line), "%s%s%s", song_title(song),
-        song->artists ? " - " : "", song->artists ? song->artists : "");
-    utf8_cut(cut, line, 48);
-    widget_text(app, cut, (float [3]){420, y + 6, 22}, &sfWhite);
+    widget_song(app, song, (float [4]){420, y + 4, DUP_TEXT_W, 46},
+        &sfWhite);
     format_time(time, sizeof(time), song->duration_ms > 0 ?
         song->duration_ms : 0);
     format_time(listen, sizeof(listen), song_total_listen(app->lib, song));
     utf8_cut(file, song->file ? song->file : "", 36);
     snprintf(line, sizeof(line), "%s   écouté %s   %s", time, listen, file);
-    widget_text(app, line, (float [3]){420, y + 40, 18}, &gray);
+    widget_text(app, line, (float [3]){420, y + 50, 16}, &gray);
 }
 
 /*

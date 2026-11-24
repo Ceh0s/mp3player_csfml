@@ -64,8 +64,9 @@ static void update_labels(app_t *app)
         text_set(scene->now_artist, "");
         return;
     }
-    text_set(scene->now_title, song_title(song));
-    text_set(scene->now_artist, song->artists ? song->artists : "");
+    text_fit(app, scene->now_title, song_title(song), BAR_TEXT_W);
+    text_fit(app, scene->now_artist, song->artists ? song->artists : "",
+        BAR_TEXT_W);
 }
 
 void bar_update(app_t *app)

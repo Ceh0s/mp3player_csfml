@@ -14,13 +14,14 @@ static const sfColor green = {120, 220, 120, 255};
 static int result_row(app_t *app, edit_t *edit, int i)
 {
     song_t *song = edit->results[i];
-    char label[NAME_LEN * 3];
+    float y = 296 + i * 52;
 
-    snprintf(label, sizeof(label), "%s - %s%s", song_title(song),
-        song->artists ? song->artists : "?",
-        song->present ? "" : "   (fichier absent)");
-    if (!widget_button(app, (float [4]){130, 296 + i * 52, 1500, 46}, label))
+    if (!widget_button(app, (float [4]){130, y, 1500, 48},
+            song->present ? "" : "(fichier absent)")) {
+        widget_song(app, song, (float [4]){360, y + 3, 1250, 42},
+            &sfWhite);
         return 0;
+    }
     edit->target = song;
     edit->mode = EDIT_CONFIRM;
     return 1;
