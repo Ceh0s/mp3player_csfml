@@ -72,6 +72,7 @@ static void tie_line(app_t *app, rank_t const *rank, int i, float y)
 
     snprintf(text, sizeof(text), "%d", i + 1);
     widget_text(app, text, (float [3]){130, y, 26}, &gray);
+    ranking_hover(app, rank, (float [4]){130, y - 8, 1650, BOARD_STEP - 4});
     widget_image(app, image_get(app, rank, 1),
         (float [4]){190, y - 8, THUMB, THUMB}, rank->artist != NULL);
     widget_rank(app, rank, (float [4]){252, y - 8, 1400, BOARD_STEP - 4},

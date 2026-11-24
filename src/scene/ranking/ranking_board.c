@@ -69,6 +69,7 @@ static void draw_line(app_t *app, int i, float y)
     float thumb[4] = {190, y - 8, THUMB, THUMB};
 
     position(app, i, y);
+    ranking_hover(app, rank, (float [4]){130, y - 8, 1650, BOARD_STEP - 4});
     widget_image(app, image_get(app, rank, 1), thumb, rank->artist != NULL);
     widget_rank(app, rank, (float [4]){252, y - 8, 1050, BOARD_STEP - 4},
         &sfWhite);

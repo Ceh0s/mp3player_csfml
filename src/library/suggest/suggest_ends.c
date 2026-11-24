@@ -33,6 +33,37 @@ void sug_prefix(suggest_ctx_t *ctx)
 }
 
 /*
+** "X - Y" where neither X nor Y is a known name (a video uploaded by
+** someone else, "32 Leaves - Waiting"): both ways are proposed, as
+** guesses (never applied by "Tout appliquer"); not for the songs made
+** by YouTube itself, whose titles are right
+*/
+void sug_guess(suggest_ctx_t *ctx)
+{
+    char const *dash = strstr(ctx->title, " - ");
+    int len = dash ? dash - ctx->title : 0;
+    suggest_t *sug = NULL;
+
+    for (int i = 0; i < ctx->out->nb; i++)
+        if (ctx->out->items[i].rule == SUG_PREFIX
+            || ctx->out->items[i].rule == SUG_SUFFIX)
+            return;
+    if (!dash || len == 0 || len >= NAME_LEN || ctx->song->autogen
+        || strstr(dash + 3, " - ") || dash[3] == '\0')
+        return;
+    sug = sug_push(ctx, SUG_ARTIST_FIRST, 0, len + 3);
+    if (sug) {
+        snprintf(sug->artist, NAME_LEN, "%.*s", len, ctx->title);
+        sug->role = ROLE_MAIN;
+    }
+    sug = sug_push(ctx, SUG_TITLE_FIRST, len, strlen(dash));
+    if (sug) {
+        snprintf(sug->artist, NAME_LEN, "%s", dash + 3);
+        sug->role = ROLE_MAIN;
+    }
+}
+
+/*
 ** "Title - X", the last " - " of the title
 */
 void sug_suffix(suggest_ctx_t *ctx)

@@ -58,6 +58,7 @@ static void destroy_videos(library_t *lib)
     rejected_remove(lib, NULL);
     excluded_remove(lib, NULL);
     unavailable_remove(lib, NULL);
+    split_choices_free(lib);
     source_remove(lib, -1);
 }
 

@@ -22,7 +22,10 @@ int ranking_init(app_t *app)
     if (!app->ranking->bg || !app->ranking->panel)
         return 84;
     app->ranking->drag_row = -1;
+    app->ranking->tab = TAB_BOARD;
+    app->ranking->open_tier = -1;
     ranking_build(app);
+    ranking_restore(app);
     return 0;
 }
 
@@ -38,6 +41,12 @@ static void ranking_key(app_t *app, sfEvent *event)
             event->text.unicode);
     if (event->type != sfEvtKeyPressed || event->key.code != sfKeyEscape)
         return;
+    if (!ranking->reset && ranking->open_tier >= 0
+        && ranking->tab == TAB_TIERS) {
+        ranking->open_tier = -1;
+        ranking->scroll = 0;
+        return;
+    }
     if (!ranking->reset) {
         scene_back(app);
         return;
@@ -52,6 +61,14 @@ void ranking_event(app_t *app, sfEvent *event)
     if (event->type == sfEvtMouseWheelScrolled
         && app->ranking->tab != TAB_TIERS)
         ranking_scroll(app, event->mouseWheelScroll.delta);
+    if (event->type == sfEvtMouseWheelScrolled
+        && app->ranking->tab == TAB_TIERS && app->ranking->open_tier >= 0)
+        app->ranking->scroll -= (int)event->mouseWheelScroll.delta;
+    if (event->type == sfEvtMouseButtonPressed && !app->ranking->reset
+        && event->mouseButton.button == sfMouseRight) {
+        ranking_open_hover(app);
+        return;
+    }
     if (event->type == sfEvtMouseButtonPressed && !app->ranking->reset
         && app->ranking->tab == TAB_TIES && app->search.text[0] == '\0')
         ranking_drag_press(app);
@@ -71,6 +88,8 @@ void ranking_draw(app_t *app)
     sfRenderWindow_drawRectangleShape(app->window, app->ranking->panel,
         NULL);
     app->wg->mode = WG_DRAW;
+    app->ranking->hover.song = NULL;
+    app->ranking->hover.artist = NULL;
     ranking_view(app);
     widget_tip_draw(app);
 }

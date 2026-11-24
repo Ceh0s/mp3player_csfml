@@ -2,9 +2,9 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** suggestions that add an artist: "(X Remix)" gives the remixer, and a
-** featuring written without brackets ("Title feat. X", "Title ft. X")
-** gives the featured artist
+** suggestions that credit an artist: "(X Remix)" gives the remixer,
+** and a featuring written without brackets ("Title feat. X", "Title
+** ft. X") gives the featured artist; the title is left as it is
 */
 
 #include "mp3player.h"
@@ -18,16 +18,12 @@ void sug_remix(suggest_ctx_t *ctx, int const *group, char const *name,
     int len)
 {
     char remixer[NAME_LEN];
-    suggest_t *sug = NULL;
+    int where[2] = {group[0], group[1] - group[0] + 1};
 
     snprintf(remixer, NAME_LEN, "%.*s", len, name);
     if (len <= 0 || sug_style_name(remixer))
         return;
-    sug = sug_push(ctx, SUG_REMIX, group[0], group[1] - group[0] + 1);
-    if (!sug)
-        return;
-    snprintf(sug->artist, NAME_LEN, "%.*s", len, name);
-    sug->role = ROLE_REMIX;
+    sug_credit(ctx, where, remixer, ROLE_REMIX);
 }
 
 /*
@@ -52,18 +48,21 @@ void sug_bare_feat(suggest_ctx_t *ctx)
     char const *const marks[] = {" feat. ", " ft. ", " Feat. ", " Ft. ",
         NULL};
     char const *found = NULL;
-    suggest_t *sug = NULL;
+    char const *name = NULL;
+    char artist[NAME_LEN];
+    int where[2] = {0, 0};
     int len = 0;
 
     for (int i = 0; marks[i] && !found; i++)
         found = strstr(title, marks[i]);
     if (!found)
         return;
-    len = name_end(strchr(found + 1, ' ') + 1);
-    sug = sug_push(ctx, SUG_FEAT, found - title,
-        strchr(found + 1, ' ') + 1 + len - found);
-    if (!sug || len <= 0)
+    name = strchr(found + 1, ' ') + 1;
+    len = name_end(name);
+    if (len <= 0 || len >= NAME_LEN)
         return;
-    snprintf(sug->artist, NAME_LEN, "%.*s", len, strchr(found + 1, ' ') + 1);
-    sug->role = ROLE_FEAT;
+    where[0] = found - title;
+    where[1] = name + len - found;
+    snprintf(artist, NAME_LEN, "%.*s", len, name);
+    sug_credit(ctx, where, artist, ROLE_FEAT);
 }

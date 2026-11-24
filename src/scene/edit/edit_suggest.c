@@ -30,6 +30,8 @@ static int shown(app_t *app, edit_t *edit, suggest_list_t *list)
     int nb = 0;
     int state = 0;
 
+    list->roles = edit->artists;
+    list->nb_roles = edit->nb_artists;
     suggest_list(app->lib, edit->song, edit->title, list);
     for (int i = 0; i < list->nb; i++) {
         state = suggest_state(app->lib, edit->song->id, &list->items[i]);
@@ -62,6 +64,12 @@ static void describe(char *out, suggest_t const *sug)
     if (sug->artist[0] != '\0')
         snprintf(out, NAME_LEN * 2, "Retirer « %s », %s : %s", removed,
             roles[sug->role], sug->artist);
+    if (sug->rule == SUG_FEAT || sug->rule == SUG_REMIX)
+        snprintf(out, NAME_LEN * 2, "Créditer %s en %s (le titre reste)",
+            sug->artist, roles[sug->role]);
+    if (suggest_is_guess(sug->rule))
+        snprintf(out, NAME_LEN * 2, "Supposition : artiste « %s »",
+            sug->artist);
     if (sug->rule == SUG_SPACES)
         snprintf(out, NAME_LEN * 2, "Retirer les espaces en trop");
     if (sug->rule == SUG_QUOTES)
@@ -69,8 +77,21 @@ static void describe(char *out, suggest_t const *sug)
 }
 
 /*
+** index of the first suggestion shown that is not a guess, -1 if none
+*/
+static int first_sure(app_t *app, edit_t *edit, suggest_list_t *list)
+{
+    int nb = shown(app, edit, list);
+
+    for (int i = 0; i < nb; i++)
+        if (!suggest_is_guess(list->items[i].rule))
+            return i;
+    return -1;
+}
+
+/*
 ** main page, under the title: the first suggestion, the page of all of
-** them, and "Tout appliquer"
+** them, and "Tout appliquer" (not the guesses)
 */
 void edit_suggest_line(app_t *app, edit_t *edit)
 {
@@ -90,9 +111,9 @@ void edit_suggest_line(app_t *app, edit_t *edit)
     if (!widget_button(app, (float [4]){975, 335, 255, 48},
             "Tout appliquer"))
         return;
-    for (int done = 0; done < SUGGEST_MAX && shown(app, edit, &list) > 0;
-        done++)
-        apply(edit, &list.items[0]);
+    for (int done = 0; done < SUGGEST_MAX && first_sure(app, edit, &list)
+        >= 0; done++)
+        apply(edit, &list.items[first_sure(app, edit, &list)]);
 }
 
 static void row_text(app_t *app, suggest_t const *sug, float y,

@@ -57,6 +57,9 @@
     #define EXCLUDED_DB "data/excluded.tsv"
     #define UNAVAILABLE_DB "data/unavailable.tsv"
     #define SUGGEST_DB "data/suggestions.tsv"
+    #define SPLITS_DB "data/artist_splits.tsv"
+    #define SPLITS_COLUMNS "name\tchoice"
+    #define SPLIT_MAX 8
     #define SETTINGS_DB "data/settings.tsv"
     #define DOWNLOADS_LOG "data/downloads.log"
     #define BOARDS_DB "data/boards.tsv"
@@ -290,6 +293,9 @@ int ranking_tiles(app_t *app, int tier, float const *row);
 void ranking_board(app_t *app);
 void ranking_scroll(app_t *app, float delta);
 int ranking_match(app_t *app, rank_t const *rank);
+void ranking_hover(app_t *app, rank_t const *rank, float const *rect);
+void ranking_open_hover(app_t *app);
+void ranking_restore(app_t *app);
 int ranking_count(app_t *app);
 void ranking_search(app_t *app);
 int ranking_rows(app_t *app);
@@ -365,6 +371,9 @@ void dlscene_excluded(app_t *app);
 void dlscene_refused(app_t *app);
 int dlpopup_shown(app_t *app, rejected_t const *item, int *i);
 void dlscene_archive_footer(app_t *app, float y);
+int dlscene_split_count(app_t *app);
+void dlscene_splits(app_t *app);
+void roles_explode(artist_role_t *roles, int *nb, int i);
 int dlpopup_rows(app_t *app);
 void format_size(char *buf, size_t size, double bytes);
 
@@ -570,6 +579,18 @@ int song_forgettable(library_t *lib, song_t const *song);
 int song_forget(app_t *app, song_t *song);
 void song_forget_refs(library_t *lib, int id);
 void song_forget_logs(song_t *song);
+artist_t *artist_rename(app_t *app, artist_t *artist, char const *name);
+void edit_rename_artist(app_t *app);
+int artist_split_parts(char const *name, char (*parts)[NAME_LEN]);
+int artist_split_doubtful(char (*parts)[NAME_LEN], int nb);
+void artist_split_apply(library_t *lib, artist_t *artist);
+int artist_split_state(library_t *lib, artist_t const *artist);
+void artists_split_auto(library_t *lib);
+split_choice_t *split_choice_find(library_t *lib, char const *name);
+void split_choice_set(library_t *lib, char const *name, int keep);
+void split_choices_free(library_t *lib);
+void db_parse_split(library_t *lib, char **fields, int nb);
+int db_save_splits(library_t *lib);
 void song_list_destroy(song_t *song);
 char const *song_title(song_t const *song);
 char *song_make_key(song_t const *song);
@@ -735,6 +756,10 @@ suggest_t *sug_add(suggest_ctx_t *ctx, suggest_rule_t rule,
 suggest_t *sug_push(suggest_ctx_t *ctx, suggest_rule_t rule, int start,
     int len);
 void sug_prefix(suggest_ctx_t *ctx);
+void sug_guess(suggest_ctx_t *ctx);
+int suggest_is_guess(int rule);
+void sug_credit(suggest_ctx_t *ctx, int const *where, char const *name,
+    int role);
 void sug_suffix(suggest_ctx_t *ctx);
 void sug_hashtags(suggest_ctx_t *ctx);
 void sug_prod(suggest_ctx_t *ctx);
@@ -836,6 +861,7 @@ char *str_lower(char const *str);
 char *str_or_null(char const *str);
 int str_contains(char const *hay, char const *needle);
 int split_tab(char *line, char **fields, int max);
+void str_trim(char *str);
 int text_input(app_t *app, char *buf, sfUint32 code);
 int text_input_n(app_t *app, char *buf, size_t size, sfUint32 code);
 size_t utf8_prev(char const *str, size_t pos);

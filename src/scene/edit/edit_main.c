@@ -9,14 +9,52 @@
 
 static const sfColor gray = {180, 180, 180, 255};
 
+/*
+** a name still written as a list when saved is kept whole from now on
+** (not split on its own, see artist_split.c)
+*/
 static void save(app_t *app)
 {
     edit_t *edit = app->edit;
 
+    for (int i = 0; i < edit->nb_artists; i++)
+        if (strchr(edit->artists[i].name, ','))
+            split_choice_set(app->lib, edit->artists[i].name, 1);
     song_set_title(edit->song, edit->title);
     song_set_artists(app->lib, edit->song, edit->artists, edit->nb_artists);
     library_changed(app);
     scene_back(app);
+}
+
+/*
+** plays the song in the real player (the listen counts in the stats):
+** the queue becomes "Tous les titres", from this song on
+*/
+static void listen(app_t *app, song_t *song)
+{
+    player_t *player = app->player;
+    float rect[4] = {1520, 130, 260, 56};
+    int playing = player->song == song && player->music
+        && sfMusic_getStatus(player->music) == sfPlaying;
+
+    if (!song->present) {
+        widget_text(app, "(fichier absent)", (float [3]){1540, 145, 22},
+            &gray);
+        return;
+    }
+    if (!widget_icon_button(app, rect, playing ? ICON_PAUSE : ICON_PLAY,
+            playing ? "Pause" : "Écouter"))
+        return;
+    if (player->song == song) {
+        player_toggle(app);
+        return;
+    }
+    player_queue(app, 0, "");
+    for (int i = 0; i < player->nb; i++)
+        if (player->queue[i] == song) {
+            player_play(app, i);
+            return;
+        }
 }
 
 static void header(app_t *app, edit_t *edit)
@@ -29,6 +67,7 @@ static void header(app_t *app, edit_t *edit)
         edit->song->file ? edit->song->file : "?");
     widget_text(app, "Modifier la musique", (float [3]){130, 125, 40},
         &sfWhite);
+    listen(app, edit->song);
     widget_text(app, info, (float [3]){130, 180, 22}, &gray);
     widget_text(app, "Titre", (float [3]){130, 228, 26}, &sfWhite);
     if (widget_field(app, (float [4]){130, 265, 1100, 56}, edit->title,

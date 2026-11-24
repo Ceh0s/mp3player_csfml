@@ -48,19 +48,18 @@ static int marker(char const *text)
 }
 
 /*
-** the brackets start..end (both included) go, artist (len bytes) is
-** added with role
+** the featured artist (len bytes) is credited, the brackets stay
 */
 static void with_artist(suggest_ctx_t *ctx, int const *group,
     char const *artist, int len)
 {
-    suggest_t *sug = sug_push(ctx, SUG_FEAT, group[0],
-        group[1] - group[0] + 1);
+    int where[2] = {group[0], group[1] - group[0] + 1};
+    char name[NAME_LEN];
 
-    if (!sug || len <= 0 || len >= NAME_LEN)
+    if (len <= 0 || len >= NAME_LEN)
         return;
-    snprintf(sug->artist, NAME_LEN, "%.*s", len, artist);
-    sug->role = ROLE_FEAT;
+    snprintf(name, NAME_LEN, "%.*s", len, artist);
+    sug_credit(ctx, where, name, ROLE_FEAT);
 }
 
 /*

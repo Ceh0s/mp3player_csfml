@@ -33,13 +33,19 @@ int edit_init(app_t *app)
     sfColor dark = {0, 0, 0, 140};
 
     app->edit = calloc(1, sizeof(edit_t));
-    if (!app->edit || !app->edit_song)
+    if (!app->edit || (!app->edit_song && !app->edit_artist))
         return 84;
     app->edit->song = app->edit_song;
     app->edit->bg = background_create(BG_BLUR_PATH, &app->edit->bg_texture);
     app->edit->panel = rect_create(panel, &dark);
     if (!app->edit->bg || !app->edit->panel)
         return 84;
+    if (!app->edit->song) {
+        app->edit->mode = EDIT_ARTIST;
+        app->edit->artist = app->edit_artist;
+        app->edit_artist = NULL;
+        return 0;
+    }
     snprintf(app->edit->title, NAME_LEN, "%s", song_title(app->edit->song));
     for (int role = 0; role < NB_ROLES; role++)
         load_role(app, app->edit, role);
@@ -61,7 +67,7 @@ void edit_event(app_t *app, sfEvent *event)
     if (event->type == sfEvtTextEntered)
         edit_text_entered(app, event->text.unicode);
     if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape) {
-        if (edit->mode == EDIT_MAIN)
+        if (edit->mode == EDIT_MAIN || !edit->song)
             scene_back(app);
         edit->mode = edit->mode == EDIT_CONFIRM ? EDIT_SEARCH : EDIT_MAIN;
     }

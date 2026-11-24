@@ -33,6 +33,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/download/download_archive_view.c\
 		src/scene/download/download_excluded_view.c\
 		src/scene/download/download_refused_view.c\
+		src/scene/download/download_split_view.c\
 		src/scene/download/download_link.c\
 		src/scene/download/download_options.c\
 		src/scene/download/download_popup.c\
@@ -90,6 +91,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/ranking/ranking_build.c\
 		src/scene/ranking/ranking_drag.c\
 		src/scene/ranking/ranking_order.c\
+		src/scene/ranking/ranking_open.c\
 		src/scene/ranking/ranking_reset.c\
 		src/scene/ranking/ranking_scene.c\
 		src/scene/ranking/ranking_search.c\
@@ -140,6 +142,9 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/artists/artists.c\
 		src/library/artists/artists_names.c\
 		src/library/artists/artists_stats.c\
+		src/library/artists/artist_rename.c\
+		src/library/artists/artist_split.c\
+		src/library/artists/split_choices.c\
 		src/library/duplicates/dup_artists.c\
 		src/library/duplicates/dup_audio.c\
 		src/library/duplicates/dup_clean.c\

@@ -96,8 +96,20 @@ static void bottom(app_t *app, battle_t *battle)
     float y = 840 + app->extra_h;
     float skip[4] = {1530, y, 260, 56};
 
+    float match[4] = {1090, y, 420, 56};
+    int *on = &app->lib->settings.battle_match;
+
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
         scene_back(app);
+    widget_help(app, match, "Au hasard : deux titres quelconques. "
+        "Équilibrées : ceux qui ont peu de battles, contre un Elo proche");
+    if (widget_button(app, match, *on ? "Rencontres : équilibrées"
+            : "Rencontres : au hasard")) {
+        *on = !*on;
+        db_save_settings(app->lib);
+        battle_next(app);
+        return;
+    }
     widget_help(app, skip, "Autre paire, sans vote");
     if (battle->has_pair && widget_button(app, skip, "Passer"))
         battle_next(app);

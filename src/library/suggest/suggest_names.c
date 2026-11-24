@@ -10,19 +10,6 @@
 #include "mp3player.h"
 #include <strings.h>
 
-static void trim(char *name)
-{
-    int len = strlen(name);
-    int start = 0;
-
-    while (len > 0 && name[len - 1] == ' ')
-        len--;
-    name[len] = '\0';
-    while (name[start] == ' ')
-        start++;
-    memmove(name, name + start, strlen(name + start) + 1);
-}
-
 /*
 ** 1 if one part of the list name (separated by ',') is artist
 */
@@ -34,7 +21,7 @@ static int has_part(char const *name, char const *artist)
 
     for (int i = 0; parts && parts[i] && parts[1]; i++) {
         snprintf(part, NAME_LEN, "%s", parts[i]);
-        trim(part);
+        str_trim(part);
         found = found || strcasecmp(part, artist) == 0;
     }
     str_array_free(parts);
@@ -45,7 +32,7 @@ static int has_part(char const *name, char const *artist)
 ** the entry i is replaced by its first part, the other parts are added
 ** at the end with the same role
 */
-static void explode(artist_role_t *roles, int *nb, int i)
+void roles_explode(artist_role_t *roles, int *nb, int i)
 {
     char **parts = stwa_delimiter(roles[i].name, ",", 0, 0);
     role_t role = roles[i].role;
@@ -55,11 +42,11 @@ static void explode(artist_role_t *roles, int *nb, int i)
             break;
         if (p == 0) {
             snprintf(roles[i].name, NAME_LEN, "%s", parts[p]);
-            trim(roles[i].name);
+            str_trim(roles[i].name);
             continue;
         }
         snprintf(roles[*nb].name, NAME_LEN, "%s", parts[p]);
-        trim(roles[*nb].name);
+        str_trim(roles[*nb].name);
         roles[*nb].role = role;
         (*nb)++;
     }
@@ -70,7 +57,7 @@ void suggest_split_names(artist_role_t *roles, int *nb, char const *artist)
 {
     for (int i = 0; i < *nb; i++)
         if (has_part(roles[i].name, artist)) {
-            explode(roles, nb, i);
+            roles_explode(roles, nb, i);
             return;
         }
 }

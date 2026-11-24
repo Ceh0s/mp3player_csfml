@@ -79,6 +79,17 @@ static int place_title(app_t *app, char const *title, float *pos,
 }
 
 /*
+** the rect of the title just placed (pos is after it)
+*/
+static void title_hover(app_t *app, rank_t const *rank, float const *pos,
+    float width)
+{
+    float rect[4] = {pos[0] - width, pos[1], width - 30, 28};
+
+    ranking_hover(app, rank, rect);
+}
+
+/*
 ** row = {y, h}; the titles that do not fit are counted in "+N"
 */
 static int draw_titles(app_t *app, int tier, float const *row)
@@ -87,12 +98,18 @@ static int draw_titles(app_t *app, int tier, float const *row)
     float pos[3] = {250, row[0] + 8, 20};
     int hidden = 0;
 
+    char const *name = NULL;
+
     for (int i = 0; i < ranking->nb; i++) {
         if (ranking->tiers[i] != tier
             || !ranking_match(app, &ranking->ranks[i]))
             continue;
-        if (!place_title(app, rank_name(&ranking->ranks[i]), pos, row))
+        name = rank_name(&ranking->ranks[i]);
+        if (!place_title(app, name, pos, row))
             hidden++;
+        else
+            title_hover(app, &ranking->ranks[i], pos,
+                widget_text_width(app, name, pos[2]) + 40);
     }
     return hidden;
 }
@@ -101,9 +118,11 @@ static void draw_row(app_t *app, int tier, float const *row)
 {
     char more[16];
     int hidden = 0;
+    float label[4] = {130, row[0], 100, row[1] - 8};
 
-    widget_rect(app, (float [4]){130, row[0], 100, row[1] - 8},
-        &tier_colors[tier]);
+    widget_help(app, label, app->ranking->open_tier < 0
+        ? "Clic : voir tout ce tier" : "Clic : revenir à la tier list");
+    widget_rect(app, label, &tier_colors[tier]);
     if (tier == TIER_UNRANKED)
         widget_text(app, tier_names[tier],
             (float [3]){142, row[0] + row[1] / 2 - 28, 20}, &sfBlack);
@@ -121,15 +140,56 @@ static void draw_row(app_t *app, int tier, float const *row)
 }
 
 /*
+** a click on the colored label of a tier opens it alone, or closes it
+*/
+static int label_clicked(app_t *app, float const *row)
+{
+    float label[4] = {130, row[0], 100, row[1] - 8};
+
+    if (app->wg->mode != WG_CLICK || !mouse_in_rect(app, label))
+        return 0;
+    app->wg->mode = WG_IDLE;
+    return 1;
+}
+
+/*
+** one tier on the whole table (open_tier), its label closes it
+*/
+static void open_tier(app_t *app)
+{
+    ranking_t *ranking = app->ranking;
+    float row[2] = {CONTENT_Y, CONTENT_BOTTOM + app->extra_h - CONTENT_Y};
+
+    if (label_clicked(app, row)) {
+        ranking->open_tier = -1;
+        ranking->scroll = 0;
+        return;
+    }
+    if (app->wg->mode == WG_DRAW)
+        draw_row(app, ranking->open_tier, row);
+}
+
+/*
 ** the rows share the height left on the screen
 */
 void ranking_tiers(app_t *app)
 {
     float height = (CONTENT_BOTTOM + app->extra_h - CONTENT_Y)
         / (NB_TIERS + 1);
+    float row[2] = {0, height};
 
-    if (app->wg->mode != WG_DRAW)
+    if (app->ranking->open_tier >= 0) {
+        open_tier(app);
         return;
-    for (int t = 0; t <= TIER_UNRANKED; t++)
-        draw_row(app, t, (float [2]){CONTENT_Y + t * height, height});
+    }
+    for (int t = 0; t <= TIER_UNRANKED; t++) {
+        row[0] = CONTENT_Y + t * height;
+        if (label_clicked(app, row)) {
+            app->ranking->open_tier = t;
+            app->ranking->scroll = 0;
+            return;
+        }
+        if (app->wg->mode == WG_DRAW)
+            draw_row(app, t, row);
+    }
 }

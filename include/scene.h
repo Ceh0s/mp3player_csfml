@@ -159,7 +159,8 @@ typedef enum edit_focus_e {
     FOCUS_TITLE,
     FOCUS_ARTIST,
     FOCUS_SEARCH,
-    FOCUS_IMAGE
+    FOCUS_IMAGE,
+    FOCUS_RENAME
 } edit_focus_t;
 
 /*
@@ -206,6 +207,8 @@ typedef struct edit_s {
     artist_t *artist;
     image_input_t image;
     int exclude;
+    char rename[NAME_LEN];
+    artist_t *renamed;
 } edit_t;
 
 /*
@@ -236,6 +239,10 @@ typedef enum ranking_tab_e {
 ** one; order : the same in the order chosen between ex aequo
 ** ("Départage" tab, drag_row : row held, -1 if none)
 ** reset : 1 while the reset window is open, confirm : what is typed in it
+** open_tier : tier shown alone on the whole table (-1 = all of them),
+** scrolled by lines of images (scroll)
+** hover : song or artist under the mouse at the last drawing (both NULL
+** if none), opened by a right click (ranking_open.c)
 */
 typedef struct ranking_s {
     sfTexture *bg_texture;
@@ -252,7 +259,20 @@ typedef struct ranking_s {
     sfVector2f press;
     int reset;
     char confirm[16];
+    int open_tier;
+    rank_t hover;
 } ranking_t;
+
+/*
+** what the rankings screen shows again when coming back from the page
+** of a song or an artist (active = 1 then)
+*/
+typedef struct ranking_keep_s {
+    int active;
+    int tab;
+    int scroll;
+    int open_tier;
+} ranking_keep_t;
 
 /*
 ** edition of a playlist (app->edit_playlist, NULL = a new one)
@@ -329,7 +349,8 @@ typedef enum dl_popup_e {
     DL_POPUP_ABSENT,
     DL_POPUP_EXCLUDED,
     DL_POPUP_REPORT,
-    DL_POPUP_UNAVAILABLE
+    DL_POPUP_UNAVAILABLE,
+    DL_POPUP_SPLITS
 } dl_popup_t;
 
 typedef struct dlscene_s {

@@ -359,6 +359,8 @@ typedef enum suggest_rule_e {
     SUG_SUFFIX,
     SUG_NOISE,
     SUG_LICENSE,
+    SUG_ARTIST_FIRST,
+    SUG_TITLE_FIRST,
     NB_SUG_RULES
 } suggest_rule_t;
 
@@ -375,9 +377,15 @@ typedef struct suggest_s {
     int role;
 } suggest_t;
 
+/*
+** roles / nb_roles : artists the song has now (the working copy of the
+** edit screen), set before suggest_list; NULL = its saved links
+*/
 typedef struct suggest_list_s {
     suggest_t items[SUGGEST_MAX];
     int nb;
+    artist_role_t const *roles;
+    int nb_roles;
 } suggest_list_t;
 
 /*
@@ -433,6 +441,16 @@ typedef struct cover_sig_s {
     #define REPEAT_QUEUE 1
     #define REPEAT_ONE 2
 
+/*
+** choice for an artist name written as a list ("A, B"): keep = 1 to
+** keep it whole, 0 to split it (artist_splits.tsv, see artist_split.c)
+*/
+typedef struct split_choice_s {
+    char *name;
+    int keep;
+    struct split_choice_s *next;
+} split_choice_t;
+
 typedef struct settings_s {
     int help;
     int dup_remove;
@@ -441,6 +459,7 @@ typedef struct settings_s {
     int volume;
     int mute;
     int ellipsis;
+    int battle_match;
 } settings_t;
 
 typedef struct library_s {
@@ -455,6 +474,7 @@ typedef struct library_s {
     view_sort_t *sorts;
     rejected_t *rejected;
     rejected_t *excluded;
+    split_choice_t *splits;
     rejected_t *unavailable;
     source_t *sources;
     envelope_t *envelopes;

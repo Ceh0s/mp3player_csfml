@@ -2,9 +2,10 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** chooses the two songs (or artists) of a battle, among the pool:
-** first one of those with the fewest battles in the arena,
-** then an opponent among the 3 closest ratings
+** chooses the two songs (or artists) of a battle, among the pool: at
+** random by default; with "Rencontres équilibrées" (settings
+** battle_match), first one of those with the fewest battles in the
+** arena, then an opponent among the 3 closest ratings
 */
 
 #include "mp3player.h"
@@ -75,6 +76,20 @@ static void draw_pair(rank_t *ranks, int nb, rank_t *pair)
     pair[1 - side] = ranks[rand() % closest(ranks, nb - 1)];
 }
 
+/*
+** default draw: two different items taken at random, nothing else counts
+*/
+static void draw_random(rank_t const *ranks, int nb, rank_t *pair)
+{
+    int first = rand() % nb;
+    int second = rand() % (nb - 1);
+
+    if (second >= first)
+        second++;
+    pair[0] = ranks[first];
+    pair[1] = ranks[second];
+}
+
 static int same(rank_t const *a, rank_t const *b)
 {
     return a->song == b->song && a->artist == b->artist;
@@ -105,7 +120,10 @@ int elo_pick_pair(library_t *lib, arena_t const *arena, pool_t *pool,
         elo_score(lib, arena, &pool->items[i]);
     for (int try = 0; try < 5; try++) {
         memcpy(ranks, pool->items, sizeof(rank_t) * pool->nb);
-        draw_pair(ranks, pool->nb, pair);
+        if (lib->settings.battle_match)
+            draw_pair(ranks, pool->nb, pair);
+        else
+            draw_random(ranks, pool->nb, pair);
         if (!same_pair(pair, previous))
             break;
     }

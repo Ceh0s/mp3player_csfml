@@ -103,14 +103,16 @@ int suggest_first(library_t *lib, song_t *song, char const *title,
 {
     suggest_list(lib, song, title, list);
     for (int i = 0; i < list->nb; i++)
-        if (suggest_state(lib, song->id, &list->items[i]) == SUG_VISIBLE)
+        if (!suggest_is_guess(list->items[i].rule)
+            && suggest_state(lib, song->id, &list->items[i]) == SUG_VISIBLE)
             return i;
     return -1;
 }
 
 /*
 ** applies the visible suggestions one after the other (each one on the
-** title left by the previous one); returns how many were applied
+** title left by the previous one, the guesses left out); returns how
+** many were applied
 */
 int suggest_apply_song(library_t *lib, song_t *song)
 {
@@ -122,11 +124,14 @@ int suggest_apply_song(library_t *lib, song_t *song)
     int i = 0;
 
     snprintf(title, NAME_LEN, "%s", song_title(song));
+    list.roles = roles;
+    list.nb_roles = nb;
     i = suggest_first(lib, song, title, &list);
     while (i >= 0 && applied < SUGGEST_MAX) {
         snprintf(title, NAME_LEN, "%s", list.items[i].title);
         suggest_apply_roles(roles, &nb, &list.items[i]);
         applied++;
+        list.nb_roles = nb;
         i = suggest_first(lib, song, title, &list);
     }
     if (applied == 0)

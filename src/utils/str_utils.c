@@ -76,3 +76,19 @@ int str_contains(char const *hay, char const *needle)
     free(low_needle);
     return found;
 }
+
+/*
+** the spaces at both ends of str are removed (in place)
+*/
+void str_trim(char *str)
+{
+    int len = strlen(str);
+    int start = 0;
+
+    while (len > 0 && str[len - 1] == ' ')
+        len--;
+    str[len] = '\0';
+    while (str[start] == ' ')
+        start++;
+    memmove(str, str + start, strlen(str + start) + 1);
+}

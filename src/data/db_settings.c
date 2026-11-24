@@ -42,8 +42,12 @@ void db_parse_setting(library_t *lib, char **fields, int nb)
         lib->settings.dup_remove = value != 0;
     if (strcmp(fields[0], "ellipsis") == 0)
         lib->settings.ellipsis = value != 0;
+    if (strcmp(fields[0], "battle_match") == 0)
+        lib->settings.battle_match = value != 0;
     if (strcmp(fields[0], "next_song") == 0 && value > lib->next_song)
         lib->next_song = value;
+    if (strcmp(fields[0], "next_artist") == 0 && value > lib->next_artist)
+        lib->next_artist = value;
     parse_player(lib, fields[0], value);
 }
 
@@ -72,5 +76,7 @@ int db_save_settings(library_t *lib)
     fprintf(file, "mute\t%d\n", lib->settings.mute);
     fprintf(file, "ellipsis\t%d\n", lib->settings.ellipsis);
     fprintf(file, "next_song\t%d\n", lib->next_song);
+    fprintf(file, "next_artist\t%d\n", lib->next_artist);
+    fprintf(file, "battle_match\t%d\n", lib->settings.battle_match);
     return tsv_commit(file, SETTINGS_DB);
 }

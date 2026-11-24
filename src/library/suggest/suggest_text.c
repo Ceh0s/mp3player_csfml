@@ -8,6 +8,7 @@
 */
 
 #include "mp3player.h"
+#include <strings.h>
 
 /*
 ** one space between the words, none at the start or the end
@@ -102,4 +103,59 @@ suggest_t *sug_push(suggest_ctx_t *ctx, suggest_rule_t rule, int start,
     snprintf(removed, NAME_LEN, "%.*s", len, ctx->title + start);
     sug_cut(ctx->title, start, start + len, title);
     return sug_add(ctx, rule, removed, title);
+}
+
+/*
+** 1 if the song already has this artist with this role (the working
+** copy of the edit screen if given, else its saved links)
+*/
+static int has_role(suggest_ctx_t const *ctx, char const *name, int role)
+{
+    suggest_list_t const *out = ctx->out;
+    artist_t *artist = NULL;
+
+    if (out->roles) {
+        for (int i = 0; i < out->nb_roles; i++)
+            if ((int)out->roles[i].role == role
+                && strcasecmp(out->roles[i].name, name) == 0)
+                return 1;
+        return 0;
+    }
+    for (link_t *link = ctx->lib->links; link; link = link->next) {
+        if (link->song_id != ctx->song->id || (int)link->role != role)
+            continue;
+        artist = artist_by_id(ctx->lib, link->artist_id);
+        if (artist && strcasecmp(artist->name, name) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/*
+** a featuring or a remixer named in the title: the title stays as it
+** is (the mention is part of it), only the artist is credited; nothing
+** if it already is. removed (start, len) identifies the suggestion.
+*/
+void sug_credit(suggest_ctx_t *ctx, int const *where, char const *name,
+    int role)
+{
+    suggest_t *sug = NULL;
+    char removed[NAME_LEN];
+
+    if (ctx->out->nb >= SUGGEST_MAX || name[0] == '\0'
+        || where[1] <= 0 || where[1] >= NAME_LEN
+        || has_role(ctx, name, role))
+        return;
+    snprintf(removed, NAME_LEN, "%.*s", where[1], ctx->title + where[0]);
+    for (int i = 0; i < ctx->out->nb; i++)
+        if (strcmp(ctx->out->items[i].removed, removed) == 0)
+            return;
+    sug = &ctx->out->items[ctx->out->nb];
+    memset(sug, 0, sizeof(suggest_t));
+    sug->rule = role == ROLE_REMIX ? SUG_REMIX : SUG_FEAT;
+    snprintf(sug->removed, NAME_LEN, "%s", removed);
+    snprintf(sug->title, NAME_LEN, "%s", ctx->title);
+    snprintf(sug->artist, NAME_LEN, "%s", name);
+    sug->role = role;
+    ctx->out->nb++;
 }

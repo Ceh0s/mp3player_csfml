@@ -58,6 +58,8 @@ static void wheel(app_t *app, float delta)
         nb = unavailable_count(app->lib);
     if (scene->popup == DL_POPUP_REPORT)
         nb = dlscene_report_lines(app);
+    if (scene->popup == DL_POPUP_SPLITS)
+        nb = dlscene_split_count(app);
     scene->scroll -= (int)delta;
     if (scene->scroll > nb - dlpopup_rows(app))
         scene->scroll = nb - dlpopup_rows(app);

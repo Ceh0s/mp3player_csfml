@@ -12,7 +12,7 @@
 
 static char const *const rule_names[NB_SUG_RULES] = {"spaces", "quotes",
     "hashtags", "prod", "feat", "remix", "prefix", "suffix", "noise",
-    "license"};
+    "license", "artist_first", "title_first"};
 
 char const *suggest_rule_name(int rule)
 {
@@ -77,4 +77,13 @@ void suggest_list(library_t *lib, song_t *song, char const *title,
     sug_bare_feat(&ctx);
     sug_prefix(&ctx);
     sug_suffix(&ctx);
+    sug_guess(&ctx);
+}
+
+/*
+** the suggestions that are only guesses, never applied all together
+*/
+int suggest_is_guess(int rule)
+{
+    return rule == SUG_ARTIST_FIRST || rule == SUG_TITLE_FIRST;
 }

@@ -72,6 +72,7 @@ int library_refresh(library_t *lib)
         attach_file(lib, fp, 0);
     for (fprint_t *fp = lib->fprints; fp; fp = fp->next)
         attach_file(lib, fp, 1);
+    artists_split_auto(lib);
     for (song_t *song = lib->songs; song; song = song->next)
         song_build_artists(lib, song);
     if (build_present(lib) == 84)

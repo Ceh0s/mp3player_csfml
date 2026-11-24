@@ -64,8 +64,11 @@ src/scene/             table des scènes
                        saisie, page des suggestions de titre, page artiste)
     battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote,
                        battle_listen : écoute, avis, cadre du choix au clavier)
-    ranking/           tier list (noms ou images : ranking_tiles.c), leaderboard (ex æquo
-                       « - »), départage (ranking_ties, _drag, _order), reset (_reset)
+    ranking/           tier list (noms ou images : ranking_tiles.c ; clic sur un tier =
+                       lui seul en grand), leaderboard (ex æquo « - », vue par défaut),
+                       départage (ranking_ties, _drag, _order), reset (_reset), clic
+                       droit = page de la musique ou de l'artiste, état gardé au
+                       retour (_open, app->ranking_keep)
     settings/          paramètres (aide au survol)
     stats/             statistiques d'écoute : leaderboard des titres ou artistes, par
                        playlist, entre deux dates, Elo à côté si voulu (_bar, _dates,
@@ -76,7 +79,8 @@ src/scene/             table des scènes
                        réception, lien ; progression, résumé) et liste par-dessus
                        (download_popup : hors durée / refusés / retirés / exclus /
                        indisponibles / bilan ; refusés et exclus : _refused_view,
-                       _excluded_view, archivage commun : _archive_view)
+                       _excluded_view, archivage commun : _archive_view ; noms
+                       d'artistes à vérifier : _split_view)
     duplicates/        doublons : analyse du son une musique par tick, groupes
                        (_row, _block), fusions à la main et automatiques (_merge),
                        fichiers au son identique (_same), tri après un choix (_refresh)
@@ -129,7 +133,10 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
     duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires
                        regroupées (dup_groups.c), enveloppe sonore et comparaison,
                        paires « pas un doublon »
-    artists/           artistes, liens, noms affichés, stats et détail par artiste
+    artists/           artistes, liens, noms affichés, stats et détail par artiste,
+                       renommage (artist_rename.c : un nom déjà pris = fusion), noms
+                       en liste séparés (artist_split.c, choix gardés :
+                       split_choices.c)
     stats/             statistiques : lecture de listens.log, sommes (compteurs ou
                        période), tri
 src/data/              lecture/écriture TSV, migration, journaux
@@ -306,8 +313,9 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre, archivée (absente des anciens fichiers) |
 | `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
-| `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle, texte retiré, état |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` = premier id de musique jamais donné |
+| `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
+| `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -350,6 +358,22 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.12 — Sixième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Battle** : paires au hasard par défaut, « Rencontres : équilibrées » en option.
+- **Classements** : leaderboard par défaut ; clic sur un tier = lui seul en grand (molette,
+  Échap ou nouveau clic pour revenir) ; clic droit = page de la musique / de l'artiste.
+- **Page d'une musique** : « Écouter » joue dans le vrai lecteur (file « Tous les titres »,
+  écoute comptée). Page artiste : « Renommer » (un nom pris réunit les deux artistes).
+- **Suggestions** : featuring / remix crédités sans toucher au titre ; « X - Y » sans nom
+  connu (republieur) : deux suppositions (X artiste ou Y artiste), jamais dans « Tout
+  appliquer ».
+- **Artistes en liste** (« C418, Baiyon », écrits ainsi par YouTube Music) : séparés tout
+  seuls à chaque `library_refresh`, rôle gardé, « & » jamais coupé. Douteux (« The X »
+  d'un seul mot, « & » dans la dernière partie, sauf si toutes les parties sont déjà des
+  artistes) : onglet « À vérifier » du téléchargement, et « Séparer » dans l'édition.
+- **Import** : un mp3 sans tag posé dans `music/` marche déjà (titre = nom du fichier,
+  suppositions artiste / titre), vu au lancement suivant ; seuls les `.mp3` sont lus.
 
 ### Phase 4.11 — Cinquième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Battle** : l'adversaire était tiré parmi les 3 premiers à Elo égal, donc toujours
@@ -446,9 +470,10 @@ playlist (« Synchroniser », titres retirés), écran des doublons (métadonné
   **TOTAL** = somme des Elo de catégorie (calculée, pas stockée).
 - **Scène BATTLE** : deux cartes (titre, artistes, Elo ; pas d'extrait, décision de l'auteur),
   choix de la catégorie + bouton **« catégorie aléatoire »** (jamais Tout confondu), bouton passer,
-  flèches gauche/droite pour voter. K compté par musique et par catégorie. Paires tirées en
-  privilégiant les titres avec peu de battles, puis un adversaire parmi les 3 Elo les plus
-  proches, parmi les musiques présentes.
+  flèches gauche/droite pour voter. K compté par musique et par catégorie. Paires tirées
+  **au hasard** parmi les musiques présentes (depuis 4.12) ; bascule « Rencontres :
+  équilibrées » (`battle_match`) : titres avec peu de battles d'abord, puis un adversaire
+  parmi les Elo les plus proches (tous ceux à égalité avec le 3ᵉ).
 - **Tier list** et **leaderboard** (Elo, battles, % de victoires, défilement) : voir
   phase 4.7 pour les tiers actuels et le classement de toutes les musiques. Accès depuis
   l'accueil et la bibliothèque.
