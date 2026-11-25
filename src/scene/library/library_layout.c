@@ -42,6 +42,7 @@ void libscene_destroy(app_t *app)
     if (!app->libscene)
         return;
     app->tick_loop = TICK_MS;
+    library_keep(app);
     destroy_shapes(app, app->libscene);
     if (app->libscene->bg)
         sfSprite_destroy(app->libscene->bg);

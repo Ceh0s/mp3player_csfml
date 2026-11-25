@@ -6,7 +6,8 @@
 ** rankings, list of the download): a click on it gives it the keys,
 ** Enter or a click elsewhere takes them back, Escape empties it first.
 ** The text (app->search) is compared without case to the titles and
-** artists, and emptied when the screen changes.
+** artists, and emptied when the screen changes (the library takes its
+** own back: library_keep.c).
 */
 
 #include "mp3player.h"

@@ -58,5 +58,5 @@ void download_added(app_t *app, dl_entry_t const *entry)
             entry->nb_targets, song) > 0)
         db_save_playlists(app->lib);
     if (app->libscene)
-        list_create(app);
+        list_refresh(app);
 }

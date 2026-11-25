@@ -18,5 +18,5 @@ void library_likes(app_t *app)
     if (like_buttons(app, KIND_SONG, song->id,
             (float [3]){1420, 992 + app->extra_h, 0})
         && shown && shown->auto_like != 0)
-        list_create(app);
+        list_refresh(app);
 }

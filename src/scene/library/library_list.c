@@ -93,7 +93,7 @@ static void row_likes(app_t *app, libscene_t *scene)
         if (!like_row(app, scene->view[i], rect, LIST_LIKES_X))
             continue;
         if (shown && shown->auto_like != 0)
-            list_create(app);
+            list_refresh(app);
         return;
     }
 }

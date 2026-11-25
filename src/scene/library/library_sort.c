@@ -69,15 +69,11 @@ static int direction(app_t *app, view_sort_t const *sort)
 void library_reorder(app_t *app, int keep_scroll)
 {
     libscene_t *scene = app->libscene;
-    float scroll = scene->scroll;
-    float scroll_to = scene->scroll_to;
 
-    list_create(app);
-    if (keep_scroll) {
-        scene->scroll = scroll;
-        scene->scroll_to = scroll_to;
-        list_scroll(app, 0);
-    }
+    if (keep_scroll)
+        list_refresh(app);
+    else
+        list_create(app);
     if (app->player->queue && app->player->playlist_id == scene->playlist_id)
         player_resync(app);
 }

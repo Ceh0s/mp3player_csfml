@@ -59,7 +59,7 @@ src/scene/             table des scènes
                        cours, clic = sa page) + onglets de playlists
                        + barre de tri et glisser-déposer (library_scene.c, _list,
                        _view, _tabs, _bar, _layout, _sort, _drag), défilement fluide
-                       et slider (_scroll), avis (_likes),
+                       et slider (_scroll), place gardée au retour (_keep), avis (_likes),
                        mode sélection (_select, _select_view) et ses actions en lot
                        (_actions, _action_rows, _bulk, _insert)
     edit/              écran d'édition (page principale, lignes d'artistes, recherche/fusion,
@@ -289,7 +289,8 @@ Principes en place :
   Tri : bouton « Tri : … » qui ouvre la liste des critères, sens par une icône.
 - **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (liste des
   tris, fenêtre des actions, puis mode sélection), statistiques (champ de date). Les écrans avec saisie gèrent Espace eux-mêmes.
-- **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran) :
+- **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran, sauf
+  au retour dans la bibliothèque) :
   bibliothèque (la file de lecture suit le filtre, `player_t.filter`), doublons,
   classements (trois onglets, vrai rang gardé), liste du téléchargement. Clic dessus = elle
   reçoit les touches (Espace compris), Entrée ou un clic ailleurs les rend ; Échap la vide
@@ -391,6 +392,9 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   visé, rapproché selon `delta_us`), lignes coupées en haut et en bas (`clip.c`), slider à
   droite. La boucle passe à 16 ms (`TICK_SMOOTH`) seulement pendant le mouvement. Les autres
   listes défilent encore par ligne.
+- **Place gardée** (`library_keep.c`, `app->library_keep`) : position et recherche retrouvées au
+  retour de n'importe quel écran, si l'onglet est le même, jusqu'à la fermeture ; gardée aussi
+  sur place quand les titres changent (`list_refresh` : avis, suppression, téléchargement).
 - **Tri « Date d'ajout »** : début du passage en cours, inconnues en fin ; absent de « Tous les
   titres ». « Ajout playlist » s'appelle « Ordre playlist » (toujours `playlist` dans le TSV).
 - **Bug** : après une synchronisation, les titres ayant deux fichiers (doublons fusionnés sans

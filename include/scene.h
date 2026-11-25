@@ -153,6 +153,16 @@ typedef struct libscene_s {
     int sort_open;
 } libscene_t;
 
+/*
+** what the library shows again when coming back from another screen, if
+** its tab (playlist_id) is the same: place in the list and search
+*/
+typedef struct library_keep_s {
+    int playlist_id;
+    float scroll;
+    char search[NAME_LEN];
+} library_keep_t;
+
 typedef enum edit_mode_e {
     EDIT_MAIN,
     EDIT_SEARCH,

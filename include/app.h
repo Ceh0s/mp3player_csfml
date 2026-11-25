@@ -30,6 +30,7 @@
 ** battle_keep : ids of the two songs of the battle while one of them is
 ** edited (right click), shown again when coming back (0 = none)
 ** ranking_keep : the same for the rankings screen
+** library_keep : place and search of the library when it was left
 ** edit_artist : artist whose page the edit scene opens on (no song)
 ** dl_range : duration range typed last on the download screen (seconds,
 ** -1 = no limit), kept until the app closes
@@ -82,6 +83,7 @@ struct app_s {
     int sync_playlist;
     long dup_since;
     int library_tab;
+    library_keep_t library_keep;
     arena_t arena;
     search_t search;
     stats_opt_t stats_opt;

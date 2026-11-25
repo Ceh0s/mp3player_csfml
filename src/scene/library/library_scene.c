@@ -48,6 +48,7 @@ int libscene_init(app_t *app)
     app->libscene->playlist_id = app->library_tab;
     app->libscene->drag_row = -1;
     app->libscene->sel.last = -1;
+    library_restore_search(app);
     app->libscene->bg = background_create(BG_BLUR_PATH,
         &app->libscene->bg_texture);
     app->libscene->ui = ui_create(app->atlas, lib_ui, 6);
@@ -55,6 +56,7 @@ int libscene_init(app_t *app)
     if (!app->libscene->bg || !app->libscene->ui || !app->libscene->panel
         || list_create(app) == 84 || bar_create(app) == 84)
         return 84;
+    library_restore_scroll(app);
     return 0;
 }
 

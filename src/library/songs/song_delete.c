@@ -44,5 +44,5 @@ void song_delete_files(app_t *app, song_t *song)
     song_remove_files(app->lib, song);
     library_drop_missing(app);
     if (app->libscene)
-        list_create(app);
+        list_refresh(app);
 }

@@ -67,6 +67,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/home/home.c\
 		src/scene/library/library_bar.c\
 		src/scene/library/library_scroll.c\
+		src/scene/library/library_keep.c\
 		src/scene/library/library_layout.c\
 		src/scene/library/library_likes.c\
 		src/scene/library/library_modes.c\

@@ -40,3 +40,22 @@ int list_create(app_t *app)
         app->search.text);
     return 0;
 }
+
+/*
+** the songs of the tab changed (like, removal, download...) but the
+** screen did not: the place in the list is kept, or its end if it is
+** shorter than before
+*/
+int list_refresh(app_t *app)
+{
+    libscene_t *scene = app->libscene;
+    float scroll = scene->scroll;
+    float scroll_to = scene->scroll_to;
+
+    if (list_create(app) == 84)
+        return 84;
+    scene->scroll = scroll;
+    scene->scroll_to = scroll_to;
+    list_scroll(app, 0);
+    return 0;
+}
