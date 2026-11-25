@@ -8,6 +8,37 @@
 #include "mp3player.h"
 #include <strings.h>
 
+static char *notes_buffer(edit_t *edit)
+{
+    period_row_t *row = &edit->notes.rows[edit->notes.row];
+
+    if (edit->focus == FOCUS_PERIOD)
+        return edit->notes.side ? row->to : row->from;
+    return edit->focus == FOCUS_FOUND ? edit->notes.found
+        : edit->notes.date;
+}
+
+/*
+** page "Découverte": a date of a stay only takes digits and '-', tab
+** goes from a free field to the other one, or to the other date
+*/
+static void notes_text(app_t *app, edit_t *edit, sfUint32 code)
+{
+    char *buf = notes_buffer(edit);
+
+    edit->notes.msg[0] = '\0';
+    if (code == 9 && edit->focus == FOCUS_PERIOD)
+        edit->notes.side = edit->notes.rows[edit->notes.row].old.end
+            == PERIOD_OPEN ? 0 : !edit->notes.side;
+    else if (code == 9)
+        edit->focus = edit->focus == FOCUS_FOUND ? FOCUS_FOUND_DATE
+            : FOCUS_FOUND;
+    if (edit->focus != FOCUS_PERIOD)
+        text_input(app, buf, code);
+    else if (code == 8 || code == '-' || (code >= '0' && code <= '9'))
+        text_input_n(app, buf, PERIOD_DATE_LEN, code);
+}
+
 static char *focused_buffer(edit_t *edit)
 {
     if (edit->focus == FOCUS_RENAME && edit->mode == EDIT_ARTIST)
@@ -31,6 +62,10 @@ void edit_text_entered(app_t *app, sfUint32 code)
     edit_t *edit = app->edit;
     char *buf = focused_buffer(edit);
 
+    if (edit->mode == EDIT_NOTES) {
+        notes_text(app, edit, code);
+        return;
+    }
     if (code == 9 && edit->mode == EDIT_MAIN && edit->focus != FOCUS_IMAGE)
         edit->focus = edit->focus == FOCUS_TITLE ? FOCUS_ARTIST : FOCUS_TITLE;
     if (code == 13 && edit->mode == EDIT_ARTIST && edit->focus == FOCUS_RENAME)
@@ -81,7 +116,7 @@ static void fill_suggest(app_t *app, edit_t *edit)
         if (edit->nb_suggest >= EDIT_SUGGEST)
             return;
         if (str_contains(a->name, edit->input) && !already_added(edit,
-                a->name)) {
+                a->name) && artist_linked(app->lib, a->id)) {
             edit->suggest[edit->nb_suggest] = a;
             edit->nb_suggest++;
         }

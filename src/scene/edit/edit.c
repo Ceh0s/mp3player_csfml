@@ -54,8 +54,8 @@ int edit_init(app_t *app)
 
 static void build(app_t *app)
 {
-    void (*const screens[5])(app_t *) = {&edit_main, &edit_search,
-        &edit_confirm, &edit_artist, &edit_titles};
+    void (*const screens[6])(app_t *) = {&edit_main, &edit_search,
+        &edit_confirm, &edit_artist, &edit_titles, &edit_notes};
 
     screens[app->edit->mode](app);
 }
@@ -69,8 +69,12 @@ void edit_event(app_t *app, sfEvent *event)
     if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape) {
         if (edit->mode == EDIT_MAIN || !edit->song)
             scene_back(app);
+        if (edit->mode == EDIT_NOTES)
+            edit->focus = FOCUS_TITLE;
         edit->mode = edit->mode == EDIT_CONFIRM ? EDIT_SEARCH : EDIT_MAIN;
     }
+    if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_NOTES)
+        edit_notes_scroll(app, event->mouseWheelScroll.delta);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;

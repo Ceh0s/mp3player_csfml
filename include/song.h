@@ -451,6 +451,97 @@ typedef struct split_choice_s {
     struct split_choice_s *next;
 } split_choice_t;
 
+/*
+** what the author knows of a song (raw id, song_notes.tsv), both typed
+** freely and optional: found : where it was found (Shazam, a
+** restaurant...), date : when it was discovered
+*/
+typedef struct note_s {
+    int song;
+    char *found;
+    char *date;
+    struct note_s *next;
+} note_t;
+
+/*
+** a stay of a song in a playlist (raw ids, playlist_history.tsv), see
+** src/library/periods
+** start : date (seconds) it was added, 0 if unknown
+** end   : date it was taken out, PERIOD_OPEN while it is still in the
+**         playlist, PERIOD_LOST if the date is unknown
+** origin: where the date of the start comes from (PERIOD_AUTO: seen by
+**         the app, PERIOD_IMPORT: Takeout, PERIOD_HAND: typed, which is
+**         never replaced on its own)
+** first : is the song there since the beginning of the playlist? decided
+**         by the dates (FIRST_AUTO), or forced by the author
+*/
+    #define PERIOD_OPEN 0
+    #define PERIOD_LOST (-1)
+    #define PERIOD_DAY 86400
+    #define PERIOD_FIRST_S (7 * PERIOD_DAY)
+    #define PERIOD_UNDO_S 600
+
+typedef enum period_origin_e {
+    PERIOD_UNKNOWN,
+    PERIOD_AUTO,
+    PERIOD_IMPORT,
+    PERIOD_HAND,
+    NB_ORIGINS
+} period_origin_t;
+
+typedef enum period_first_e {
+    FIRST_AUTO,
+    FIRST_YES,
+    FIRST_NO,
+    NB_FIRSTS
+} period_first_t;
+
+typedef struct period_s {
+    int playlist;
+    int song;
+    long start;
+    long end;
+    int origin;
+    int first;
+    struct period_s *next;
+} period_t;
+
+/*
+** the stays of a song (resolved: those of its aliases too) in a
+** playlist: passes : how many, added : start of the last one (0 if
+** unknown), removed : its end, in : 1 if the song is in the playlist
+** now, first : 1 if it is there since the beginning
+*/
+typedef struct period_sum_s {
+    int passes;
+    long added;
+    long removed;
+    int in;
+    int first;
+} period_sum_t;
+
+/*
+** a video of a site played in place of another one no longer served
+** (video_aliases.tsv): from : id kept by the playlist, to : id played
+*/
+typedef struct video_alias_s {
+    char from[VIDEO_ID];
+    char to[VIDEO_ID];
+    struct video_alias_s *next;
+} video_alias_t;
+
+/*
+** result of the import of a Takeout file: lines : videos dated in it,
+** in_list : those of the playlist, changed : dates changed; few : 1 if
+** most of them are not in the playlist (nothing done unless confirmed)
+*/
+typedef struct takeout_s {
+    int lines;
+    int in_list;
+    int changed;
+    int few;
+} takeout_t;
+
 typedef struct settings_s {
     int help;
     int dup_remove;
@@ -461,6 +552,7 @@ typedef struct settings_s {
     int ellipsis;
     int battle_match;
     int links_ordered;
+    int periods_started;
 } settings_t;
 
 typedef struct library_s {
@@ -483,6 +575,9 @@ typedef struct library_s {
     tie_order_t *ties;
     like_t *likes;
     sug_state_t *sug_states;
+    note_t *notes;
+    period_t *periods;
+    video_alias_t *aliases;
     settings_t settings;
     int envelopes_changed;
     song_t **present;

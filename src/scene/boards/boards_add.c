@@ -30,7 +30,8 @@ static void search(app_t *app, boards_t *bd)
         if (str_contains(pl->name, bd->search))
             add_result(bd, RULE_PLAYLIST, pl->id);
     for (artist_t *a = app->lib->artists; a; a = a->next)
-        if (str_contains(a->name, bd->search))
+        if (str_contains(a->name, bd->search)
+            && artist_linked(app->lib, a->id))
             add_result(bd, RULE_ARTIST, a->id);
     for (song_t *s = app->lib->songs; s; s = s->next)
         if (!s->merged_into && str_contains(song_title(s), bd->search))

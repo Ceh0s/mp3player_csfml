@@ -100,6 +100,8 @@ static char *swap_item(app_t *app, char *like)
         return next;
     copy_value(like + strlen(DL_LIKE_KEY), old, VIDEO_ID);
     copy_value(id + strlen(DL_ID_KEY), fresh, VIDEO_ID);
+    if (old[0] != '\0' && fresh[0] != '\0' && strcmp(old, fresh) != 0)
+        video_alias_add(app->lib, old, fresh);
     replace(app, old, fresh);
     return next;
 }

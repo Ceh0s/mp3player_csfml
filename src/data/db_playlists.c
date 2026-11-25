@@ -67,10 +67,16 @@ static char const *auto_name(int auto_like)
     return auto_like < 0 ? "dislike" : "";
 }
 
+/*
+** the stays of the songs in the playlists follow what is saved
+** (periods_sync.c): whatever changed the playlists, it ends here
+*/
 int db_save_playlists(library_t *lib)
 {
     FILE *file = tsv_create(PLAYLISTS_DB, PLAYLISTS_COLUMNS);
 
+    periods_sync(lib);
+    db_save_periods(lib);
     if (!file)
         return 84;
     for (playlist_t *pl = lib->playlists; pl; pl = pl->next)

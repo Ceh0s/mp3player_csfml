@@ -4,7 +4,7 @@
 ** File description:
 ** a song being forgotten (song_forget.c) is taken out of everything
 ** that names it: playlists and their custom orders, orders of the ties,
-** artist links, like, "not a duplicate" pairs, suggestion states and
+** artist links, notes, stays in the playlists, like, "not a duplicate" pairs, suggestion states and
 ** the rules of the rankings
 */
 
@@ -106,6 +106,8 @@ void song_forget_refs(library_t *lib, int id)
     forget_links(lib, id);
     forget_pairs(lib, id);
     forget_suggestions(lib, id);
+    notes_remove(lib, id);
+    periods_forget(lib, 0, id);
     for (board_t *board = lib->boards; board; board = board->next)
         forget_rules(board, id);
     like_put(lib, KIND_SONG, id, 0);

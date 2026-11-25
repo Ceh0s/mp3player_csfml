@@ -3,7 +3,7 @@
 ** mp3player
 ** File description:
 ** content of the playlist screen: name, search, list of the songs to
-** check or uncheck, removal (called to draw it and to handle a click)
+** check or uncheck, import of the dates, removal (called to draw it and to handle a click)
 */
 
 #include "mp3player.h"
@@ -32,7 +32,7 @@ void pledit_search(app_t *app)
 
 static int visible_rows(app_t *app)
 {
-    return (CONTENT_BOTTOM + app->extra_h - PL_ROWS_Y) / PL_ROW_STEP;
+    return (PL_ROWS_BOTTOM + app->extra_h - PL_ROWS_Y) / PL_ROW_STEP;
 }
 
 /*
@@ -102,7 +102,8 @@ static void confirm(app_t *app, pledit_t *pl)
         pl->playlist->name);
     widget_text(app, line, (float [3]){130, 115, 40}, &sfWhite);
     widget_text(app, "Les musiques et leurs statistiques ne sont pas "
-        "touchées. Les règles de classement qui l'utilisent sont retirées.",
+        "touchées. Les règles de classement qui l'utilisent et ses dates "
+        "d'ajout sont retirées.",
         (float [3]){130, 190, 24}, &gray);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Supprimer")) {
         rules_forget(app->lib, RULE_PLAYLIST, pl->playlist->id);
@@ -150,6 +151,7 @@ void pledit_view(app_t *app)
     }
     header(app, pl);
     song_rows(app, pl);
+    pledit_takeout(app);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
         scene_back(app);
     linked(app, pl, y);

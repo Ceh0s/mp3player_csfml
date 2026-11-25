@@ -35,19 +35,33 @@ int pledit_init(app_t *app)
 }
 
 /*
-** tab switches between the name and the search fields
+** another path has to be confirmed again (pledit_takeout.c)
+*/
+static void typed(app_t *app, pledit_t *pl)
+{
+    if (pl->focus == 1)
+        pledit_search(app);
+    if (pl->focus == 2) {
+        pl->takeout_ask = 0;
+        pl->takeout_msg[0] = '\0';
+    }
+}
+
+/*
+** tab switches between the fields (name, search, takeout)
 */
 void pledit_event(app_t *app, sfEvent *event)
 {
     pledit_t *pl = app->pledit;
     sfUint32 code = event->text.unicode;
-    char *field = pl->focus ? pl->search : pl->name;
+    char *fields[3] = {pl->name, pl->search, pl->takeout};
+    char *field = fields[pl->focus];
 
     if (event->type == sfEvtTextEntered && code == 9)
-        pl->focus = !pl->focus;
+        pl->focus = (pl->focus + 1) % 3;
     else if (event->type == sfEvtTextEntered
-        && text_input(app, field, code) && pl->focus)
-        pledit_search(app);
+        && text_input(app, field, code))
+        typed(app, pl);
     if (event->type == sfEvtMouseWheelScrolled)
         pledit_scroll(app, event->mouseWheelScroll.delta);
     if (event->type != sfEvtMouseButtonReleased

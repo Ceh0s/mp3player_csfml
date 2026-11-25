@@ -145,7 +145,13 @@ static void sort_value(app_t *app, song_t const *song, int key, char *buf)
 {
     time_t date = song->first_seen;
 
+    period_t *period = NULL;
+
     buf[0] = '\0';
+    if (key == SORT_PLAYLIST)
+        period = period_current(app->lib, app->libscene->playlist_id, song);
+    if (period && period->start > 0)
+        period_date(buf, period->start);
     if (key == SORT_DURATION && song->duration_ms > 0)
         format_time(buf, 32, song->duration_ms);
     if (key == SORT_LISTEN)

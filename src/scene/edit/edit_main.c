@@ -57,6 +57,19 @@ static void listen(app_t *app, song_t *song)
         }
 }
 
+/*
+** page of the free fields and of the stays in the playlists
+*/
+static void notes_button(app_t *app)
+{
+    float rect[4] = {1240, 130, 260, 56};
+
+    widget_help(app, rect, "Où et quand la musique a été trouvée, et ses "
+        "passages dans les playlists");
+    if (widget_button(app, rect, "Découverte"))
+        edit_notes_open(app);
+}
+
 static void header(app_t *app, edit_t *edit)
 {
     char info[NAME_LEN * 3];
@@ -68,6 +81,7 @@ static void header(app_t *app, edit_t *edit)
     widget_text(app, "Modifier la musique", (float [3]){130, 125, 40},
         &sfWhite);
     listen(app, edit->song);
+    notes_button(app);
     widget_text(app, info, (float [3]){130, 180, 22}, &gray);
     widget_text(app, "Titre", (float [3]){130, 228, 26}, &sfWhite);
     if (widget_field(app, (float [4]){130, 265, 1100, 56}, edit->title,

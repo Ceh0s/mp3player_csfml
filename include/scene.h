@@ -152,7 +152,8 @@ typedef enum edit_mode_e {
     EDIT_SEARCH,
     EDIT_CONFIRM,
     EDIT_ARTIST,
-    EDIT_TITLES
+    EDIT_TITLES,
+    EDIT_NOTES
 } edit_mode_t;
 
 typedef enum edit_focus_e {
@@ -160,7 +161,10 @@ typedef enum edit_focus_e {
     FOCUS_ARTIST,
     FOCUS_SEARCH,
     FOCUS_IMAGE,
-    FOCUS_RENAME
+    FOCUS_RENAME,
+    FOCUS_FOUND,
+    FOCUS_FOUND_DATE,
+    FOCUS_PERIOD
 } edit_focus_t;
 
 /*
@@ -172,6 +176,41 @@ typedef struct image_input_s {
     char msg[96];
     int focused;
 } image_input_t;
+
+/*
+** working copy of the page "Découverte" (edit_notes.c), saved with
+** "Enregistrer"; found / date : the two free fields
+** rows : the stays of the song in all the playlists: old : as they were
+** (old.song = 0 for a new one), from / to : dates typed, first : see
+** period_t (the one of each playlist is on all its rows), removed : 1
+** once "Retirer" was clicked
+** playlist : the one whose stays are shown; scroll / scroll_rows : first
+** playlist and first stay shown; row / side : date field receiving the
+** keys (side 0 = from, 1 = to); msg : why it was not saved
+*/
+    #define PERIOD_ROWS 64
+    #define PERIOD_DATE_LEN 11
+
+typedef struct period_row_s {
+    period_t old;
+    int playlist;
+    char from[PERIOD_DATE_LEN];
+    char to[PERIOD_DATE_LEN];
+    int removed;
+} period_row_t;
+
+typedef struct notes_edit_s {
+    char found[NAME_LEN];
+    char date[NAME_LEN];
+    period_row_t rows[PERIOD_ROWS];
+    int nb;
+    int playlist;
+    int scroll;
+    int scroll_rows;
+    int row;
+    int side;
+    char msg[96];
+} notes_edit_t;
 
 /*
 ** title / artists / nb_artists : working copy, saved with "Enregistrer"
@@ -209,6 +248,7 @@ typedef struct edit_s {
     int exclude;
     char rename[NAME_LEN];
     artist_t *renamed;
+    notes_edit_t notes;
 } edit_t;
 
 /*
@@ -281,6 +321,10 @@ typedef struct ranking_keep_s {
 ** edition of a playlist (app->edit_playlist, NULL = a new one)
 ** found : present songs matching the search, each one can be checked
 ** confirm : 1 while asking before removing the playlist
+** takeout : path of a Takeout file (dates of the songs), takeout_msg :
+** result of its import, takeout_ask : 1 once it was refused because most
+** of its videos are not in the playlist (a second click imports it)
+** focus : field receiving the keys (0 name, 1 search, 2 takeout)
 */
 typedef struct pledit_s {
     sfTexture *bg_texture;
@@ -294,6 +338,9 @@ typedef struct pledit_s {
     song_t **found;
     int nb_found;
     int scroll;
+    char takeout[NAME_LEN];
+    char takeout_msg[160];
+    int takeout_ask;
 } pledit_t;
 
 typedef enum boards_mode_e {

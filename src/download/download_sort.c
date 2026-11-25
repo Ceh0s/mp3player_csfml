@@ -142,4 +142,5 @@ void download_sort(app_t *app)
         entry = entry_pop(&dl->listed);
     }
     db_save_playlists(app->lib);
+    db_save_aliases(app->lib);
 }

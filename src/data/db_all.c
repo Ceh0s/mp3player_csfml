@@ -25,6 +25,9 @@ static void load_more(library_t *lib)
     tsv_read(SUGGEST_DB, &db_parse_suggestion, lib);
     tsv_read(UNAVAILABLE_DB, &db_parse_unavailable, lib);
     tsv_read(SPLITS_DB, &db_parse_split, lib);
+    tsv_read(NOTES_DB, &db_parse_note, lib);
+    tsv_read(PERIODS_DB, &db_parse_period, lib);
+    tsv_read(ALIASES_DB, &db_parse_alias, lib);
 }
 
 void db_load_all(library_t *lib)
@@ -66,6 +69,8 @@ int db_save_all(library_t *lib)
     if (db_save_likes(lib) == 84 || db_save_excluded(lib) == 84)
         ret = 84;
     if (db_save_suggestions(lib) == 84 || db_save_unavailable(lib) == 84)
+        ret = 84;
+    if (db_save_notes(lib) == 84 || db_save_aliases(lib) == 84)
         ret = 84;
     if (db_save_splits(lib) == 84)
         ret = 84;

@@ -61,6 +61,16 @@
     #define SUGGEST_DB "data/suggestions.tsv"
     #define SPLITS_DB "data/artist_splits.tsv"
     #define SPLITS_COLUMNS "name\tchoice"
+    #define NOTES_DB "data/song_notes.tsv"
+    #define NOTES_COLUMNS "song_id\tfound\tdate"
+    #define PERIODS_DB "data/playlist_history.tsv"
+    #define PERIODS_COLS_1 "playlist_id\tsong_id\tstart\tend"
+    #define PERIODS_COLUMNS PERIODS_COLS_1 "\torigin\tfirst"
+    #define ALIASES_DB "data/video_aliases.tsv"
+    #define ALIASES_COLUMNS "video_id\tplayed_id"
+    #define SONG_IDS 32
+    #define ALIAS_HOPS 4
+    #define TAKEOUT_MAX 5000
     #define SPLIT_MAX 8
     #define LINK_SORT_MAX 64
     #define SETTINGS_DB "data/settings.tsv"
@@ -148,6 +158,7 @@
     #define HISTORY_STEP 100
     #define PL_ROWS_Y 330
     #define PL_ROW_STEP 60
+    #define PL_ROWS_BOTTOM 760
     #define BOARDS_ROWS_Y 330
     #define DUP_ROWS_Y 250
     #define DUP_HEAD_H 44
@@ -270,6 +281,14 @@ void edit_add_artist(app_t *app, char const *name, role_t role);
 void edit_refresh_lists(app_t *app);
 void edit_suggest_line(app_t *app, edit_t *edit);
 void edit_titles(app_t *app);
+void edit_notes_open(app_t *app);
+void edit_notes(app_t *app);
+void edit_notes_scroll(app_t *app, float delta);
+void edit_periods_load(app_t *app);
+int edit_periods_check(app_t *app);
+void edit_periods_save(app_t *app);
+void edit_periods(app_t *app);
+int edit_period_shown(notes_edit_t const *notes, int i);
 
 // src/scene/battle
 int battle_init(app_t *app);
@@ -328,6 +347,7 @@ void pledit_destroy(app_t *app);
 void pledit_search(app_t *app);
 void pledit_scroll(app_t *app, float delta);
 void pledit_view(app_t *app);
+void pledit_takeout(app_t *app);
 
 // src/scene/boards
 int boards_init(app_t *app);
@@ -602,6 +622,7 @@ void edit_rename_artist(app_t *app);
 int artist_split_parts(char const *name, char (*parts)[NAME_LEN]);
 int artist_split_doubtful(char (*parts)[NAME_LEN], int nb);
 void artist_split_apply(library_t *lib, artist_t *artist);
+int artist_linked(library_t *lib, int artist_id);
 int artist_split_state(library_t *lib, artist_t const *artist);
 void artists_split_auto(library_t *lib);
 void links_reverse(library_t *lib);
@@ -657,6 +678,11 @@ int dl_reason_lasting(char const *detail);
 void dlscene_unavailable(app_t *app);
 void dlscene_unavailable_footer(app_t *app, float y);
 song_t *song_by_video(library_t *lib, char const *id);
+void video_alias_add(library_t *lib, char const *from, char const *to);
+video_alias_t *video_alias_find(library_t *lib, char const *from);
+void video_aliases_free(library_t *lib);
+void db_parse_alias(library_t *lib, char **fields, int nb);
+int db_save_aliases(library_t *lib);
 void excluded_songs(library_t *lib);
 rejected_t *rejected_find(library_t *lib, char const *id);
 rejected_t *rejected_add(library_t *lib, char const *id, char const *title,
@@ -732,6 +758,29 @@ long custom_position(view_sort_t const *sort, song_t *const *custom,
     song_t const *song, int native);
 int playlist_view(library_t *lib, playlist_t const *playlist,
     song_t **view);
+
+// src/library/notes : where and when a song was found
+note_t *note_find(library_t *lib, song_t const *song);
+int note_put(library_t *lib, int song, char const *found, char const *date);
+void note_set(library_t *lib, song_t *song, char const *found,
+    char const *date);
+void notes_remove(library_t *lib, int song);
+
+// src/library/periods : stays of the songs in the playlists
+period_t *period_add(library_t *lib, period_t const *model);
+void period_remove(library_t *lib, period_t *period);
+void periods_forget(library_t *lib, int playlist, int song);
+void periods_sync(library_t *lib);
+int song_ids(library_t *lib, song_t const *song, int *ids);
+int id_among(int id, int const *ids, int nb);
+period_t *period_current(library_t *lib, int playlist, song_t const *song);
+void period_sum(library_t *lib, int playlist, song_t const *song,
+    period_sum_t *sum);
+void period_date(char *buf, long date);
+song_t *takeout_song(library_t *lib, char const *id);
+int takeout_line(char *line, char *id, long *date);
+int takeout_import(library_t *lib, playlist_t *playlist, char const *path,
+    int force, takeout_t *out);
 
 // src/library/boards : rankings and their rules
 board_t *board_add(library_t *lib, int id, char const *name);
@@ -843,6 +892,10 @@ void db_migrate_battles(void);
 void db_parse_playlist(library_t *lib, char **fields, int nb);
 void db_parse_playlist_song(library_t *lib, char **fields, int nb);
 int db_save_playlists(library_t *lib);
+void db_parse_note(library_t *lib, char **fields, int nb);
+int db_save_notes(library_t *lib);
+void db_parse_period(library_t *lib, char **fields, int nb);
+int db_save_periods(library_t *lib);
 void db_parse_sort(library_t *lib, char **fields, int nb);
 void db_parse_custom(library_t *lib, char **fields, int nb);
 int db_save_sorts(library_t *lib);

@@ -57,6 +57,9 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/edit/edit_artist.c\
 		src/scene/edit/edit_input.c\
 		src/scene/edit/edit_main.c\
+		src/scene/edit/edit_notes.c\
+		src/scene/edit/edit_periods.c\
+		src/scene/edit/edit_periods_save.c\
 		src/scene/edit/edit_remove.c\
 		src/scene/edit/edit_suggest.c\
 		src/scene/edit/edit_rows.c\
@@ -87,6 +90,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/pages/listen_bar.c\
 		src/scene/pages/search_field.c\
 		src/scene/playlist/pledit_scene.c\
+		src/scene/playlist/pledit_takeout.c\
 		src/scene/playlist/pledit_view.c\
 		src/scene/ranking/ranking_board.c\
 		src/scene/ranking/ranking_build.c\
@@ -183,6 +187,12 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/images/image_path.c\
 		src/library/images/images.c\
 		src/library/images/thumbnail.c\
+		src/library/notes/notes.c\
+		src/library/periods/periods.c\
+		src/library/periods/periods_sum.c\
+		src/library/periods/periods_sync.c\
+		src/library/periods/takeout.c\
+		src/library/periods/takeout_songs.c\
 		src/library/playlists/custom_order.c\
 		src/library/playlists/playlist_append.c\
 		src/library/playlists/playlist_sort.c\
@@ -205,6 +215,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/videos/unavailable.c\
 		src/library/videos/rejected.c\
 		src/library/videos/sources.c\
+		src/library/videos/video_alias.c\
 		src/library/videos/video_source.c
 
 SRC_DOWNLOAD	=	src/download/dl_reason.c\
@@ -230,6 +241,8 @@ SRC_DATA	=	src/data/db_all.c\
 		src/data/db_elo.c\
 		src/data/db_merge.c\
 		src/data/db_migrate.c\
+		src/data/db_notes.c\
+		src/data/db_periods.c\
 		src/data/db_playlists.c\
 		src/data/db_rejected.c\
 		src/data/db_sources.c\

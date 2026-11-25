@@ -52,7 +52,12 @@ int artist_split_doubtful(char (*parts)[NAME_LEN], int nb)
     return nb > 1 && strstr(parts[nb - 1], " & ") != NULL;
 }
 
-static int has_links(library_t *lib, int artist_id)
+/*
+** 0 for an artist no song names any more (a list "A, B" split into its
+** parts, a name corrected since): kept in artists.tsv, but not proposed
+** by the searches
+*/
+int artist_linked(library_t *lib, int artist_id)
 {
     for (link_t *link = lib->links; link; link = link->next)
         if (link->artist_id == artist_id)
@@ -113,7 +118,7 @@ int artist_split_state(library_t *lib, artist_t const *artist)
 
     if (!strchr(artist->name, ',')
         || artist_split_parts(artist->name, parts) < 2
-        || !has_links(lib, artist->id))
+        || !artist_linked(lib, artist->id))
         return 0;
     nb = artist_split_parts(artist->name, parts);
     choice = split_choice_find(lib, artist->name);

@@ -80,6 +80,9 @@ void library_destroy(library_t *lib)
     ties_free(lib);
     likes_free(lib);
     suggest_states_free(lib);
+    notes_remove(lib, 0);
+    periods_forget(lib, 0, 0);
+    video_aliases_free(lib);
     free(lib->present);
     free(lib);
 }

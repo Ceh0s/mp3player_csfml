@@ -89,9 +89,12 @@ int download_reupload(app_t *app, dl_entry_t const *entry)
     download_t *dl = &app->download;
     song_t *song = reupload_match(app->lib, entry);
     char detail[NAME_LEN + 48];
+    char id[VIDEO_ID];
 
     if (!song)
         return 0;
+    if (song_video_id(app->lib, song, id))
+        video_alias_add(app->lib, entry->id, id);
     playlists_append(app->lib, entry->targets, entry->nb_targets, song);
     dl->skipped++;
     snprintf(detail, sizeof(detail), "réupload : remplacé par « %s »",

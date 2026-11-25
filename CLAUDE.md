@@ -44,7 +44,7 @@ main.c
 include/   app.h (app_t)  scene.h (scènes, home_t, libscene_t, edit_t, battle_t, ranking_t,
            pledit_t, boards_t, dlscene_t, dupscene_t, setscene_t, selection_t)  song.h
            (song_t, fprint_t, artist_t, link_t, playlist_t, board_t, rule_t, rejected_t,
-           source_t, envelope_t, not_dup_t, dup_info_t, dup_pair_t, like_t, tie_order_t,
+           source_t, note_t, period_t, video_alias_t, envelope_t, not_dup_t, dup_info_t, dup_pair_t, like_t, tie_order_t,
            suggest_t, sug_state_t, settings_t, library_t, id3_tag_t)  download.h
            (download_t, dl_options_t, dl_entry_t, dl_report_t)  elo.h (arena_t, elo_t,
            rank_t, ranked_t, pool_t)
@@ -62,7 +62,8 @@ src/scene/             table des scènes
                        mode sélection (_select, _select_view) et ses actions en lot
                        (_actions, _action_rows, _bulk, _insert)
     edit/              écran d'édition (page principale, lignes d'artistes, recherche/fusion,
-                       saisie, page des suggestions de titre, page artiste)
+                       saisie, page des suggestions de titre, page artiste, page « Découverte » :
+                         edit_notes, edit_periods, edit_periods_save)
     battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote,
                        battle_listen : écoute, avis, cadre du choix au clavier)
     ranking/           tier list (noms ou images : ranking_tiles.c ; clic sur un tier =
@@ -79,7 +80,8 @@ src/scene/             table des scènes
                        _build, _view)
                        ; clic droit sur une ligne = page de la musique ou de
                        l'artiste (pages/page_open.c)
-    playlist/          édition d'une playlist (nom, titres cochés, suppression)
+    playlist/          édition d'une playlist (nom, titres cochés, suppression, import des dates :
+                         pledit_takeout.c)
     boards/            gestion des classements personnalisés (liste, règles, ajout)
     download/          écran de téléchargement (adresse, options : durée, playlists de
                        réception, lien ; progression, résumé) et liste par-dessus
@@ -133,13 +135,17 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        ordre personnalisé), filtre par texte (view_filter.c)
     boards/            classements, règles inclure/exclure, appartenance d'une musique,
                        classement auto par playlist, ordre de départage
+    notes/             où et quand une musique a été trouvée (textes de l'auteur)
+    periods/           périodes des musiques dans les playlists : suivi (periods_sync.c),
+                       résumé (periods_sum.c), import Takeout (takeout.c, _songs)
     likes/             avis (+1/-1) et playlists auto « Titres likés / dislikés »
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
                        suppression des fichiers (demandée seulement), oubli d'un
                        exclu (song_forget.c, _refs : références, _logs : journaux)
-    videos/            vidéo d'origine d'un fichier (id), titres refusés, exclus
+    videos/            vidéo d'origine d'un fichier (id), vidéos jouées sous un autre id
+                       (video_alias.c), titres refusés, exclus
                        (musique d'un exclu retrouvée dans edits.log : excluded_song.c),
                        indisponibles, adresses liées aux playlists
     duplicates/        doublons : titre nettoyé, artistes (uploader compris), paires
@@ -326,12 +332,15 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
+| `song_notes.tsv` | où et quand une musique a été trouvée (id brut, deux textes libres) |
+| `playlist_history.tsv` | périodes d'une musique dans une playlist : playlist, id brut, début (0 = inconnu), fin (0 = en cours, -1 = inconnue), origine du début (unknown/auto/import/hand), « depuis le début » (auto/yes/no) |
+| `video_aliases.tsv` | vidéo gardée par une playlist du site → vidéo jouée à sa place (lue à la synchronisation, sert à l'import Takeout) |
 | `excluded.tsv` | vidéos exclues, jamais retéléchargées : id, date, titre, archivée (absente des anciens fichiers) |
 | `unavailable.tsv` | anciennes versions de titres republiés (seul « This video is not available », souvent Home, NCS…) : id, date, titre, ligne d'erreur de yt-dlp, archivée (« Vider la liste », absente des anciens fichiers) ; sautées aux téléchargements suivants, « Retenter » dans l'onglet « Indisponibles » ; les autres échecs sont retentés |
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
 | `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite, `periods_started` = suivi des playlists commencé |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -374,6 +383,31 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.14 — Huitième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
+- **Découverte** (bouton de la page d'une musique) : « Trouvée où » et « Date de découverte »
+  (textes libres), et les passages de la musique dans chaque playlist (jamais, n passages,
+  depuis quand, « depuis le début »), avec leurs dates modifiables. Copie de travail,
+  écrite par « Enregistrer ».
+- **Suivi des playlists** : `periods_sync`, appelé par `db_save_playlists`, compare le contenu
+  des playlists aux périodes ouvertes ; aucun autre code n'a à le tenir à jour. Une période
+  ne finit que sur un retrait de la playlist (pas quand le fichier disparaît). Moins de
+  10 min entre ajout et retrait (ou retrait et remise) = erreur de clic, sans trace. Les
+  titres déjà là au début du suivi ont une date inconnue. « Depuis le début » : ajout dans
+  les 7 jours après la plus ancienne date de la playlist et jamais retiré, ou forcé.
+- **Import Takeout** (écran d'une playlist) : YouTube garde la date d'ajout actuelle de chaque
+  vidéo (pas les anciens passages), donnée par le .csv de la playlist exporté par Google
+  Takeout. En-tête ignoré (il dépend de la langue). Une date tapée à la main n'est jamais
+  remplacée ; une date déjà importée devenue plus récente = retrait puis réajout sur le site.
+  Deux clics si moins de la moitié des vidéos sont dans la playlist. Synchroniser avant aide
+  à retrouver les versions remplacées.
+  Une date qui tombe dans un passage déjà terminé est ignorée (export fait avant un réajout).
+  Testé sur un vrai export (Playlist du Gueux, 2026-11-25) : 309 vidéos lues, 308 datées,
+  dont 10 par `video_aliases.tsv` ; Google met une espace devant les ids qui commencent
+  par « - ».
+- **Bibliothèque** : le tri « Ajout playlist » écrit la date d'ajout à droite.
+- **Bug** : les anciens noms en liste (« John Summit, HAYLA ») et les artistes sans musique ne
+  sont plus proposés (`artist_linked` : ajout d'artiste, règles de classement).
 
 ### Phase 4.13 — Septième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Statistiques** : clic droit sur une ligne = page de la musique ou de l'artiste
