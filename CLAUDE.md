@@ -369,8 +369,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   boucle de la file ou du titre, boutons de la barre de lecture) :
   liste et file passent toutes deux par `playlist_sorted_view` (tri fusion stable écrit à la
   main, valeurs inconnues toujours en fin). Critères : ajout à la playlist (= ordre de
-  `playlist_songs.tsv`, les ajouts se font en fin), personnalisé (glisser-déposer), titre,
-  artiste, durée, écoute, ajout au logiciel (`first_seen`), parution (tag année). Défaut :
+  `playlist_songs.tsv`, les ajouts se font en fin ; « Ordre playlist »), date d'ajout
+  (`date_added`, passage en cours), personnalisé (glisser-déposer), titre, artiste, durée, écoute, ajout au logiciel (`first_seen`), parution (tag année). Défaut :
   ordre de la playlist, titre pour « Tous les titres ». Durée mesurée une fois par CSFML
   pour chaque musique qui n'en a pas (`durations.c`, -1 si illisible), puis sauvegardée. Supprimer une
   playlist retire les règles de classement qui l'utilisent.
@@ -385,6 +385,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 ## Plan de développement
 
 ### Phase 4.15 — Défilement fluide, tri par date d'ajout
+- **Tri « Date d'ajout »** : début du passage en cours, inconnues en fin ; absent de « Tous les
+  titres ». « Ajout playlist » s'appelle « Ordre playlist » (toujours `playlist` dans le TSV).
 - **Bug** : après une synchronisation, les titres ayant deux fichiers (doublons fusionnés sans
   supprimer le mp3) allaient après le dernier : l'ordre du site cherche maintenant la musique
   de chaque vidéo (`order_songs`), pas la vidéo de chaque musique.

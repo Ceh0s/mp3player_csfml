@@ -26,20 +26,20 @@ static int criterion(app_t *app, int key, int row, view_sort_t const *sort)
 }
 
 /*
-** the list of the criteria, under the sort button; "Ajout playlist" is
-** the order of a playlist: "Tous les titres" has none
+** the list of the criteria, under the sort button; "Tous les titres" is
+** not a playlist: it has no order of its own, nor dates of addition
 */
 static int criteria(app_t *app, int id, view_sort_t const *sort)
 {
     int row = 0;
     int chosen = -1;
-    int nb = id == 0 ? NB_SORTS - 1 : NB_SORTS;
+    int nb = id == 0 ? NB_SORTS - 2 : NB_SORTS;
     sfColor back = {20, 16, 36, 255};
 
     widget_rect(app, (float [4]){LIST_X - 6, SORT_Y + 54, 412, nb * 52 + 10},
         &back);
     for (int key = 0; key < NB_SORTS; key++) {
-        if (key == SORT_PLAYLIST && id == 0)
+        if ((key == SORT_PLAYLIST || key == SORT_DATE) && id == 0)
             continue;
         if (criterion(app, key, row, sort))
             chosen = key;
@@ -144,11 +144,10 @@ void library_sort_bar(app_t *app)
 static void sort_value(app_t *app, song_t const *song, int key, char *buf)
 {
     time_t date = song->first_seen;
-
     period_t *period = NULL;
 
     buf[0] = '\0';
-    if (key == SORT_PLAYLIST)
+    if (key == SORT_PLAYLIST || key == SORT_DATE)
         period = period_current(app->lib, app->libscene->playlist_id, song);
     if (period && period->start > 0)
         period_date(buf, period->start);

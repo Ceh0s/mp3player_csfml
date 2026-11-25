@@ -163,11 +163,13 @@ typedef struct board_s {
 
 /*
 ** criteria to sort the songs of a playlist (or of "Tous les titres"):
-** PLAYLIST is the order of the playlist, which is the order in which the
-** songs were added; CUSTOM is the order chosen by moving the songs
+** PLAYLIST is the order of the playlist (the one of the site for an
+** imported playlist); DATE the date the song was added to it (period_t);
+** CUSTOM is the order chosen by moving the songs
 */
 typedef enum sort_key_e {
     SORT_PLAYLIST,
+    SORT_DATE,
     SORT_CUSTOM,
     SORT_TITLE,
     SORT_ARTIST,

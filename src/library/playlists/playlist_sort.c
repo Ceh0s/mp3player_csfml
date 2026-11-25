@@ -34,9 +34,21 @@ static long release_date(char const *year)
     return date;
 }
 
+/*
+** start of the stay going on in the playlist, -1 if it is unknown
+*/
+static long date_added(library_t *lib, int playlist, song_t const *song)
+{
+    period_t *period = period_current(lib, playlist, song);
+
+    return period && period->start > 0 ? period->start : -1;
+}
+
 static long item_number(library_t *lib, view_sort_t const *sort,
     song_t *song, int native)
 {
+    if (sort->key == SORT_DATE)
+        return date_added(lib, sort->playlist_id, song);
     if (sort->key == SORT_DURATION)
         return song->duration_ms > 0 ? song->duration_ms : -1;
     if (sort->key == SORT_LISTEN)

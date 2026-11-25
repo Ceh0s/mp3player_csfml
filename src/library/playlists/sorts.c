@@ -10,7 +10,8 @@
 #include "mp3player.h"
 
 static const sort_def_t sort_defs[NB_SORTS] = {
-    {"playlist", "Ajout playlist", 0},
+    {"playlist", "Ordre playlist", 0},
+    {"date_added", "Date d'ajout", 1},
     {"custom", "Personnalisé", 0},
     {"title", "Titre", 0},
     {"artist", "Artiste", 0},
