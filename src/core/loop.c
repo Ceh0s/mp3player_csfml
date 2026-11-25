@@ -97,6 +97,7 @@ static void poll_events(app_t *app)
     while (sfRenderWindow_pollEvent(app->window, &event)) {
         if (key_repeated(app, &event))
             continue;
+        arrow_scroll(&event);
         if ((typing(app) && caret_key(app, &event))
             || search_event(app, &event))
             continue;

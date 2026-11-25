@@ -4,7 +4,8 @@
 ** File description:
 ** key repeat: on, so that a held backspace keeps erasing, but a held
 ** key must not repeat an action (Enter voting twice, Space toggling
-** the music again and again); held keys are followed here
+** the music again and again); held keys are followed here. The up and
+** down arrows scroll the lists, like the wheel.
 */
 
 #include "mp3player.h"
@@ -52,4 +53,22 @@ int key_repeated(app_t *app, sfEvent const *event)
     app->key_repeat = app->held[code];
     app->held[code] = 1;
     return app->key_repeat && !repeatable(code);
+}
+
+/*
+** an up or down arrow becomes one notch of the wheel: every screen with
+** a list already follows it (the fields only use left and right)
+*/
+void arrow_scroll(sfEvent *event)
+{
+    sfKeyCode code = sfKeyUnknown;
+
+    if (event->type != sfEvtKeyPressed)
+        return;
+    code = event->key.code;
+    if (code != sfKeyUp && code != sfKeyDown)
+        return;
+    memset(event, 0, sizeof(sfEvent));
+    event->type = sfEvtMouseWheelScrolled;
+    event->mouseWheelScroll.delta = code == sfKeyUp ? 1 : -1;
 }

@@ -35,7 +35,8 @@ sans lui, aucune vidéo n'est remplacée (voir Téléchargement).
 1. `make re` sans warning (`-Wall -Wextra`).
 2. `make debug` (epiclang) : facultatif, la norme n'est plus imposée.
 3. `valgrind --leak-check=full ./MP3player` : 0 erreur, 0 fuite.
-4. Ne jamais commiter sans accord. `music/` et `data/` sont ignorés par git.
+4. Commiter chaque tâche finie et vérifiée (un commit par tâche, sans push), sauf indication
+   contraire de l'auteur (depuis le 2026-11-25). `music/` et `data/` sont ignorés par git.
 
 ## Architecture
 
@@ -51,7 +52,8 @@ include/   app.h (app_t)  scene.h (scènes, home_t, libscene_t, edit_t, battle_t
            player.h  ui.h (ui_def_t, ui_t, widgets_t, image_t)  mp3player.h (constantes,
            prototypes)
 src/core/              création/destruction de l'app, boucle à tick, fenêtre, vue, signaux,
-                       touches maintenues (keys.c : seuls Retour arrière et flèches répètent)
+                       touches maintenues (keys.c : seuls Retour arrière et flèches répètent ;
+                       ↑ / ↓ = un cran de molette, donc défilement de toutes les listes)
 src/scene/             table des scènes
     home/              écran d'accueil (bouton play + menu Bibliothèque / Battle /
                        Classements / Doublons / Paramètres)
@@ -388,6 +390,10 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.17 — Flèches et textes allégés
+- **Flèches ↑ / ↓** : font défiler la liste affichée comme la molette, sur tous les écrans, aussi
+  pendant une saisie (`arrow_scroll`, keys.c).
 
 ### Phase 4.16 — Annuler une battle (faite)
 - **Historique** : « Annuler » (deux clics) sur la dernière battle du classement et du type

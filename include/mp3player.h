@@ -198,6 +198,7 @@ app_t *app_create(void);
 int app_destroy(app_t *app, int rtn_value);
 int loop_run(app_t *app);
 int key_repeated(app_t *app, sfEvent const *event);
+void arrow_scroll(sfEvent *event);
 int window_create(app_t *app);
 void window_apply_toggle(app_t *app);
 int view_create(app_t *app);
