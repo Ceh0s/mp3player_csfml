@@ -606,7 +606,13 @@ typedef enum artist_part_e {
     NB_PARTS
 } artist_part_t;
 
+/*
+** listen_ms : time listened to all his songs, those removed included
+** the others only count the songs present in music/: ms / titles : sum
+** of their durations and number, by part, then in total
+*/
 typedef struct artist_stats_s {
+    long listen_ms;
     long ms[NB_PARTS];
     int titles[NB_PARTS];
     long total_ms;

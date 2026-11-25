@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** page of an artist: total listening time and its detail
+** page of an artist: total duration of his songs and its detail
 ** (drawn with the widgets, so any scene can show it)
 */
 
@@ -28,7 +28,7 @@ static void draw_parts(app_t *app, artist_stats_t const *stats)
     char time[16];
 
     format_time(time, sizeof(time), stats->total_ms);
-    snprintf(line, sizeof(line), "%s d'écoute sur %d %s", time,
+    snprintf(line, sizeof(line), "%s de musique sur %d %s", time,
         stats->total_titles, titles_word(stats->total_titles));
     widget_text(app, line, (float [3]){130, 225, 30}, &sfWhite);
     for (int i = 0; i < NB_PARTS; i++) {
@@ -50,9 +50,11 @@ static void draw_titles(app_t *app, artist_t *artist)
     for (link_t *link = app->lib->links; link && shown < 8;
         link = link->next) {
         song = song_by_id(app->lib, link->song_id);
-        if (link->artist_id != artist->id || !song || song->merged_into)
+        if (link->artist_id != artist->id || !song || !song->present)
             continue;
-        format_time(time, sizeof(time), song_total_listen(app->lib, song));
+        snprintf(time, sizeof(time), "-");
+        if (song->duration_ms > 0)
+            format_time(time, sizeof(time), song->duration_ms);
         snprintf(line, sizeof(line), "%s   -   %s   -   %s",
             song_title(song), part_short[song_part(app->lib, link)], time);
         widget_text(app, line, (float [3]){160, 492 + shown * 40, 22},

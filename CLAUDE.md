@@ -352,8 +352,9 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - **Fusion** : la source devient un alias (`merged_into`) ; rien n'est recopié, les stats
   sont additionnées à l'affichage (`song_total_listen`), donc « Séparer » annule exactement.
 - **Stats par artiste** : calculées à partir des liens actuels, jamais stockées. Changer
-  l'artiste d'une musique déplace tout son historique. Détail (`artist_stats`) : total de
-  toutes les musiques où il apparaît, dont original / auteur d'un titre remixé par un autre /
+  l'artiste d'une musique déplace tout son historique. Détail (`artist_stats`) : somme des
+  durées des musiques présentes où il apparaît (le temps d'écoute, `listen_ms`, reste sur la
+  carte de battle et dans l'édition), dont original / auteur d'un titre remixé par un autre /
   remixeur / featuring. Affiché par la page artiste (clic sur un artiste dans l'édition).
 - **Elo** : `battles.log` est la source de vérité, rejoué au chargement et après chaque
   fusion/séparation avec les ids résolus. Une fusion regroupe donc les Elo et « Séparer »
@@ -397,6 +398,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   sur place quand les titres changent (`list_refresh` : avis, suppression, téléchargement).
 - **Tri « Date d'ajout »** : début du passage en cours, inconnues en fin ; absent de « Tous les
   titres ». « Ajout playlist » s'appelle « Ordre playlist » (toujours `playlist` dans le TSV).
+- **Page artiste** : durée de ses musiques présentes (total, par rôle, par titre) au lieu du temps
+  d'écoute.
 - **Bug** : après une synchronisation, les titres ayant deux fichiers (doublons fusionnés sans
   supprimer le mp3) allaient après le dernier : l'ordre du site cherche maintenant la musique
   de chaque vidéo (`order_songs`), pas la vidéo de chaque musique.

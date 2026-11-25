@@ -12,7 +12,7 @@ long artist_listen_ms(library_t *lib, int artist_id)
     artist_stats_t stats;
 
     artist_stats(lib, artist_id, &stats);
-    return stats.total_ms;
+    return stats.listen_ms;
 }
 
 char const *role_name(role_t role)
