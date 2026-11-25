@@ -119,8 +119,9 @@ void stats_view(app_t *app)
     lines(app, scene);
     if (scene->nb == 0)
         widget_text(app, "Aucun titre ici.", empty, &gray);
-    widget_text(app, "Clic droit sur une ligne : page de la musique ou de "
-        "l'artiste", (float [3]){420, 856 + app->extra_h, 22}, &gray);
+    widget_text(app, app->stats_opt.artists ? "Clic droit : page de "
+        "l'artiste" : "Clic droit : page de la musique",
+        (float [3]){420, 856 + app->extra_h, 22}, &gray);
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))
         scene_back(app);

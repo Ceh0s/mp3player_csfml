@@ -20,7 +20,6 @@ void library_select_toggle(app_t *app)
     libscene_t *scene = app->libscene;
     float rect[4] = {540, 20, 210, 56};
 
-    widget_help(app, rect, "Cocher des titres pour agir sur tous à la fois");
     if (!widget_button(app, rect, scene->selecting ? "> Sélection <"
             : "Sélection"))
         return;
@@ -59,8 +58,7 @@ void library_select_bar(app_t *app)
     if (widget_button(app, (float [4]){LIST_X + 292, SORT_Y, 150, 52},
             "Aucun"))
         select_all(app, 0);
-    snprintf(label, sizeof(label), "%d sélectionné(s)   (Maj + clic : "
-        "plage)", sel->nb);
+    snprintf(label, sizeof(label), "%d sélectionné(s)", sel->nb);
     widget_text(app, label, (float [3]){LIST_X + 470, SORT_Y + 12, 26},
         &sfWhite);
     if (sel->nb == 0 || !widget_button(app, actions, "Actions..."))

@@ -65,8 +65,8 @@ static void describe(char *out, suggest_t const *sug)
         snprintf(out, NAME_LEN * 2, "Retirer « %s », %s : %s", removed,
             roles[sug->role], sug->artist);
     if (sug->rule == SUG_FEAT || sug->rule == SUG_REMIX)
-        snprintf(out, NAME_LEN * 2, "Créditer %s en %s (le titre reste)",
-            sug->artist, roles[sug->role]);
+        snprintf(out, NAME_LEN * 2, "Créditer %s en %s", sug->artist,
+            roles[sug->role]);
     if (suggest_is_guess(sug->rule))
         snprintf(out, NAME_LEN * 2, "Supposition : artiste « %s »",
             sug->artist);
@@ -104,8 +104,6 @@ void edit_suggest_line(app_t *app, edit_t *edit)
         return;
     describe(text, &list.items[0]);
     snprintf(label, sizeof(label), "%d suggestion(s) : %s", list.nb, text);
-    widget_help(app, line, "Toutes les suggestions : appliquer, cacher "
-        "(réaffichable) ou supprimer (plus jamais proposée)");
     if (widget_button(app, line, label))
         edit->mode = EDIT_TITLES;
     if (!widget_button(app, (float [4]){975, 335, 255, 48},

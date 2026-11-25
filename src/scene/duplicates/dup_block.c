@@ -34,8 +34,8 @@ static void verdict(app_t *app, dup_group_t const *group, float y)
         snprintf(line, sizeof(line), "%d versions : son proche, à écouter",
             group->nb);
     else
-        snprintf(line, sizeof(line), "%d versions : son non comparé "
-            "(fichier illisible ou trop long)", group->nb);
+        snprintf(line, sizeof(line), "%d versions : son non comparé",
+            group->nb);
     if (best >= 0)
         color = best >= DUP_SURE ? &green : &orange;
     widget_text(app, line, (float [3]){130, y + 8, 24}, color);
@@ -62,8 +62,6 @@ static int choice(app_t *app, dup_group_t *group, int i, float y)
 
     if (dup_row(app, group, i, y))
         return 3;
-    widget_help(app, no, "Ce titre ne sera plus jamais proposé avec les "
-        "autres du groupe");
     if (widget_button(app, (float [4]){1215, y + 8, 265, 44},
             "Garder celui-ci"))
         return 1;

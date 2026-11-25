@@ -84,11 +84,10 @@ void ranking_ties(app_t *app)
     ranking_t *ranking = app->ranking;
     int rows = ranking_rows(app);
     int shown = -1;
-    char const *help = "Ordre entre ex æquo (même Elo, même % et même "
-        "nombre de victoires) : glisse une ligne pour la déplacer.";
+    char const *help = "Ex æquo : glisse une ligne pour la déplacer.";
 
     if (app->search.text[0] != '\0')
-        help = "Recherche en cours : vide-la pour déplacer les lignes.";
+        help = "Vide la recherche pour déplacer les lignes.";
     widget_text(app, help, (float [3]){130, CONTENT_Y, 22}, &gray);
     for (int i = 0; i < ranking->nb; i++) {
         if (!ranking_match(app, &ranking->order[i]))

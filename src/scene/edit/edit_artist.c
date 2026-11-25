@@ -60,12 +60,11 @@ static void rename_box(app_t *app, edit_t *edit)
         snprintf(edit->rename, NAME_LEN, "%s", edit->artist->name);
         edit->renamed = edit->artist;
     }
-    widget_text(app, "Nom de l'artiste (Entrée pour valider)",
-        (float [3]){1300, 600, 22}, &sfWhite);
+    widget_text(app, "Nom de l'artiste", (float [3]){1300, 600, 22},
+        &sfWhite);
     if (widget_field(app, field, edit->rename, edit->focus == FOCUS_RENAME))
         edit->focus = FOCUS_RENAME;
-    widget_help(app, button, "Change le nom sur tous ses titres ; un nom "
-        "déjà pris réunit les deux artistes");
+    widget_help(app, button, "Un nom déjà pris réunit les deux artistes");
     if (widget_button(app, button, "Renommer"))
         edit_rename_artist(app);
 }

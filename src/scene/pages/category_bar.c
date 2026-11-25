@@ -42,9 +42,6 @@ int category_bar(app_t *app, int *category, int nb, int random)
         (float [3]){215, CAT_BAR_Y + 6, 32}, &sfWhite);
     if (widget_button(app, (float [4]){560, CAT_BAR_Y, 60, 56}, ">"))
         *category = (*category + 1) % nb;
-    if (random)
-        widget_help(app, dice, "Tire au hasard une catégorie qui compte "
-            "dans TOTAL");
     if (random && widget_button(app, dice, "Catégorie aléatoire"))
         *category = random_category(*category);
     return *category != old;

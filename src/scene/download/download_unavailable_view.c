@@ -70,8 +70,7 @@ void dlscene_unavailable_footer(app_t *app, float y)
 
     if (app->dlscene->archived || unavailable_count(app->lib, 0) == 0)
         return;
-    widget_help(app, all, "Elles seront essayées au prochain "
-        "téléchargement de leur playlist");
+    widget_help(app, all, "Au prochain téléchargement");
     if (widget_button(app, all, "Tout retenter"))
         retry_all(app);
 }

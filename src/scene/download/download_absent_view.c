@@ -9,8 +9,6 @@
 
 #include "mp3player.h"
 
-static const sfColor gray = {180, 180, 180, 255};
-
 static void row_text(app_t *app, song_t const *song, float y)
 {
     widget_song(app, song, (float [4]){300, y + 2, 690, 42}, &sfWhite);
@@ -85,6 +83,4 @@ void dlscene_absent_footer(app_t *app, float y)
     if (widget_button(app, (float [4]){580, y, 300, 52}, "Tout retirer"))
         while (dl->nb_absent > 0)
             download_absent_unlist(app, 0);
-    widget_text(app, "Retirer = de la playlist seulement, le fichier reste",
-        (float [3]){900, y + 14, 20}, &gray);
 }

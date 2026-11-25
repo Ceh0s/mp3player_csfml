@@ -18,7 +18,7 @@ static void date_field(app_t *app, float x, char *buf, int focus)
     statscene_t *scene = app->stats;
     float rect[4] = {x, 250, 220, 52};
 
-    widget_help(app, rect, "AAAA-MM-JJ, vide = sans limite");
+    widget_help(app, rect, "AAAA-MM-JJ");
     if (widget_field(app, rect, buf, scene->focus == focus))
         scene->focus = focus;
 }
@@ -35,12 +35,12 @@ static void note(app_t *app)
     struct tm *day = localtime(&first);
 
     if (stat_date(opt->from, 0) < 0 || stat_date(opt->to, 1) < 0) {
-        widget_text(app, "Date invalide (AAAA-MM-JJ) : ignorée",
+        widget_text(app, "Date invalide : AAAA-MM-JJ",
             (float [3]){720, 262, 22}, &orange);
         return;
     }
     if (scene->nb_log == 0 || !day)
-        snprintf(text, sizeof(text), "Aucune écoute datée pour l'instant");
+        snprintf(text, sizeof(text), "Aucune écoute datée");
     else
         snprintf(text, sizeof(text), "Écoutes datées depuis le "
             "%02d/%02d/%d", day->tm_mday, day->tm_mon + 1,

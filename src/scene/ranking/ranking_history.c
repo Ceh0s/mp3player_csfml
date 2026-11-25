@@ -180,8 +180,7 @@ static int undo_button(app_t *app, hist_t const *item, float y)
         return 0;
     snprintf(label, sizeof(label), ranking->undo_ask ? "Confirmer ?"
         : "Annuler (%d)", ranking->undo_left);
-    widget_help(app, rect, "Retire cette battle : les Elo sont recalculés "
-        "sans elle (3 de suite au plus)");
+    widget_help(app, rect, "3 de suite au plus");
     if (!widget_button(app, rect, label))
         return 0;
     ranking->undo_ask = !ranking->undo_ask;

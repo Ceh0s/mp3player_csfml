@@ -68,8 +68,6 @@ int dup_same_row(app_t *app, int n, float y)
     if (!same)
         return 0;
     texts(app, same, y);
-    widget_help(app, rect, "Efface ce fichier de music/ : la musique garde "
-        "l'autre, au son identique");
     if (!widget_button(app, rect, asked ? "Confirmer l'effacement"
             : "Effacer ce fichier"))
         return 0;

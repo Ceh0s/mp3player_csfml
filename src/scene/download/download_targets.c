@@ -85,7 +85,7 @@ void dlscene_targets(app_t *app, float y)
     widget_text(app, "Ajouter aussi à :", (float [3]){130, y + 10, 24},
         &sfWhite);
     if (!has_manual(app->lib))
-        widget_text(app, "(aucune playlist)", (float [3]){400, y + 10, 22},
+        widget_text(app, "aucune playlist", (float [3]){400, y + 10, 22},
             &sfWhite);
     for (playlist_t *pl = app->lib->playlists; pl; pl = pl->next)
         if (pl->auto_like == 0)

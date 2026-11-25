@@ -20,8 +20,7 @@ static int split_button(app_t *app, edit_t *edit, int i, float y)
 
     if (!strchr(edit->artists[i].name, ','))
         return 0;
-    widget_help(app, rect, "Un artiste par nom entre les virgules, même "
-        "rôle (sinon le nom est gardé entier à l'enregistrement)");
+    widget_help(app, rect, "Sinon le nom est gardé entier");
     if (widget_button(app, rect, "Séparer"))
         roles_explode(edit->artists, &edit->nb_artists, i);
     return 1;
@@ -35,7 +34,7 @@ static void name_and_time(app_t *app, edit_t *edit, int i, float y)
 
     format_time(time, sizeof(time),
         known ? artist_listen_ms(app->lib, known->id) : 0);
-    snprintf(label, sizeof(label), "%s d'écoute (détail : clic)", time);
+    snprintf(label, sizeof(label), "%s d'écoute", time);
     if (!split_button(app, edit, i, y))
         widget_text(app, label, (float [3]){470, y + 12, 20}, &gray);
     if (widget_button(app, (float [4]){130, y, 320, 46},

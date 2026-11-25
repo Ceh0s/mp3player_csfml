@@ -51,7 +51,7 @@ void pledit_takeout(app_t *app)
     float button[4] = {1480, y, 300, 52};
 
     widget_fit(app, pl->takeout_msg[0] != '\0' ? pl->takeout_msg
-        : "Dates YouTube Music : chemin du .csv de Takeout (Ctrl+V)",
+        : "Dates d'ajout : chemin du .csv de Google Takeout",
         (float [4]){130, y + 12, 22, 630}, &gray);
     if (widget_field(app, field, pl->takeout, pl->focus == 2))
         pl->focus = 2;

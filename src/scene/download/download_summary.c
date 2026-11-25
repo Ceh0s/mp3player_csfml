@@ -30,14 +30,11 @@ static void left_out(app_t *app, download_t const *dl)
     int len = 0;
 
     line[0] = '\0';
-    len = add_part(line, len, dl->skipped, "déjà dans music/ (ajoutée(s) "
-        "aux playlists choisies)");
-    len = add_part(line, len, entries_count(dl->flagged), "hors durée, "
-        "en attente");
+    len = add_part(line, len, dl->skipped, "déjà présente(s)");
+    len = add_part(line, len, entries_count(dl->flagged), "hors durée");
     len = add_part(line, len, dl->refused, "déjà refusée(s)");
     len = add_part(line, len, dl->excluded, "exclue(s)");
-    add_part(line, len, dl->unavailable, "indisponible(s) (privée, "
-        "supprimée, réupload ou en direct)");
+    add_part(line, len, dl->unavailable, "indisponible(s)");
     if (line[0] != '\0')
         widget_text(app, line, (float [3]){130, 645, 22}, &sfWhite);
 }
@@ -68,7 +65,7 @@ static void done_lines(app_t *app, download_t const *dl)
     format_size(size, sizeof(size), dl->stats.bytes);
     format_time(time, sizeof(time), dl->stats.elapsed_us / 1000);
     snprintf(line, sizeof(line), "Terminé : %d titre(s) téléchargé(s), "
-        "%s en %s, dans la bibliothèque.", dl->ok, size, time);
+        "%s en %s", dl->ok, size, time);
     widget_text(app, line, (float [3]){130, 600, 26}, &green);
     left_out(app, dl);
     dlscene_failures(app, dl, 700);

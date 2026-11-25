@@ -17,7 +17,7 @@ static int result_row(app_t *app, edit_t *edit, int i)
     float y = 296 + i * 52;
 
     if (!widget_button(app, (float [4]){130, y, 1500, 48},
-            song->present ? "" : "(fichier absent)")) {
+            song->present ? "" : "Fichier absent")) {
         widget_song(app, song, (float [4]){360, y + 3, 1250, 42},
             &sfWhite);
         return 0;
@@ -35,8 +35,7 @@ void edit_search(app_t *app)
     snprintf(head, sizeof(head), "Fusionner « %s » avec...",
         song_title(edit->song));
     widget_text(app, head, (float [3]){130, 125, 36}, &sfWhite);
-    widget_text(app, "Choisis la musique qui recevra les statistiques de "
-        "celle-ci (qui en deviendra un alias). Tape pour filtrer.",
+    widget_text(app, "Choisis la musique qui recevra les statistiques.",
         (float [3]){130, 178, 22}, &gray);
     widget_field(app, (float [4]){130, 220, 1100, 56}, edit->search, 1);
     for (int i = 0; i < edit->nb_results; i++)
@@ -64,8 +63,8 @@ static void song_column(app_t *app, song_t *song, float x, char const *head)
     format_time(time, sizeof(time), song_total_listen(app->lib, song));
     snprintf(line, sizeof(line), "Temps d'écoute : %s", time);
     widget_text(app, line, (float [3]){x, 365, 22}, &gray);
-    widget_text(app, song->present ? "Fichier présent dans music/"
-        : "Fichier absent", (float [3]){x, 400, 22}, &gray);
+    if (!song->present)
+        widget_text(app, "Fichier absent", (float [3]){x, 400, 22}, &gray);
 }
 
 static void warnings(app_t *app, edit_t *edit)
@@ -74,7 +73,7 @@ static void warnings(app_t *app, edit_t *edit)
     int nb = merge_warnings(edit->song, edit->target, warn);
 
     if (nb == 0)
-        widget_text(app, "Aucune incohérence détectée.",
+        widget_text(app, "Aucune incohérence",
             (float [3]){130, 470, 24}, &green);
     for (int i = 0; i < nb; i++)
         widget_text(app, warn[i], (float [3]){130, 470 + i * 36, 24},
@@ -88,8 +87,8 @@ void edit_confirm(app_t *app)
 
     widget_text(app, "Confirmer la fusion", (float [3]){130, 125, 40},
         &sfWhite);
-    song_column(app, edit->song, 130, "Source (deviendra un alias)");
-    song_column(app, edit->target, 980, "Cible (reçoit les statistiques)");
+    song_column(app, edit->song, 130, "Fusionnée");
+    song_column(app, edit->target, 980, "Gardée");
     warnings(app, edit);
     if (widget_button(app, (float [4]){130, y, 360, 56},
             "Confirmer la fusion")) {

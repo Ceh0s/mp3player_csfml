@@ -31,6 +31,13 @@ sans lui, l'appli fonctionne et l'écran de téléchargement l'indique. De même
 (présent sur Arch, pacman en dépend) lit les pages d'une playlist sur YouTube Music ;
 sans lui, aucune vidéo n'est remplacée (voir Téléchargement).
 
+### Textes de l'interface (depuis le 2026-11-25)
+Décrire assez, sans prendre l'utilisateur pour un idiot. Pas de sous-titre, de parenthèse
+explicative ni d'infobulle sur une action qui se comprend seule. Un texte n'a sa place que pour :
+un format attendu, une conséquence impossible à deviner, un geste invisible (clic droit,
+glisser), une icône sans texte, une donnée ; et en quelques mots. Ne jamais recopier dans
+l'interface les exemples donnés par l'auteur pour expliquer une demande.
+
 ### Avant de rendre la main
 1. `make re` sans warning (`-Wall -Wextra`).
 2. `make debug` (epiclang) : facultatif, la norme n'est plus imposée.
@@ -218,7 +225,7 @@ Principes en place :
   télécharger (rejoint la file, ou en démarre une sans lien) ou refuser. Un refus est gardé
   dans `rejected.tsv` et écarte la vidéo **tant qu'elle reste hors de la plage**. Revenue
   dans la plage, elle n'est pas téléchargée seule : elle repasse dans « Hors durée »
-  (« (refusé avant) ») ; « Télécharger » efface le refus, « Refuser » l'écarte pour de bon
+  (« Déjà refusé ») ; « Télécharger » efface le refus, « Refuser » l'écarte pour de bon
   (`in_range`, annulable dans « Refusés »).
   **Lien adresse ↔ playlist** (un seul lien, une seule playlist de réception) : gardé dans
   `playlist_sources.tsv` avec la plage et l'option « Signaler les titres retirés » ;
@@ -394,6 +401,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 ### Phase 4.17 — Flèches et textes allégés
 - **Flèches ↑ / ↓** : font défiler la liste affichée comme la molette, sur tous les écrans, aussi
   pendant une saisie (`arrow_scroll`, keys.c).
+- **Textes** : explications retirées ou réduites sur tous les écrans (voir « Textes de
+  l'interface »). « Exclure » est caché pour un titre qui ne vient pas d'une vidéo.
 
 ### Phase 4.16 — Annuler une battle (faite)
 - **Historique** : « Annuler » (deux clics) sur la dernière battle du classement et du type

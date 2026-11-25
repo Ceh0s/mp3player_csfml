@@ -18,9 +18,9 @@ static void moves(app_t *app, float y)
     float back[4] = {712, y, 56, 56};
     float forward[4] = {1150, y, 56, 56};
 
-    widget_help(app, stop, "Arrête et revient au début du titre");
-    widget_help(app, back, "Recule de 10 secondes");
-    widget_help(app, forward, "Avance de 10 secondes");
+    widget_help(app, stop, "Arrêter");
+    widget_help(app, back, "-10 s");
+    widget_help(app, forward, "+10 s");
     if (widget_icon(app, stop, ICON_STOP, ICON_OUTLINE))
         player_halt(app);
     if (widget_icon(app, back, ICON_REWIND, ICON_OUTLINE))
@@ -39,11 +39,11 @@ static void modes(app_t *app, float y)
     float shuffle[4] = {1236, y, 56, 56};
     float repeat[4] = {1308, y, 56, 56};
     int states[3] = {ICON_DIM, ICON_OUTLINE, ICON_FILLED};
-    char const *repeats[3] = {"Boucle : non", "Boucle : toute la file",
-        "Boucle : le même titre"};
+    char const *repeats[3] = {"Boucle : non", "Boucle : file",
+        "Boucle : titre"};
 
-    widget_help(app, shuffle, set->shuffle ? "Aléatoire : oui (le titre "
-        "en cours reste)" : "Aléatoire : non");
+    widget_help(app, shuffle, set->shuffle ? "Aléatoire : oui"
+        : "Aléatoire : non");
     widget_help(app, repeat, repeats[set->repeat]);
     if (widget_icon(app, shuffle, ICON_SHUFFLE, set->shuffle ? ICON_FILLED
             : ICON_DIM))

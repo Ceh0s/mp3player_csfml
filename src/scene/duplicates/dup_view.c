@@ -49,15 +49,13 @@ static void status(app_t *app, dupscene_t *scene)
     else if (scene->list.nb == 0 && !app->lib->same_files)
         snprintf(line, sizeof(line), "Aucun doublon trouvé%s.", since);
     else
-        snprintf(line, sizeof(line), "%d groupe(s)%s : garde une version, "
-            "les autres y sont fusionnées (« Séparer » dans l'édition "
-            "annule).", scene->list.nb, since);
+        snprintf(line, sizeof(line), "%d groupe(s)%s", scene->list.nb,
+            since);
     widget_text(app, line, (float [3]){130, 180, 22}, &gray);
     if (scene->auto_merged == 0)
         return;
-    snprintf(line, sizeof(line), "%d fusion(s) automatique(s) dans la "
-        "version auto-générée (son identique à %d %% ou plus).",
-        scene->auto_merged, DUP_AUTO);
+    snprintf(line, sizeof(line), "%d fusion(s) automatique(s)",
+        scene->auto_merged);
     widget_text(app, line, (float [3]){130, 210, 22}, &gray);
 }
 
@@ -74,9 +72,7 @@ static void header(app_t *app, dupscene_t *scene)
         set->dup_remove = !set->dup_remove;
         db_save_settings(app->lib);
     }
-    widget_help(app, remove, "Le fichier de la musique fusionnée est effacé "
-        "de music/ (ses statistiques restent), aussi pour les fusions "
-        "automatiques");
+    widget_help(app, remove, "Aussi pour les fusions automatiques");
 }
 
 /*

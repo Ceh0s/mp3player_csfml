@@ -11,17 +11,17 @@
 static const sfColor gray = {180, 180, 180, 255};
 
 /*
-** texts of a switch: on, off, help shown over it
+** texts of a switch: on, off, detail shown on its right
 */
 static char const *const help[3] = {
     "Aide au survol : activée",
     "Aide au survol : désactivée",
-    "Explique les boutons qui ne disent pas ce qu'ils font."
+    ""
 };
 static char const *const ellipsis[3] = {
     "Points de suspension : oui",
     "Points de suspension : non",
-    "Coupe les titres trop longs au lieu de les laisser déborder."
+    "Coupe les titres trop longs."
 };
 
 int settings_init(app_t *app)
@@ -61,11 +61,7 @@ static void view(app_t *app)
     settings_t *set = &app->lib->settings;
 
     widget_text(app, "Paramètres", (float [3]){130, 125, 40}, &sfWhite);
-    widget_help(app, (float [4]){130, 250, 520, 56}, "Comme ceci : une "
-        "explication quand la souris reste sur un bouton");
     switch_row(app, 250, &set->help, help);
-    widget_help(app, (float [4]){130, 330, 520, 56}, "Comme ceci : un "
-        "titre trop long pour sa place finit par…");
     switch_row(app, 330, &set->ellipsis, ellipsis);
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))

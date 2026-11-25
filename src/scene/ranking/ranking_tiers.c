@@ -121,7 +121,7 @@ static void draw_row(app_t *app, int tier, float const *row)
     float label[4] = {130, row[0], 100, row[1] - 8};
 
     widget_help(app, label, app->ranking->open_tier < 0
-        ? "Clic : voir tout ce tier" : "Clic : revenir à la tier list");
+        ? "Voir tout ce tier" : "Revenir à la tier list");
     widget_rect(app, label, &tier_colors[tier]);
     if (tier == TIER_UNRANKED)
         widget_text(app, tier_names[tier],

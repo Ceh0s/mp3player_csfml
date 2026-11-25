@@ -38,7 +38,7 @@ static void listen(app_t *app, song_t *song)
         && sfMusic_getStatus(player->music) == sfPlaying;
 
     if (!song->present) {
-        widget_text(app, "(fichier absent)", (float [3]){1540, 145, 22},
+        widget_text(app, "Fichier absent", (float [3]){1540, 145, 22},
             &gray);
         return;
     }
@@ -64,8 +64,6 @@ static void notes_button(app_t *app)
 {
     float rect[4] = {1240, 130, 260, 56};
 
-    widget_help(app, rect, "Où et quand la musique a été trouvée, et ses "
-        "passages dans les playlists");
     if (widget_button(app, rect, "Découverte"))
         edit_notes_open(app);
 }
@@ -94,8 +92,8 @@ static void add_column(app_t *app, edit_t *edit)
 {
     role_t role = edit->nb_artists > 0 ? ROLE_FEAT : ROLE_MAIN;
 
-    widget_text(app, "Ajouter un artiste (Entrée pour valider)",
-        (float [3]){1260, 400, 24}, &sfWhite);
+    widget_text(app, "Ajouter un artiste", (float [3]){1260, 400, 24},
+        &sfWhite);
     if (widget_field(app, (float [4]){1260, 440, 520, 56}, edit->input,
             edit->focus == FOCUS_ARTIST))
         edit->focus = FOCUS_ARTIST;

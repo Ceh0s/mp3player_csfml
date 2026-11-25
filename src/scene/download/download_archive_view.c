@@ -65,8 +65,7 @@ void dlscene_archive_footer(app_t *app, float y)
     }
     if (scene->archived)
         return;
-    widget_help(app, clear, "Range les lignes affichées dans les "
-        "archivés : elles restent refusées ou exclues");
+    widget_help(app, clear, "Les titres restent refusés ou exclus");
     if (!widget_button(app, clear, scene->clear ? "Confirmer ?"
             : "Vider la liste"))
         return;

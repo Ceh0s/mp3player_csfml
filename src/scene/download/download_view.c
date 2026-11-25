@@ -76,9 +76,8 @@ static void header(app_t *app)
 
     widget_text(app, "Télécharger des musiques", (float [3]){130, 115, 40},
         &sfWhite);
-    widget_text(app, "Colle une ou plusieurs adresses séparées par ; "
-        "(YouTube, SoundCloud, Bandcamp, ou une playlist) : les mp3 sont "
-        "enregistrés dans music/.", (float [3]){130, 180, 22}, &gray);
+    widget_text(app, "Adresses, séparées par ;", (float [3]){130, 195, 22},
+        &gray);
     if (widget_field(app, (float [4]){130, 240, 1650, 56},
             scene->url, scene->focus == DL_FIELD_URL))
         scene->focus = DL_FIELD_URL;
@@ -103,8 +102,7 @@ static void buttons(app_t *app, download_t *dl)
     if (widget_button(app, cookies, dl->cookies ? "Cookies " DL_BROWSER
             " : oui" : "Cookies " DL_BROWSER " : non"))
         dl->cookies = !dl->cookies;
-    widget_help(app, cookies, "Nécessaire pour une playlist privée "
-        "(le navigateur peut rester ouvert)");
+    widget_help(app, cookies, "Pour une playlist privée");
     dlscene_durations(app, 330);
 }
 

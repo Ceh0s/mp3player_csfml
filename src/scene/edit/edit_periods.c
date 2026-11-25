@@ -25,7 +25,7 @@ static void date_field(app_t *app, edit_t *edit, float const *rect,
     int focused = edit->focus == FOCUS_PERIOD && notes->row == where[0]
         && notes->side == where[1];
 
-    widget_help(app, rect, "AAAA-MM-JJ, vide = date inconnue");
+    widget_help(app, rect, "AAAA-MM-JJ");
     if (!widget_field(app, rect, where[1] ? row->to : row->from, focused))
         return;
     edit->focus = FOCUS_PERIOD;
@@ -94,8 +94,8 @@ static void first_button(app_t *app, notes_edit_t *notes, float y)
             first = notes->rows[i].old.first;
     if (first < 0)
         return;
-    widget_help(app, rect, "Auto : ajoutée dans les 7 premiers jours de la "
-        "playlist et jamais retirée");
+    widget_help(app, rect, "Auto : ajoutée dans les 7 premiers jours, "
+        "jamais retirée");
     if (!widget_button(app, rect, labels[first]))
         return;
     for (int i = 0; i < notes->nb; i++)
@@ -113,8 +113,7 @@ void edit_periods(app_t *app)
 
     if (notes->playlist == 0)
         return;
-    widget_text(app, "Périodes dans la playlist choisie",
-        (float [3]){1090, 315, 24}, &sfWhite);
+    widget_text(app, "Périodes", (float [3]){1090, 315, 24}, &sfWhite);
     for (int i = 0; i < notes->nb; i++) {
         if (!edit_period_shown(notes, i))
             continue;

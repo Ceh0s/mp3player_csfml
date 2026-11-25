@@ -31,16 +31,15 @@ static void header(app_t *app, boards_t *bd)
     if (bd->board->id == BOARD_GENERAL) {
         widget_text(app, bd->board->name, (float [3]){130, 200, 36},
             &sfWhite);
-        widget_text(app, "Le classement général contient toutes les "
-            "musiques et ne se modifie pas.", (float [3]){130, 278, 22},
-            &gray);
+        widget_text(app, "Toutes les musiques, non modifiable.",
+            (float [3]){130, 278, 22}, &gray);
         return;
     }
     widget_text(app, "Nom", (float [3]){130, 172, 24}, &sfWhite);
     if (widget_field(app, (float [4]){130, 205, 900, 56}, bd->name,
             bd->focus == 0))
         bd->focus = 0;
-    snprintf(line, sizeof(line), "%d musique%s dans ce classement",
+    snprintf(line, sizeof(line), "%d musique%s",
         bd->members, bd->members > 1 ? "s" : "");
     widget_text(app, line, (float [3]){130, 278, 22}, &gray);
 }
@@ -72,8 +71,8 @@ static void rules(app_t *app, boards_t *bd)
 {
     float y = BOARDS_ROWS_Y + 50;
 
-    widget_text(app, "Règles : classée si une règle l'inclut et aucune "
-        "ne l'exclut", (float [3]){130, BOARDS_ROWS_Y, 22}, &gray);
+    widget_text(app, "Une exclusion l'emporte sur une inclusion.",
+        (float [3]){130, BOARDS_ROWS_Y, 22}, &gray);
     for (rule_t *rule = bd->board->rules; rule; rule = rule->next) {
         if (y + 48 > CONTENT_BOTTOM + app->extra_h)
             return;
@@ -113,8 +112,7 @@ void boards_confirm(app_t *app)
     snprintf(line, sizeof(line), "Supprimer le classement « %s » ?",
         bd->board->name);
     widget_text(app, line, (float [3]){130, 115, 40}, &sfWhite);
-    widget_text(app, "Ses battles restent dans data/battles.log mais ne "
-        "compteront plus. Les musiques ne sont pas touchées.",
+    widget_text(app, "Ses battles ne compteront plus.",
         (float [3]){130, 190, 24}, &gray);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Supprimer")) {
         board_remove(app->lib, bd->board);

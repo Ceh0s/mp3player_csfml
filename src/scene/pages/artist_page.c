@@ -11,7 +11,7 @@
 static const sfColor gray = {180, 180, 180, 255};
 
 static char const *const part_names[NB_PARTS] = {"en original",
-    "remixé(s) par d'autres (il en est l'auteur)", "en tant que remixeur",
+    "remixé(s) par d'autres", "en tant que remixeur",
     "en featuring"};
 
 static char const *const part_short[NB_PARTS] = {"original",
@@ -72,9 +72,6 @@ void artist_page(app_t *app, artist_t *artist, int *back)
 
     widget_text(app, artist ? artist->name : "Nouvel artiste",
         (float [3]){130, 125, 40}, &sfWhite);
-    widget_text(app, "D'après les données enregistrées (les modifications "
-        "en cours ne comptent pas encore).", (float [3]){130, 180, 22},
-        &gray);
     if (artist) {
         artist_stats(app->lib, artist->id, &stats);
         draw_parts(app, &stats);

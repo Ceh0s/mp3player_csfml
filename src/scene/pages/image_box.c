@@ -14,8 +14,7 @@ static const sfColor gray = {180, 180, 180, 255};
 static void import(app_t *app, rank_t const *rank, image_input_t *input)
 {
     if (image_import(rank, input->path) == 84) {
-        snprintf(input->msg, sizeof(input->msg), "Impossible de lire cette "
-            "image (png, jpg, bmp...)");
+        snprintf(input->msg, sizeof(input->msg), "Image illisible");
         return;
     }
     snprintf(input->msg, sizeof(input->msg), "Image importée");
@@ -47,7 +46,7 @@ int image_box(app_t *app, rank_t const *rank, image_input_t *input,
     float right[4] = {pos[0] + half + 10, pos[1] + 84, half, 44};
     int clicked = 0;
 
-    widget_text(app, "Image : colle un chemin (Ctrl+V)",
+    widget_text(app, "Image : chemin du fichier",
         (float [3]){pos[0], pos[1], 20}, &sfWhite);
     clicked = widget_field(app, field, input->path, input->focused);
     if (widget_button(app, left, "Importer"))

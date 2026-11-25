@@ -70,7 +70,7 @@ int edit_periods_check(app_t *app)
             continue;
         if (stat_date(row->from, 0) < 0 || stat_date(row->to, 0) < 0)
             snprintf(notes->msg, sizeof(notes->msg),
-                "Date invalide (AAAA-MM-JJ)");
+                "Date invalide : AAAA-MM-JJ");
         else if (row->from[0] != '\0' && row->to[0] != '\0'
             && strcmp(row->from, row->to) > 0)
             snprintf(notes->msg, sizeof(notes->msg),

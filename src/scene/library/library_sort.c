@@ -109,10 +109,6 @@ static void launch(app_t *app)
     float random[4] = {LIST_X + 690, SORT_Y, 230, 52};
     libscene_t *scene = app->libscene;
 
-    widget_help(app, play, "Lit l'onglet affiché depuis son premier titre "
-        "(aléatoire désactivé)");
-    widget_help(app, random, "Lit l'onglet affiché dans un ordre au hasard "
-        "(aléatoire activé)");
     if (widget_icon_button(app, play, ICON_PLAY, "Lire"))
         player_start(app, scene->playlist_id, app->search.text, 0);
     if (widget_icon_button(app, random, ICON_SHUFFLE, "Aléatoire"))

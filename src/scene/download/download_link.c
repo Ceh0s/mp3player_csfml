@@ -46,11 +46,8 @@ void dlscene_link(app_t *app, float y)
     if (widget_button(app, link, scene->link ? "Lier l'adresse à la "
             "playlist : oui" : "Lier l'adresse à la playlist : non"))
         scene->link = !scene->link;
-    widget_help(app, link, "Pour une seule adresse : « Synchroniser » "
-        "dans la bibliothèque la retélécharge");
+    widget_help(app, link, "Pour la resynchroniser depuis la bibliothèque");
     if (widget_button(app, absent, scene->absent ? "Signaler les titres "
             "retirés : oui" : "Signaler les titres retirés : non"))
         scene->absent = !scene->absent;
-    widget_help(app, absent, "Titres de la playlist qui ne sont plus à "
-        "l'adresse : garder, retirer ou supprimer le fichier");
 }

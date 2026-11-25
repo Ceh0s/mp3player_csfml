@@ -35,10 +35,8 @@ int like_buttons(app_t *app, elo_kind_t kind, int id, float const *pos)
         dislike[0] = pos[0];
         dislike[1] = pos[1] + 62;
     }
-    widget_help(app, like, value > 0 ? "J'aime (cliquer pour retirer)"
-        : "J'aime");
-    widget_help(app, dislike, value < 0 ? "Je n'aime pas (cliquer pour "
-        "retirer)" : "Je n'aime pas");
+    widget_help(app, like, "J'aime");
+    widget_help(app, dislike, "Je n'aime pas");
     if (widget_icon(app, like, ICON_LIKE, value > 0 ? ICON_FILLED
             : ICON_OUTLINE))
         return like_change(app, kind, id, 1);

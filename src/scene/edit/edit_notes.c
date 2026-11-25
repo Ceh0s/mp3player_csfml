@@ -38,12 +38,11 @@ static void fields(app_t *app, edit_t *edit)
     widget_text(app, "Découverte", (float [3]){130, 125, 40}, &sfWhite);
     widget_fit(app, song_title(edit->song), (float [4]){400, 138, 26, 1380},
         &gray);
-    widget_text(app, "Trouvée où (Shazam, suggestion, restaurant...)",
-        (float [3]){130, 195, 24}, &sfWhite);
+    widget_text(app, "Trouvée où", (float [3]){130, 195, 24}, &sfWhite);
     if (widget_field(app, (float [4]){130, 230, 1080, 54}, notes->found,
             edit->focus == FOCUS_FOUND))
         edit->focus = FOCUS_FOUND;
-    widget_text(app, "Date de découverte (texte libre)",
+    widget_text(app, "Date de découverte",
         (float [3]){1240, 195, 24}, &sfWhite);
     if (widget_field(app, (float [4]){1240, 230, 540, 54}, notes->date,
             edit->focus == FOCUS_FOUND_DATE))

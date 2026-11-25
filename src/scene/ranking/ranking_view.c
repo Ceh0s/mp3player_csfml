@@ -38,7 +38,6 @@ static void tabs(app_t *app)
         "Départage");
     tab_button(app, (float [4]){1585, CAT_BAR_Y, 195, 56}, TAB_HISTORY,
         "Historique");
-    widget_help(app, names, "Tier list : images ou noms des titres");
     if (widget_button(app, names, app->show_images ? "Voir les noms"
             : "Voir les images"))
         app->show_images = !app->show_images;
@@ -70,8 +69,6 @@ static void bottom(app_t *app, ranking_t *ranking)
     if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
             "Retour"))
         scene_back(app);
-    widget_help(app, reset, "Remet les Elo à 1500 (ce classement ou tout) ; "
-        "l'historique reste dans battles.log");
     if (widget_button(app, reset, "Réinitialiser"))
         ranking->reset = 1;
 }

@@ -20,7 +20,7 @@ static void kind(app_t *app, dup_group_t const *group, int i, float y)
     char const *text = "Clip / autre upload";
 
     if (song->autogen)
-        text = i == 0 ? "Auto-généré (conseillé)" : "Auto-généré";
+        text = i == 0 ? "Auto-généré - conseillé" : "Auto-généré";
     widget_text(app, text, (float [3]){130, y + 8, 20},
         song->autogen ? &green : &gray);
 }

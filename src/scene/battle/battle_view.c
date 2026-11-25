@@ -76,9 +76,9 @@ static void cards(app_t *app, battle_t *battle)
     float middle = BATTLE_CARD_Y + BATTLE_CARD_H / 2 - 30;
 
     widget_text(app, "VS", (float [3]){930, middle, 48}, &sfWhite);
-    widget_text(app, "Clique sur ton choix, ou flèches gauche / droite puis "
-        "Entrée ; clic droit : éditer la musique",
-        (float [3]){130, y + 6, 22}, &gray);
+    if (app->arena.kind == KIND_SONG)
+        widget_text(app, "Clic droit : page de la musique",
+            (float [3]){130, y + 6, 22}, &gray);
     if (card(app, &battle->pair[0], 130)) {
         battle_vote(app, 0);
         return;
@@ -102,14 +102,11 @@ static void bottom(app_t *app, battle_t *battle)
 
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
         scene_back(app);
-    widget_help(app, history, "Les battles de ce classement, la dernière "
-        "en haut (Elo et places gagnés ou perdus)");
     if (widget_button(app, history, "Historique")) {
         battle_open_history(app);
         return;
     }
-    widget_help(app, match, "Au hasard : deux titres quelconques. "
-        "Équilibrées : ceux qui ont peu de battles, contre un Elo proche");
+    widget_help(app, match, "Équilibrées : peu de battles, Elo proche");
     if (widget_button(app, match, *on ? "Rencontres : équilibrées"
             : "Rencontres : au hasard")) {
         *on = !*on;
@@ -117,7 +114,6 @@ static void bottom(app_t *app, battle_t *battle)
         battle_next(app);
         return;
     }
-    widget_help(app, skip, "Autre paire, sans vote");
     if (battle->has_pair && widget_button(app, skip, "Passer"))
         battle_next(app);
 }
@@ -134,9 +130,9 @@ void battle_view(app_t *app)
     if (battle->has_pair)
         cards(app, battle);
     else
-        widget_text(app, app->arena.kind == KIND_SONG ? "Il faut au moins "
-            "deux musiques dans ce classement pour une battle." : "Il faut "
-            "au moins deux artistes dans ce classement pour une battle.",
+        widget_text(app, app->arena.kind == KIND_SONG ? "Pas assez de "
+            "musiques pour une battle." : "Pas assez d'artistes pour une "
+            "battle.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
     bottom(app, battle);
 }

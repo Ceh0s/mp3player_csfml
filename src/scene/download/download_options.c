@@ -71,6 +71,6 @@ void dlscene_durations(app_t *app, float y)
     widget_text(app, "à", (float [3]){1172, y + 12, 24}, &sfWhite);
     if (widget_field(app, max, scene->max, scene->focus == DL_FIELD_MAX))
         scene->focus = DL_FIELD_MAX;
-    widget_help(app, min, "Durée minimale (m:ss ou minutes), vide = aucune");
-    widget_help(app, max, "Durée maximale (m:ss ou minutes), vide = aucune");
+    widget_help(app, min, "m:ss ou minutes");
+    widget_help(app, max, "m:ss ou minutes");
 }

@@ -31,14 +31,9 @@ static void exclude_button(app_t *app, edit_t *edit, float y)
     float rect[4] = {1480, y, 300, 56};
     char id[VIDEO_ID];
 
-    if (!song_video_id(app->lib, edit->song, id)) {
-        widget_help(app, rect, "Ce titre ne vient pas d'une vidéo : "
-            "rien à exclure des téléchargements");
-        widget_button(app, rect, "(Exclure)");
+    if (!song_video_id(app->lib, edit->song, id))
         return;
-    }
-    widget_help(app, rect, "Supprime le fichier et ne télécharge plus "
-        "jamais cette vidéo (stats gardées)");
+    widget_help(app, rect, "Ne sera plus jamais téléchargée");
     if (!confirm(app, rect, EDIT_ASK_EXCLUDE,
             (char const *[2]){"Exclure", "Confirmer"}))
         return;
@@ -52,8 +47,7 @@ static void delete_button(app_t *app, edit_t *edit, float y)
     char const *labels[2] = {"Supprimer du lecteur",
         "Confirmer la suppression"};
 
-    widget_help(app, rect, "Supprime le fichier de music/ (stats gardées, "
-        "le titre devient absent)");
+    widget_help(app, rect, "Les stats sont gardées");
     if (!confirm(app, rect, EDIT_ASK_DELETE, labels))
         return;
     song_delete_files(app, edit->song);

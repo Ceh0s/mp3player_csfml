@@ -33,7 +33,7 @@ int bar_create(app_t *app)
         || !scene->now_title || !scene->now_artist || !scene->time
         || !scene->hint)
         return 84;
-    text_set(scene->hint, "Clic droit sur une musique pour la modifier");
+    text_set(scene->hint, "Clic droit : page de la musique");
     sfText_setFillColor(scene->hint, (sfColor){200, 200, 200, 255});
     sfText_setFillColor(scene->now_artist, (sfColor){190, 190, 190, 255});
     return 0;
@@ -64,13 +64,10 @@ void bar_cover(app_t *app)
     rank_t rank = {app->player->song, NULL, 0, 0, 0};
     float cover[4] = {cover_rect[0], cover_rect[1] + app->extra_h,
         cover_rect[2], cover_rect[3]};
-    float zone[4] = {song_rect[0], song_rect[1] + app->extra_h,
-        song_rect[2], song_rect[3]};
 
     if (!rank.song)
         return;
     widget_image(app, image_get(app, &rank, 1), cover, 0);
-    widget_help(app, zone, "Ouvrir la page de la musique");
 }
 
 int bar_open_song(app_t *app)
@@ -93,7 +90,7 @@ static void update_labels(app_t *app)
     scene->has_shown = 1;
     if (!song) {
         text_set(scene->now_title, app->lib->nb > 0 ? "Aucune lecture"
-            : "Aucune musique dans le dossier music/");
+            : "Aucune musique dans music/");
         text_set(scene->now_artist, "");
         return;
     }

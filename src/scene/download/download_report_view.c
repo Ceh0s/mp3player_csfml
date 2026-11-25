@@ -36,8 +36,8 @@ static void summary(app_t *app, download_t const *dl)
             len += snprintf(line + len, sizeof(line) - len, "%s %d     ",
                 labels[s], nb);
     }
-    widget_text(app, dl->report ? line : "Aucun téléchargement pour "
-        "l'instant.", (float [3]){300, 265, 22}, &sfWhite);
+    widget_text(app, dl->report ? line : "Aucun téléchargement.",
+        (float [3]){300, 265, 22}, &sfWhite);
 }
 
 /*

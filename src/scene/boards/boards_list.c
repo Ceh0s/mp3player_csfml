@@ -8,8 +8,6 @@
 
 #include "mp3player.h"
 
-static const sfColor gray = {180, 180, 180, 255};
-
 /*
 ** the edited ranking becomes the one of the battle and ranking screens
 */
@@ -83,9 +81,6 @@ static void rows(app_t *app)
 void boards_list(app_t *app)
 {
     widget_text(app, "Classements", (float [3]){130, 115, 40}, &sfWhite);
-    widget_text(app, "Chaque classement a ses propres battles et ses "
-        "propres Elo, sur les musiques choisies par ses règles.",
-        (float [3]){130, 180, 22}, &gray);
     rows(app);
     if (widget_button(app, (float [4]){1300, BOARDS_ROWS_Y, 480, 56},
             "Nouveau classement"))

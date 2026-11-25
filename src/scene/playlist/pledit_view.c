@@ -59,13 +59,12 @@ static void header(app_t *app, pledit_t *pl)
     if (widget_field(app, (float [4]){130, 205, 900, 56}, pl->name,
             pl->focus == 0))
         pl->focus = 0;
-    widget_text(app, "Rechercher un titre ou un artiste",
-        (float [3]){1080, 172, 24}, &sfWhite);
+    widget_text(app, "Rechercher", (float [3]){1080, 172, 24},
+        &sfWhite);
     if (widget_field(app, (float [4]){1080, 205, 700, 56}, pl->search,
             pl->focus == 1))
         pl->focus = 1;
-    snprintf(count, sizeof(count), "%d titre%s dans la playlist   -   "
-        "clique sur un titre pour l'ajouter ou le retirer",
+    snprintf(count, sizeof(count), "%d titre%s",
         pl->playlist->nb, pl->playlist->nb > 1 ? "s" : "");
     widget_text(app, count, (float [3]){130, 278, 22}, &gray);
 }
@@ -101,9 +100,8 @@ static void confirm(app_t *app, pledit_t *pl)
     snprintf(line, sizeof(line), "Supprimer la playlist « %s » ?",
         pl->playlist->name);
     widget_text(app, line, (float [3]){130, 115, 40}, &sfWhite);
-    widget_text(app, "Les musiques et leurs statistiques ne sont pas "
-        "touchées. Les règles de classement qui l'utilisent et ses dates "
-        "d'ajout sont retirées.",
+    widget_text(app, "Ses dates d'ajout et les règles de classement qui "
+        "l'utilisent seront retirées.",
         (float [3]){130, 190, 24}, &gray);
     if (widget_button(app, (float [4]){130, y, 260, 56}, "Supprimer")) {
         rules_forget(app->lib, RULE_PLAYLIST, pl->playlist->id);

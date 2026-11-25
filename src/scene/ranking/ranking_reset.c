@@ -10,7 +10,6 @@
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
-static const sfColor red = {255, 110, 110, 255};
 
 static void texts(app_t *app, board_t const *board)
 {
@@ -18,13 +17,10 @@ static void texts(app_t *app, board_t const *board)
 
     widget_text(app, "Réinitialiser les battles",
         (float [3]){500, 300, 36}, &sfWhite);
-    widget_text(app, "Les Elo repartent de 1500 et les battles de zéro. "
-        "L'historique reste dans battles.log,", (float [3]){500, 360, 22},
-        &gray);
-    widget_text(app, "mais l'appli ne pourra pas les retrouver.",
-        (float [3]){500, 390, 22}, &gray);
-    snprintf(line, sizeof(line), "Ce classement : %s, %s (toutes les "
-        "catégories)", board ? board->name : "?",
+    widget_text(app, "Les Elo repartent de 1500, sans retour possible.",
+        (float [3]){500, 375, 22}, &gray);
+    snprintf(line, sizeof(line), "Ce classement : %s, %s",
+        board ? board->name : "?",
         app->arena.kind == KIND_SONG ? "musiques" : "artistes");
     widget_text(app, line, (float [3]){500, 440, 22}, &sfWhite);
     widget_text(app, "Tape Confirm pour activer les boutons :",
@@ -50,8 +46,6 @@ void ranking_reset_view(app_t *app)
     widget_rect(app, (float [4]){460, 270, 1000, 480}, &back);
     texts(app, board_by_id(app->lib, app->arena.board));
     widget_field(app, (float [4]){500, 530, 400, 56}, ranking->confirm, 1);
-    if (!ok)
-        widget_text(app, "Boutons inactifs", (float [3]){930, 545, 22}, &red);
     if (widget_button(app, (float [4]){500, 650, 280, 56}, "Ce classement")
         && ok)
         reset(app, 0);

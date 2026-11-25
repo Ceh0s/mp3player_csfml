@@ -72,8 +72,8 @@ static void playlist_row(app_t *app, float y)
 
     label(app, "Playlist", y);
     if (!pl || pl->auto_like != 0) {
-        widget_text(app, "Aucune playlist (créée avec « + » dans les "
-            "onglets)", (float [3]){520, y + 12, 24}, &gray);
+        widget_text(app, "Aucune playlist", (float [3]){520, y + 12, 24},
+            &gray);
         return;
     }
     if (widget_button(app, (float [4]){520, y, 52, 52}, "<"))
@@ -110,10 +110,8 @@ static void remove_row(app_t *app, float y)
     float delete[4] = {835, y, 420, 52};
 
     label(app, "Fichiers", y);
-    widget_help(app, exclude, "Supprime les fichiers et ne télécharge plus "
-        "jamais ces vidéos (stats gardées)");
-    widget_help(app, delete, "Supprime les fichiers de music/ (stats "
-        "gardées, les titres deviennent absents)");
+    widget_help(app, exclude, "Ne seront plus jamais téléchargés");
+    widget_help(app, delete, "Les stats sont gardées");
     confirm_button(app, exclude, SEL_EXCLUDE,
         (char const *[2]){"Exclure", "Confirmer"});
     confirm_button(app, delete, SEL_DELETE,

@@ -16,17 +16,14 @@
 #include "mp3player.h"
 
 static const sfColor gray = {180, 180, 180, 255};
-static char const *const help[] = {"",
-    "Hors de la durée choisie, ou refusés avant et revenus dans la durée"
-    " : en attente.",
-    "Ignorés hors de la durée ; dans la durée, redemandés (ignorés pour "
-    "de bon si refusés encore).",
-    "Dans la playlist locale, mais plus dans celle du site.",
-    "Jamais téléchargés à nouveau, quelle que soit la durée.",
-    "Ce qu'est devenue chaque vidéo de la dernière file.",
-    "Anciennes versions de titres republiés : ignorées aux prochains "
-    "téléchargements.",
-    "Artistes écrits en liste qui sont peut-être un seul artiste."};
+
+/*
+** one per page (dl_popup_t), empty when its name is enough
+*/
+static char const *const help[] = {"", "",
+    "Redemandés s'ils reviennent dans la durée.",
+    "Absents de la playlist du site.", "", "",
+    "Anciennes versions de titres republiés.", ""};
 
 int dlpopup_rows(app_t *app)
 {
@@ -91,7 +88,7 @@ static void flagged_rows(app_t *app, download_t *dl)
             continue;
         y += DLPOPUP_STEP;
         snprintf(title, sizeof(title), "%s%s", e->was_refused ?
-            "(refusé avant) " : "", e->title);
+            "Déjà refusé : " : "", e->title);
         row_text(app, title, e->duration, y);
         if (flagged_buttons(app, e, y))
             return;

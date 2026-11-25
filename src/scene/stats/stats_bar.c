@@ -50,8 +50,7 @@ static void elo_button(app_t *app, float y)
 
     snprintf(label, sizeof(label), "Elo : %s", opt->elo == 0 ? "aucun"
         : category_name(opt->elo - 1));
-    widget_help(app, rect, "Ajoute l'Elo du classement Général dans une "
-        "catégorie (clic : la suivante)");
+    widget_help(app, rect, "Elo du classement Général");
     if (!widget_button(app, rect, label))
         return;
     opt->elo = (opt->elo + 1) % (CAT_TOTAL + 2);
