@@ -62,15 +62,9 @@ static void select_set(selection_t *sel, int id, int checked)
 */
 int select_row(app_t *app)
 {
-    libscene_t *scene = app->libscene;
-    int row = 0;
-
-    if (app->mouse.y < LIST_Y || app->mouse.x < 87 || app->mouse.x > 1832)
+    if (app->mouse.x < PANEL_X || app->mouse.x > PANEL_X + PANEL_W)
         return -1;
-    row = (app->mouse.y - LIST_Y) / LIST_STEP;
-    if (row >= scene->rows || scene->scroll + row >= scene->nb_view)
-        return -1;
-    return scene->scroll + row;
+    return list_row_at(app);
 }
 
 void select_click(app_t *app, int row)

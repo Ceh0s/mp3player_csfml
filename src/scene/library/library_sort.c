@@ -69,11 +69,13 @@ static int direction(app_t *app, view_sort_t const *sort)
 void library_reorder(app_t *app, int keep_scroll)
 {
     libscene_t *scene = app->libscene;
-    int scroll = scene->scroll;
+    float scroll = scene->scroll;
+    float scroll_to = scene->scroll_to;
 
     list_create(app);
     if (keep_scroll) {
         scene->scroll = scroll;
+        scene->scroll_to = scroll_to;
         list_scroll(app, 0);
     }
     if (app->player->queue && app->player->playlist_id == scene->playlist_id)
@@ -167,14 +169,16 @@ void list_values(app_t *app)
     view_sort_t *sort = sort_get(app->lib, scene->playlist_id);
     char value[32];
     float pos[3] = {0, 0, 24};
+    int first = 0;
+    int last = 0;
 
-    for (int i = scene->scroll; sort && i < scene->nb_view
-        && i < scene->scroll + scene->rows; i++) {
+    list_shown(scene, &first, &last);
+    for (int i = first; sort && i < last; i++) {
         sort_value(app, scene->view[i], sort->key, value);
         if (value[0] == '\0')
             continue;
         pos[0] = 1800 - widget_text_width(app, value, 24);
-        pos[1] = LIST_Y + (i - scene->scroll) * LIST_STEP + 18;
+        pos[1] = list_row_y(scene, i) + 18;
         widget_text(app, value, pos, &gray);
     }
 }

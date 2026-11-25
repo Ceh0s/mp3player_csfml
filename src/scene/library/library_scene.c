@@ -39,7 +39,7 @@ static const ui_def_t lib_ui[] = {
 
 int libscene_init(app_t *app)
 {
-    float panel[4] = {87, 110, 1745, PANEL_H};
+    float panel[4] = {PANEL_X, 110, PANEL_W, PANEL_H};
     sfColor white = {10, 6, 24, 120};
 
     app->libscene = calloc(1, sizeof(libscene_t));
@@ -156,7 +156,7 @@ static void left_release(app_t *app)
         app->wg->mode = WG_DRAW;
         return;
     }
-    if (drag_release(app) || bar_open_song(app))
+    if (slider_release(app) || drag_release(app) || bar_open_song(app))
         return;
     if (bar_seek(app) == 0)
         click(app);
@@ -194,11 +194,13 @@ void libscene_event(app_t *app, sfEvent *event)
 {
     key(app, event);
     if (event->type == sfEvtMouseWheelScrolled)
-        list_scroll(app, event->mouseWheelScroll.delta);
+        list_scroll(app, -event->mouseWheelScroll.delta * LIST_NOTCH);
     if (event->type == sfEvtMouseButtonPressed
-        && event->mouseButton.button == sfMouseLeft
-        && !app->libscene->selecting)
-        drag_press(app);
+        && event->mouseButton.button == sfMouseLeft) {
+        slider_press(app);
+        if (!app->libscene->selecting)
+            drag_press(app);
+    }
     if (event->type == sfEvtMouseButtonReleased
         && event->mouseButton.button == sfMouseRight)
         right_click(app);
@@ -219,7 +221,22 @@ void libscene_update(app_t *app)
         list_create(app);
     }
     drag_update(app);
+    list_scroll_update(app);
     bar_update(app);
+}
+
+static void draw_rows(app_t *app)
+{
+    float area[4];
+
+    list_area(app->libscene, area);
+    clip_begin(app, area);
+    list_draw(app);
+    library_select_boxes(app);
+    list_values(app);
+    drag_draw(app);
+    clip_end(app);
+    slider_draw(app);
 }
 
 void libscene_draw(app_t *app)
@@ -228,10 +245,7 @@ void libscene_draw(app_t *app)
     sfRenderWindow_drawRectangleShape(app->window, app->libscene->panel,
         NULL);
     app->wg->mode = WG_DRAW;
-    list_draw(app);
-    library_select_boxes(app);
-    list_values(app);
-    drag_draw(app);
+    draw_rows(app);
     bar_draw(app);
     ui_draw(app, app->libscene->ui);
     widgets(app);

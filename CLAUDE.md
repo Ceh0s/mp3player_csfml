@@ -58,7 +58,8 @@ src/scene/             table des scènes
     library/           liste des musiques + barre de lecture (pochette du titre en
                        cours, clic = sa page) + onglets de playlists
                        + barre de tri et glisser-déposer (library_scene.c, _list,
-                       _view, _tabs, _bar, _layout, _sort, _drag), avis (_likes),
+                       _view, _tabs, _bar, _layout, _sort, _drag), défilement fluide
+                       et slider (_scroll), avis (_likes),
                        mode sélection (_select, _select_view) et ses actions en lot
                        (_actions, _action_rows, _bulk, _insert)
     edit/              écran d'édition (page principale, lignes d'artistes, recherche/fusion,
@@ -96,7 +97,8 @@ src/scene/             table des scènes
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
                        lecteur, search_field : champ de recherche)
-src/ui/                tables d'éléments (atlas), collisions, formes, widgets, icônes de
+src/ui/                tables d'éléments (atlas), collisions, formes, widgets, coupe d'une
+                       zone de l'écran (clip.c), icônes de
                        l'atlas (widget_icon.c : contour, disque plein = état actif,
                        estompé = inactif), ligne de titre (widget_song.c : titre en
                        gros, artistes dessous), « … » (text_fit.c), champ de
@@ -384,7 +386,11 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 
 ## Plan de développement
 
-### Phase 4.15 — Défilement fluide, tri par date d'ajout
+### Phase 4.15 — Défilement fluide, tri par date d'ajout (faite)
+- **Bibliothèque** : défilement en pixels (`library_scroll.c` : `scroll` affiché, `scroll_to`
+  visé, rapproché selon `delta_us`), lignes coupées en haut et en bas (`clip.c`), slider à
+  droite. La boucle passe à 16 ms (`TICK_SMOOTH`) seulement pendant le mouvement. Les autres
+  listes défilent encore par ligne.
 - **Tri « Date d'ajout »** : début du passage en cours, inconnues en fin ; absent de « Tous les
   titres ». « Ajout playlist » s'appelle « Ordre playlist » (toujours `playlist` dans le TSV).
 - **Bug** : après une synchronisation, les titres ayant deux fichiers (doublons fusionnés sans

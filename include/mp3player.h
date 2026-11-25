@@ -14,6 +14,7 @@
     #define WINDOWED_W 1280
     #define WINDOWED_H 720
     #define TICK_MS 33
+    #define TICK_SMOOTH 16
     #define AUTOSAVE_US 30000000
 
     #define FONT_PATH "assets/font.ttf"
@@ -137,6 +138,14 @@
     #define LIST_TEXT_X (LIST_X + LIST_THUMB + 18)
     #define LIST_LIKES_X 1556
     #define LIST_RIGHT 1830
+    #define LIST_NOTCH (2 * LIST_STEP)
+    #define SCROLL_US 70000.0
+    #define DRAG_SPEED 600
+    #define PANEL_X 87
+    #define PANEL_W 1745
+    #define SLIDER_X 1846
+    #define SLIDER_W 14
+    #define SLIDER_MIN 40
     #define FIT_LEN 1024
     #define BAR_TEXT_W 460
     #define PANEL_H 790
@@ -224,7 +233,15 @@ void libscene_destroy(app_t *app);
 int list_create(app_t *app);
 int list_click(app_t *app);
 void list_play(app_t *app, int row);
-void list_scroll(app_t *app, float delta);
+void list_scroll(app_t *app, float pixels);
+void list_scroll_update(app_t *app);
+float list_row_y(libscene_t const *scene, int row);
+void list_shown(libscene_t const *scene, int *first, int *last);
+void list_area(libscene_t const *scene, float *rect);
+int list_row_at(app_t *app);
+void slider_press(app_t *app);
+int slider_release(app_t *app);
+void slider_draw(app_t *app);
 void list_likes(app_t *app);
 void list_draw(app_t *app);
 int bar_create(app_t *app);
@@ -513,6 +530,8 @@ int widget_field(app_t *app, float const *rect, char *value,
     int focused);
 void widget_box(app_t *app, float const *rect, int focused);
 void widget_place(app_t *app, float const *rect);
+void clip_begin(app_t *app, float const *rect);
+void clip_end(app_t *app);
 void widget_rect(app_t *app, float const *rect, sfColor const *color);
 float widget_text_width(app_t *app, char const *str, unsigned int size);
 void widget_image(app_t *app, sfTexture *texture, float const *rect,

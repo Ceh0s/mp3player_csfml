@@ -66,6 +66,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/edit/edit_search.c\
 		src/scene/home/home.c\
 		src/scene/library/library_bar.c\
+		src/scene/library/library_scroll.c\
 		src/scene/library/library_layout.c\
 		src/scene/library/library_likes.c\
 		src/scene/library/library_modes.c\
@@ -107,6 +108,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/ranking/ranking_view.c
 
 SRC_UI	=	src/ui/image_cache.c\
+		src/ui/clip.c\
 		src/ui/ui_element.c\
 		src/ui/ui_hit.c\
 		src/ui/ui_shapes.c\

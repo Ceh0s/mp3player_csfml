@@ -33,12 +33,14 @@ void library_select_boxes(app_t *app)
 {
     libscene_t *scene = app->libscene;
     float y = 0;
+    int first = 0;
+    int last = 0;
 
     if (!scene->selecting)
         return;
-    for (int i = scene->scroll; i < scene->nb_view
-        && i < scene->scroll + scene->rows; i++) {
-        y = LIST_Y + (i - scene->scroll) * LIST_STEP + 11;
+    list_shown(scene, &first, &last);
+    for (int i = first; i < last; i++) {
+        y = list_row_y(scene, i) + 11;
         widget_rect(app, (float [4]){94, y, 30, 30}, &box);
         if (select_has(&scene->sel, scene->view[i]->id))
             widget_rect(app, (float [4]){100, y + 6, 18, 18}, &checked);

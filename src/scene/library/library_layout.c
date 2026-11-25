@@ -27,12 +27,12 @@ static void destroy_shapes(app_t *app, libscene_t *scene)
 void libscene_layout(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    sfVector2f size = {1745, PANEL_H + app->extra_h};
+    sfVector2f size = {PANEL_W, PANEL_H + app->extra_h};
 
     background_layout(app, scene->bg);
     ui_layout(scene->ui, app->extra_h);
     sfRectangleShape_setSize(scene->panel, size);
-    scene->rows = (110 + size.y - LIST_Y - 20) / LIST_STEP;
+    scene->height = 110 + size.y - LIST_Y - 20;
     list_scroll(app, 0);
     bar_layout(app);
 }
@@ -41,6 +41,7 @@ void libscene_destroy(app_t *app)
 {
     if (!app->libscene)
         return;
+    app->tick_loop = TICK_MS;
     destroy_shapes(app, app->libscene);
     if (app->libscene->bg)
         sfSprite_destroy(app->libscene->bg);

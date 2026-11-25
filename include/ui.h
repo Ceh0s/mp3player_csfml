@@ -106,6 +106,7 @@ typedef struct caret_s {
 /*
 ** picture / circle : shapes drawing the images (square or round)
 ** tip : text of the hovered element, drawn last by widget_tip_draw
+** clip : view of the part of the screen drawn (clip.c)
 ** caret : cursor of the field being typed in (text_caret.c)
 ** icon : sprite of the atlas drawing the icons (widget_icon.c)
 */
@@ -115,6 +116,7 @@ typedef struct widgets_s {
     sfRectangleShape *box;
     sfRectangleShape *picture;
     sfCircleShape *circle;
+    sfView *clip;
     char tip[TIP_LEN];
     wg_mode_t mode;
     caret_t caret;

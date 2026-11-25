@@ -19,7 +19,9 @@ widgets_t *widgets_create(app_t *app)
     wg->picture = sfRectangleShape_create();
     wg->circle = sfCircleShape_create();
     wg->icon = sfSprite_create();
-    if (!wg->text || !wg->box || !wg->picture || !wg->circle || !wg->icon) {
+    wg->clip = sfView_create();
+    if (!wg->text || !wg->box || !wg->picture || !wg->circle || !wg->icon
+        || !wg->clip) {
         widgets_destroy(wg);
         return NULL;
     }
@@ -42,6 +44,8 @@ void widgets_destroy(widgets_t *wg)
         sfCircleShape_destroy(wg->circle);
     if (wg->icon)
         sfSprite_destroy(wg->icon);
+    if (wg->clip)
+        sfView_destroy(wg->clip);
     free(wg);
 }
 

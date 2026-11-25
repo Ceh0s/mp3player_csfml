@@ -113,8 +113,12 @@ typedef struct selection_s {
 ** present songs (rows drawn with widget_song)
 ** shown : song written in the bottom bar (has_shown = 0 before the 1st)
 ** drag_row : row held by the mouse in the custom order (-1 if none),
-** press : where it was pressed, dragging : 1 once the mouse moved,
-** drag_wait : ticks before the list scrolls again while dragging
+** press : where it was pressed, dragging : 1 once the mouse moved
+** scroll / scroll_to : pixels of the list above its first row shown, now
+** and once it has slid (library_scroll.c); height : pixels of the list on
+** the screen
+** slider_held : 1 while the slider is held, slider_grab : where, from
+** the top of its handle
 ** selecting : 1 in the selection mode (a click checks a song), sel : it
 ** sort_open : 1 while the list of the sort criteria is open
 */
@@ -134,14 +138,16 @@ typedef struct libscene_s {
     sfText *now_artist;
     sfText *time;
     sfText *hint;
-    int scroll;
-    int rows;
+    float scroll;
+    float scroll_to;
+    int slider_held;
+    float slider_grab;
+    int height;
     song_t *shown;
     int has_shown;
     int drag_row;
     sfVector2f press;
     int dragging;
-    int drag_wait;
     int selecting;
     selection_t sel;
     int sort_open;

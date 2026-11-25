@@ -30,6 +30,7 @@ int list_create(app_t *app)
     if (!playlist)
         scene->playlist_id = 0;
     scene->scroll = 0;
+    scene->scroll_to = 0;
     scene->view = malloc(sizeof(song_t *) * (app->lib->nb + 1));
     if (!scene->view)
         return 84;

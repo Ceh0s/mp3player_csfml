@@ -23,12 +23,14 @@ static int is_custom(app_t *app)
 static int drop_place(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    float pos = (app->mouse.y - LIST_Y + LIST_STEP / 2.0) / LIST_STEP;
-    int place = scene->scroll + (pos < 0 ? 0 : (int)pos);
-    int last = scene->scroll + scene->rows;
+    float pos = app->mouse.y - LIST_Y + (int)scene->scroll + LIST_STEP / 2;
+    int place = pos / LIST_STEP;
+    int first = 0;
+    int last = 0;
 
-    if (last > scene->nb_view)
-        last = scene->nb_view;
+    list_shown(scene, &first, &last);
+    if (place < first)
+        place = first;
     return place > last ? last : place;
 }
 
@@ -67,23 +69,19 @@ void drag_press(app_t *app)
         list_click(app) : -1;
     scene->press = app->mouse;
     scene->dragging = 0;
-    scene->drag_wait = 0;
 }
 
 /*
-** above or under the list, it scrolls by one row every 4 ticks
+** above or under the list, it scrolls by DRAG_SPEED pixels per second
 */
 static void auto_scroll(app_t *app, libscene_t *scene)
 {
-    if (scene->drag_wait > 0) {
-        scene->drag_wait--;
-        return;
-    }
-    scene->drag_wait = 4;
+    float pixels = DRAG_SPEED * app->delta_us / 1000000.0;
+
     if (app->mouse.y < LIST_Y)
-        list_scroll(app, 1);
-    else if (app->mouse.y > LIST_Y + scene->rows * LIST_STEP)
-        list_scroll(app, -1);
+        list_scroll(app, -pixels);
+    else if (app->mouse.y > LIST_Y + scene->height)
+        list_scroll(app, pixels);
 }
 
 void drag_update(app_t *app)
@@ -130,14 +128,13 @@ void drag_draw(app_t *app)
     libscene_t *scene = app->libscene;
     sfColor held = {255, 200, 0, 60};
     sfColor line = {255, 200, 0, 255};
-    int row = scene->drag_row - scene->scroll;
-    float rect[4] = {LIST_X - 10, LIST_Y + row * LIST_STEP, 1690, LIST_STEP};
+    float rect[4] = {LIST_X - 10, list_row_y(scene, scene->drag_row), 1690,
+        LIST_STEP};
 
     if (scene->drag_row < 0 || !scene->dragging)
         return;
-    if (row >= 0 && row < scene->rows)
-        widget_rect(app, rect, &held);
-    rect[1] = LIST_Y + (drop_place(app) - scene->scroll) * LIST_STEP - 2;
+    widget_rect(app, rect, &held);
+    rect[1] = list_row_y(scene, drop_place(app)) - 2;
     rect[3] = 4;
     widget_rect(app, rect, &line);
 }

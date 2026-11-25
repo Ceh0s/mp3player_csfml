@@ -12,12 +12,12 @@
 static const sfColor hover = {200, 200, 255, 255};
 
 /*
-** rect = {x, y, w, h} of the row shown at the position pos (0 = first)
+** rect = {x, y, w, h} of a row
 */
-static void row_rect(int pos, float *rect)
+static void row_rect(libscene_t const *scene, int row, float *rect)
 {
     rect[0] = LIST_X;
-    rect[1] = LIST_Y + pos * LIST_STEP;
+    rect[1] = list_row_y(scene, row);
     rect[2] = LIST_RIGHT - LIST_X;
     rect[3] = LIST_STEP;
 }
@@ -28,16 +28,10 @@ static void row_rect(int pos, float *rect)
 */
 int list_click(app_t *app)
 {
-    libscene_t *scene = app->libscene;
-    int row = 0;
-
-    if (scene->sort_open || app->mouse.y < LIST_Y
+    if (app->libscene->sort_open || app->libscene->slider_held
         || app->mouse.x < LIST_X || app->mouse.x > LIST_LIKES_X - 8)
         return -1;
-    row = (app->mouse.y - LIST_Y) / LIST_STEP;
-    if (row >= scene->rows || scene->scroll + row >= scene->nb_view)
-        return -1;
-    return scene->scroll + row;
+    return list_row_at(app);
 }
 
 /*
@@ -50,18 +44,6 @@ void list_play(app_t *app, int row)
         player_toggle(app);
     else
         player_play(app, row);
-}
-
-void list_scroll(app_t *app, float delta)
-{
-    int max = app->libscene->nb_view - app->libscene->rows;
-    int scroll = app->libscene->scroll - (int)delta;
-
-    if (scroll > max)
-        scroll = max;
-    if (scroll < 0)
-        scroll = 0;
-    app->libscene->scroll = scroll;
 }
 
 /*
@@ -82,11 +64,13 @@ void list_draw(app_t *app)
     float text[4] = {LIST_TEXT_X, 0, LIST_LIKES_X - LIST_TEXT_X - 20,
         LIST_STEP - 8};
     int over = list_click(app);
+    int first = 0;
+    int last = 0;
 
-    for (int i = scene->scroll; i < scene->nb_view
-        && i < scene->scroll + scene->rows; i++) {
+    list_shown(scene, &first, &last);
+    for (int i = first; i < last; i++) {
         rank.song = scene->view[i];
-        thumb[1] = LIST_Y + (i - scene->scroll) * LIST_STEP + 4;
+        thumb[1] = list_row_y(scene, i) + 4;
         text[1] = thumb[1] + 2;
         widget_image(app, image_get(app, &rank, 1), thumb, 0);
         widget_song(app, rank.song, text, row_color(app, i, over));
@@ -94,24 +78,43 @@ void list_draw(app_t *app)
 }
 
 /*
-** drawn and clicked with the other widgets; the list follows when an
-** automatic playlist ("Titres likés") is shown
+** the list follows when an automatic playlist ("Titres likés") is shown
 */
-void list_likes(app_t *app)
+static void row_likes(app_t *app, libscene_t *scene)
 {
-    libscene_t *scene = app->libscene;
     playlist_t *shown = playlist_by_id(app->lib, scene->playlist_id);
     float rect[4];
+    int first = 0;
+    int last = 0;
 
-    if (scene->sort_open)
-        return;
-    for (int i = scene->scroll; i < scene->nb_view
-        && i < scene->scroll + scene->rows; i++) {
-        row_rect(i - scene->scroll, rect);
+    list_shown(scene, &first, &last);
+    for (int i = first; i < last; i++) {
+        row_rect(scene, i, rect);
         if (!like_row(app, scene->view[i], rect, LIST_LIKES_X))
             continue;
         if (shown && shown->auto_like != 0)
             list_create(app);
         return;
     }
+}
+
+/*
+** drawn and clicked with the other widgets; the part of a row cut by
+** the top or the bottom of the list is not clicked
+*/
+void list_likes(app_t *app)
+{
+    float area[4];
+
+    if (app->libscene->sort_open)
+        return;
+    if (app->wg->mode != WG_DRAW) {
+        if (list_row_at(app) != -1)
+            row_likes(app, app->libscene);
+        return;
+    }
+    list_area(app->libscene, area);
+    clip_begin(app, area);
+    row_likes(app, app->libscene);
+    clip_end(app);
 }
