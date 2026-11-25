@@ -65,20 +65,30 @@ void download_order_swap(download_t *dl, char const *old_id,
 }
 
 /*
-** place of the song of this raw id in the list (nb_order if it is not
-** in it)
+** the song (resolved) of each video of the list, NULL if it is not here.
+** The song is looked for from the video, not the other way: a song may
+** have several files (duplicates merged), so several videos
 */
-static int place(library_t *lib, download_t const *dl, int song_id)
+static song_t **order_songs(library_t *lib, download_t const *dl)
+{
+    song_t **songs = malloc(sizeof(song_t *) * dl->nb_order);
+
+    for (int i = 0; songs && i < dl->nb_order; i++)
+        songs[i] = song_by_video(lib, dl->order[i]);
+    return songs;
+}
+
+/*
+** place of the song of this raw id in the list (nb if it is not in it)
+*/
+static int place(library_t *lib, song_t *const *songs, int nb, int song_id)
 {
     song_t *song = song_resolve(lib, song_by_id(lib, song_id));
-    char id[VIDEO_ID];
 
-    if (!song || !song_video_id(lib, song, id))
-        return dl->nb_order;
-    for (int i = 0; i < dl->nb_order; i++)
-        if (strcmp(dl->order[i], id) == 0)
+    for (int i = 0; song && i < nb; i++)
+        if (songs[i] == song)
             return i;
-    return dl->nb_order;
+    return nb;
 }
 
 /*
@@ -105,6 +115,22 @@ static void sort_places(int *songs, int *places, int nb)
     }
 }
 
+static void sort_playlist(library_t *lib, download_t const *dl,
+    playlist_t *pl)
+{
+    song_t **songs = order_songs(lib, dl);
+    int *places = malloc(sizeof(int) * pl->nb);
+
+    if (songs && places) {
+        for (int i = 0; i < pl->nb; i++)
+            places[i] = place(lib, songs, dl->nb_order, pl->songs[i]);
+        sort_places(pl->songs, places, pl->nb);
+        db_save_playlists(lib);
+    }
+    free(songs);
+    free(places);
+}
+
 /*
 ** called when the queue is over (not when it is cancelled)
 */
@@ -112,16 +138,8 @@ void download_apply_order(app_t *app)
 {
     download_t *dl = &app->download;
     playlist_t *pl = playlist_by_id(app->lib, dl->opt.targets[0]);
-    int *places = NULL;
 
     if (dl->nb_order > 0 && pl && pl->nb > 1)
-        places = malloc(sizeof(int) * pl->nb);
-    if (places) {
-        for (int i = 0; i < pl->nb; i++)
-            places[i] = place(app->lib, dl, pl->songs[i]);
-        sort_places(pl->songs, places, pl->nb);
-        free(places);
-        db_save_playlists(app->lib);
-    }
+        sort_playlist(app->lib, dl, pl);
     download_order_free(dl);
 }

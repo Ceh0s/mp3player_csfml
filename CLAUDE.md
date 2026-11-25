@@ -384,6 +384,11 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 
 ## Plan de développement
 
+### Phase 4.15 — Défilement fluide, tri par date d'ajout
+- **Bug** : après une synchronisation, les titres ayant deux fichiers (doublons fusionnés sans
+  supprimer le mp3) allaient après le dernier : l'ordre du site cherche maintenant la musique
+  de chaque vidéo (`order_songs`), pas la vidéo de chaque musique.
+
 ### Phase 4.14 — Huitième liste de l'auteur (faite, `data/mp3player_suggestions.txt`)
 - **Découverte** (bouton de la page d'une musique) : « Trouvée où » et « Date de découverte »
   (textes libres), et les passages de la musique dans chaque playlist (jamais, n passages,
