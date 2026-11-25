@@ -45,6 +45,7 @@
     #define MERGES_LOG "data/merges.log"
     #define ELO_DB "data/elo.tsv"
     #define BATTLES_LOG "data/battles.log"
+    #define BATTLES_UNDONE "data/battles_undone.log"
     #define IMAGES_DIR "data/images"
     #define IMAGE_BIG 400
     #define IMAGE_SMALL 120
@@ -883,6 +884,8 @@ elo_t *elo_get(library_t *lib, arena_t const *arena, int subject);
 void elo_update(double *ratings, int const *battles);
 void elo_history(library_t *lib, arena_t const *arena, history_t *out);
 void history_free(history_t *history);
+int battle_undo_left(arena_t const *arena, hist_t const *last);
+int battle_undo(library_t *lib, arena_t const *arena, hist_t const *item);
 void elo_battle(library_t *lib, arena_t const *arena, int winner,
     int loser);
 void elo_clear(library_t *lib);

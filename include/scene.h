@@ -300,6 +300,8 @@ typedef enum ranking_tab_e {
 ** scrolled by lines of images (scroll)
 ** hover : song or artist under the mouse at the last drawing (both NULL
 ** if none), opened by a right click (ranking_open.c)
+** undo_left : battles of the history that may still be undone, undo_ask :
+** 1 once "Annuler" was clicked (a second click does it)
 */
 typedef struct ranking_s {
     sfTexture *bg_texture;
@@ -320,6 +322,8 @@ typedef struct ranking_s {
     rank_t hover;
     history_t history;
     int history_dirty;
+    int undo_left;
+    int undo_ask;
 } ranking_t;
 
 /*

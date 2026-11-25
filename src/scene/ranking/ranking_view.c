@@ -22,6 +22,7 @@ static void tab_button(app_t *app, float const *rect, ranking_tab_t tab,
     if (!widget_button(app, rect, text))
         return;
     app->ranking->tab = tab;
+    app->ranking->undo_ask = 0;
     app->ranking->scroll = 0;
 }
 

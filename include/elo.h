@@ -17,6 +17,7 @@
     #define ELO_K_OLD 20.0
     #define ELO_NEW_BATTLES 10
     #define NB_TIERS 6
+    #define UNDO_MAX 3
     #define TIER_UNRANKED NB_TIERS
 
 typedef enum elo_kind_e {
@@ -89,9 +90,11 @@ typedef struct pool_s {
 ** loser: resolved ids, Elo and place (shared rank, as the leaderboard)
 ** before and after, and their wins against each other in this category
 ** since the last reset, this battle included
+** line : its line in battles.log (0 = the first one), see elo_undo.c
 */
 typedef struct hist_s {
     long date;
+    int line;
     int reset;
     int category;
     int ids[2];

@@ -323,6 +323,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `listens.log` | une ligne par écoute : date, id, ms réellement écoutées, fin (complete/skip/quit) |
 | `edits.log`, `merges.log` | historique des modifications et fusions/séparations |
 | `battles.log` | une ligne par battle : date, type (song/artist), classement, catégorie, gagnant, perdant (ids bruts), Elo d'avant |
+| `battles_undone.log` | battles annulées, retirées de `battles.log` (mêmes colonnes, ligne telle quelle) |
 | `elo.tsv` | copie lisible des Elo calculés (jamais relue) |
 | `playlists.tsv` / `playlist_songs.tsv` | playlists, et leurs musiques dans l'ordre (ids bruts) |
 | `playlist_sorts.tsv` | tri choisi par playlist (0 = « Tous les titres ») : critère (par nom), asc/desc |
@@ -387,6 +388,12 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.16 — Annuler une battle (faite)
+- **Historique** : « Annuler » (deux clics) sur la dernière battle du classement et du type
+  affichés, puis celle d'avant, 3 de suite au plus (un nouveau vote les redonne), jamais avant une
+  remise à zéro. `elo_undo.c` : la ligne est écrite dans `battles_undone.log`, puis retirée de
+  `battles.log`, et les Elo rejoués. Caché si la catégorie ou la recherche cache cette battle.
 
 ### Phase 4.15 — Défilement fluide, tri par date d'ajout (faite)
 - **Bibliothèque** : défilement en pixels (`library_scroll.c` : `scroll` affiché, `scroll_to`

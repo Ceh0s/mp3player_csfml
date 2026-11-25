@@ -129,7 +129,8 @@ SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_rating.c\
 		src/elo/elo_reset.c\
 		src/elo/elo_score.c\
-		src/elo/elo_history.c
+		src/elo/elo_history.c\
+		src/elo/elo_undo.c
 
 SRC_AUDIO	=	src/audio/listen_tracker.c\
 		src/audio/player.c\

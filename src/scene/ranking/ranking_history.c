@@ -7,7 +7,9 @@
 ** chosen (TOTAL = every category, then written on the row). Each side
 ** shows its Elo and its place before and after, green for a gain, red
 ** for a loss, gray if nothing changed; on the right, the record of the
-** two against each other. Right click on a side = its page.
+** two against each other. Right click on a side = its page. The last
+** battle of the ranking can be undone (elo_undo.c), then the one before,
+** UNDO_MAX in a row at most.
 */
 
 #include "mp3player.h"
@@ -62,12 +64,17 @@ static int shown(app_t *app, hist_t const *item)
 static void build(app_t *app)
 {
     ranking_t *ranking = app->ranking;
+    history_t *history = &ranking->history;
 
     if (!ranking->history_dirty)
         return;
-    history_free(&ranking->history);
-    elo_history(app->lib, &app->arena, &ranking->history);
+    history_free(history);
+    elo_history(app->lib, &app->arena, history);
     ranking->history_dirty = 0;
+    ranking->undo_left = 0;
+    if (history->nb > 0 && !history->items[history->nb - 1].reset)
+        ranking->undo_left = battle_undo_left(&app->arena,
+            &history->items[history->nb - 1]);
 }
 
 int ranking_history_count(app_t *app)
@@ -159,6 +166,33 @@ static void draw_item(app_t *app, hist_t const *item, float y)
 }
 
 /*
+** on the last battle of the ranking, asked twice; returns 1 if it was
+** undone (the history is then built again: item is freed)
+*/
+static int undo_button(app_t *app, hist_t const *item, float y)
+{
+    ranking_t *ranking = app->ranking;
+    history_t const *history = &ranking->history;
+    float rect[4] = {1626, y + 62, 154, 36};
+    char label[64];
+
+    if (ranking->undo_left == 0 || item != &history->items[history->nb - 1])
+        return 0;
+    snprintf(label, sizeof(label), ranking->undo_ask ? "Confirmer ?"
+        : "Annuler (%d)", ranking->undo_left);
+    widget_help(app, rect, "Retire cette battle : les Elo sont recalculés "
+        "sans elle (3 de suite au plus)");
+    if (!widget_button(app, rect, label))
+        return 0;
+    ranking->undo_ask = !ranking->undo_ask;
+    if (ranking->undo_ask)
+        return 0;
+    battle_undo(app->lib, &app->arena, item);
+    ranking_build(app);
+    return 1;
+}
+
+/*
 ** the last battle first
 */
 void ranking_history(app_t *app)
@@ -180,6 +214,8 @@ void ranking_history(app_t *app)
             continue;
         }
         draw_item(app, &history->items[i], y);
+        if (undo_button(app, &history->items[i], y))
+            return;
         y += HISTORY_STEP;
         rows--;
     }

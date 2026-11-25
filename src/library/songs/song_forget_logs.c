@@ -84,6 +84,7 @@ void song_forget_logs(song_t *song)
 
     log_filter(LISTENS_LOG, song->id, &names_listen);
     log_filter(BATTLES_LOG, song->id, &names_battle);
+    log_filter(BATTLES_UNDONE, song->id, &names_battle);
     image_path(path, &rank, 0);
     remove(path);
     image_path(path, &rank, 1);

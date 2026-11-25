@@ -17,6 +17,7 @@
 /*
 ** ratings and battles : by category, then by resolved id
 ** pool : ids of the pool of the arena, to count the places
+** line : line of battles.log being read
 */
 typedef struct replay_s {
     library_t *lib;
@@ -26,6 +27,7 @@ typedef struct replay_s {
     int *battles[NB_CATEGORIES];
     int *pool;
     int nb_pool;
+    int line;
     history_t *out;
 } replay_t;
 
@@ -98,6 +100,7 @@ static void battle(replay_t *replay, long date, int cat, int const *ids)
     if (!item)
         return;
     item->date = date;
+    item->line = replay->line;
     item->category = cat;
     for (int i = 0; i < 2; i++) {
         item->ids[i] = ids[i];
@@ -181,7 +184,7 @@ static void read_log(replay_t *replay)
 
     if (!file)
         return;
-    while (getline(&line, &size, file) != -1) {
+    for (; getline(&line, &size, file) != -1; replay->line++) {
         if (line[0] == '#' || line[0] == '\n' || line[0] == '\0')
             continue;
         nb = split_tab(line, fields, TSV_MAX_FIELDS);
