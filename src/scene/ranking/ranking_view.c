@@ -28,7 +28,7 @@ static void tab_button(app_t *app, float const *rect, ranking_tab_t tab,
 
 static void tabs(app_t *app)
 {
-    float names[4] = {650, CAT_BAR_Y, 230, 56};
+    float names[4] = {650, CAT_BAR_Y, 56, 56};
 
     tab_button(app, (float [4]){895, CAT_BAR_Y, 200, 56}, TAB_TIERS,
         "Tier list");
@@ -38,8 +38,10 @@ static void tabs(app_t *app)
         "Départage");
     tab_button(app, (float [4]){1585, CAT_BAR_Y, 195, 56}, TAB_HISTORY,
         "Historique");
-    if (widget_button(app, names, app->show_images ? "Voir les noms"
-            : "Voir les images"))
+    widget_tip(app, names, app->show_images ? "Voir les noms"
+        : "Voir les images");
+    if (widget_icon(app, names, ICON_IMAGE, app->show_images ? ICON_FILLED
+            : ICON_OUTLINE))
         app->show_images = !app->show_images;
 }
 
@@ -66,10 +68,9 @@ static void bottom(app_t *app, ranking_t *ranking)
 {
     float reset[4] = {1480, 840 + app->extra_h, 300, 56};
 
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+    if (widget_back(app))
         scene_back(app);
-    if (widget_button(app, reset, "Réinitialiser"))
+    if (widget_icon_button(app, reset, ICON_UNDO, "Réinitialiser"))
         ranking->reset = 1;
 }
 

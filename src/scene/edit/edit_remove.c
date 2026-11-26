@@ -19,8 +19,9 @@ static int confirm(app_t *app, float const *rect, int action,
 {
     edit_t *edit = app->edit;
     int asked = edit->exclude == action;
+    int icon = action == EDIT_ASK_EXCLUDE ? ICON_BAN : ICON_TRASH;
 
-    if (!widget_button(app, rect, labels[asked]))
+    if (!widget_icon_button(app, rect, icon, labels[asked]))
         return 0;
     edit->exclude = asked ? 0 : action;
     return asked;

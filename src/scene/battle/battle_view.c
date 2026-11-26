@@ -95,14 +95,13 @@ static void bottom(app_t *app, battle_t *battle)
 {
     float y = 840 + app->extra_h;
     float skip[4] = {1530, y, 260, 56};
-
     float match[4] = {1090, y, 420, 56};
-    float history[4] = {410, y, 260, 56};
+    float history[4] = {130, y, 260, 56};
     int *on = &app->lib->settings.battle_match;
 
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
+    if (widget_back(app))
         scene_back(app);
-    if (widget_button(app, history, "Historique")) {
+    if (widget_icon_button(app, history, ICON_CLOCK, "Historique")) {
         battle_open_history(app);
         return;
     }
@@ -114,7 +113,8 @@ static void bottom(app_t *app, battle_t *battle)
         battle_next(app);
         return;
     }
-    if (battle->has_pair && widget_button(app, skip, "Passer"))
+    if (battle->has_pair && widget_icon_button(app, skip, ICON_SKIP,
+            "Passer"))
         battle_next(app);
 }
 

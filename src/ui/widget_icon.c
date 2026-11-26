@@ -49,6 +49,27 @@ int widget_icon(app_t *app, float const *rect, int icon, int state)
 }
 
 /*
+** an icon alone in place of a text button: its name is shown when the
+** mouse is over it; returns 1 if clicked
+*/
+int widget_icon_tip(app_t *app, float const *rect, int icon,
+    char const *tip)
+{
+    widget_tip(app, rect, tip);
+    return widget_icon(app, rect, icon, ICON_OUTLINE);
+}
+
+/*
+** the back arrow in the top left corner of a screen (same place on every
+** screen, Escape does the same); returns 1 if clicked
+*/
+int widget_back(app_t *app)
+{
+    return widget_icon_tip(app, (float [4]){BACK_X, 16, 64, 64}, ICON_BACK,
+        "Retour");
+}
+
+/*
 ** a button with an icon on the left of its text; returns 1 if clicked
 */
 int widget_icon_button(app_t *app, float const *rect, int icon,

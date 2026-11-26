@@ -21,15 +21,17 @@ static int row_buttons(app_t *app, int i, int id, float y)
 {
     dlscene_t *scene = app->dlscene;
 
-    if (widget_button(app, (float [4]){1010, y, 140, 44}, "Garder")) {
+    if (widget_icon_tip(app, (float [4]){1222, y, 44, 44}, ICON_SAVE,
+            "Garder")) {
         download_absent_keep(app, i);
         return 1;
     }
-    if (widget_button(app, (float [4]){1165, y, 160, 44}, "Retirer")) {
+    if (widget_icon_tip(app, (float [4]){1274, y, 44, 44}, ICON_MINUS,
+            "Retirer de la playlist")) {
         download_absent_unlist(app, i);
         return 1;
     }
-    if (!widget_button(app, (float [4]){1340, y, 315, 44},
+    if (!widget_icon_button(app, (float [4]){1340, y, 315, 44}, ICON_TRASH,
             scene->confirm == id ? "Confirmer ?" : "Supprimer le fichier"))
         return 0;
     if (scene->confirm != id) {

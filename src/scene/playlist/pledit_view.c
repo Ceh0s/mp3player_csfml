@@ -150,10 +150,10 @@ void pledit_view(app_t *app)
     header(app, pl);
     song_rows(app, pl);
     pledit_takeout(app);
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
+    if (widget_back(app))
         scene_back(app);
     linked(app, pl, y);
-    if (widget_button(app, (float [4]){1430, y, 350, 56},
+    if (widget_icon_button(app, (float [4]){1430, y, 350, 56}, ICON_TRASH,
             "Supprimer la playlist"))
         pl->confirm = 1;
 }

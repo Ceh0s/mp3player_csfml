@@ -79,6 +79,7 @@ void pledit_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     pledit_view(app);
+    widget_tip_draw(app);
 }
 
 void pledit_layout(app_t *app)

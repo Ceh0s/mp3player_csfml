@@ -31,7 +31,7 @@ static int forget_button(app_t *app, rejected_t *ex, int row, float y)
 {
     dlscene_t *scene = app->dlscene;
     song_t *song = song_by_id(app->lib, ex->song_id);
-    float rect[4] = {1140, y, 250, 44};
+    float rect[4] = {1345, y, 250, 44};
     int asked = scene->forget == row + 1;
 
     if (song && !song_forgettable(app->lib, song))
@@ -49,7 +49,8 @@ static int forget_button(app_t *app, rejected_t *ex, int row, float y)
 
 static int take_back(app_t *app, rejected_t const *ex, float y)
 {
-    if (!widget_button(app, (float [4]){1405, y, 250, 44}, "Reprendre"))
+    if (!widget_icon_tip(app, (float [4]){1611, y, 44, 44}, ICON_UNDO,
+            "Reprendre"))
         return 0;
     excluded_remove(app->lib, ex->id);
     db_save_excluded(app->lib);

@@ -117,7 +117,6 @@ void dupscene_view(app_t *app)
             break;
         y += h;
     }
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+    if (widget_back(app))
         scene_back(app);
 }

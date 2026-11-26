@@ -40,7 +40,8 @@ void dlscene_unavailable(app_t *app)
             continue;
         y += DLPOPUP_STEP;
         row_text(app, un, y);
-        if (widget_button(app, (float [4]){1405, y, 250, 44}, "Retenter")) {
+        if (widget_icon_tip(app, (float [4]){1611, y, 44, 44}, ICON_SYNC,
+                "Retenter")) {
             unavailable_remove(lib, un->id);
             db_save_unavailable(lib);
             return;

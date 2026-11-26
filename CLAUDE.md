@@ -173,12 +173,18 @@ src/data/              lecture/écriture TSV, migration, journaux
 src/utils/             UTF-8 (pas à pas : utf8_step.c), chaînes, découpage en mots,
                        saisie de texte au curseur (text_caret.c : flèches, Début, Fin,
                        Suppr ; avec Ctrl+V)
-assets/       atlas.png (25 icônes 256 px sur 10 colonnes : contours, puis les mêmes
-              en disque plein à l'indice + NB_ICONS, enum icon_e de ui.h), fonds JPEG, font.ttf,
+assets/       atlas.png (45 icônes 256 px sur 10 colonnes : contours, puis les mêmes
+              en disque plein à l'indice + NB_ICONS, enum icon_e de ui.h ; refait par
+              tools/atlas/make_atlas.sh), fonds JPEG, font.ttf,
               font_jp.otf (Noto Sans JP Medium, licence OFL : japonais, chinois,
               cyrillique, grec), font_serif.otf (FreeSerif, GPL avec exception
               pour les polices : thaï, « ⧸ », maths), no_cover.png (image par
               défaut, provisoire : l'auteur fournira la sienne)
+tools/atlas/  make_atlas.sh (magick + rsvg-convert) : les 25 premières icônes viennent
+              de base.png (atlas dessiné à la main), les suivantes de icons/<nom>.svg
+              (symbole blanc en currentColor, viewBox 256) dans l'ordre de icons.txt.
+              Nouvelle icône = un SVG, une ligne dans icons.txt, une valeur en fin
+              d'enum icon_e, puis relancer le script depuis la racine.
 ```
 
 Principes en place :
@@ -202,6 +208,12 @@ Principes en place :
   `WG_DRAW` pour dessiner et en `WG_CLICK` au clic ; un seul `sfText`, un seul rectangle,
   une forme image carrée et une ronde réutilisés. L'infobulle (`widget_tip`) est mémorisée
   puis dessinée en dernier (`widget_tip_draw`).
+- **Icônes plutôt que boutons texte** (allègement des écrans) : `widget_icon_tip` = icône
+  seule + son nom en infobulle (toujours affichée), pour une action évidente ou répétée sur
+  chaque ligne ; `widget_icon_button` = icône à gauche du texte pour les actions principales ;
+  le texte reste pour une confirmation en deux clics ou une bascule qui écrit son état.
+  « Retour » = flèche `widget_back` en haut à gauche de chaque écran (Échap fait pareil),
+  « Fermer » d'une fenêtre par-dessus = croix juste à sa droite.
 - **Images** : chargées à la demande (`image_get`) et libérées à chaque changement de scène.
   Musiques carrées, artistes ronds (comme YT Music).
 - **Téléchargement** : `fork` + `execvp("yt-dlp")` dans son propre groupe de processus,
@@ -397,6 +409,17 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.18 — Icônes (faite)
+- **Atlas** : 20 icônes dessinées en SVG dans le style existant (épées, trophée, graphique,
+  doublons, téléchargement, synchro, loupe, corbeille, crayon, case cochée, horloge, +, −,
+  croix, coche, annuler, image, dé, passer, interdit). La planche Dreamstime posée dans
+  `assets/` (aperçu à filigrane, sans licence) n'est pas utilisée.
+- **Écrans** : retour en flèche partout ; raccourcis de la bibliothèque en icônes ; loupe dans
+  le champ de recherche vide ; actions par ligne des listes du téléchargement, avis et
+  ajout / retrait en lot, sens du tri des statistiques, « Voir les images » des classements
+  en icônes seules ; icône + texte sur Enregistrer, Annuler, Supprimer, Exclure, Historique,
+  Passer, Écouter, Catégorie aléatoire, Garder celui-ci, Pas un doublon, Réinitialiser…
 
 ### Phase 4.17 — Flèches et textes allégés
 - **Flèches ↑ / ↓** : font défiler la liste affichée comme la molette, sur tous les écrans, aussi

@@ -41,8 +41,7 @@ void edit_search(app_t *app)
     for (int i = 0; i < edit->nb_results; i++)
         if (result_row(app, edit, i))
             return;
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour")) {
+    if (widget_back(app)) {
         edit->mode = EDIT_MAIN;
         edit->focus = FOCUS_TITLE;
     }

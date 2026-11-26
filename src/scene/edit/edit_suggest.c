@@ -155,9 +155,9 @@ static void titles_buttons(app_t *app, edit_t *edit)
 {
     float y = 840 + app->extra_h;
 
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour"))
+    if (widget_back(app))
         edit->mode = EDIT_MAIN;
-    if (widget_button(app, (float [4]){410, y, 420, 56}, edit->show_hidden
+    if (widget_button(app, (float [4]){130, y, 420, 56}, edit->show_hidden
             ? "Masquer les cachées" : "Afficher les cachées"))
         edit->show_hidden = !edit->show_hidden;
 }

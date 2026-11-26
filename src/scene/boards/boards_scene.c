@@ -61,6 +61,7 @@ void boards_draw(app_t *app)
         NULL);
     app->wg->mode = WG_DRAW;
     build(app);
+    widget_tip_draw(app);
 }
 
 void boards_layout(app_t *app)

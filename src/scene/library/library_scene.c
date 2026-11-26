@@ -86,28 +86,31 @@ static void click(app_t *app)
 }
 
 /*
-** shortcuts to the download, battle, rankings and statistics screens;
-** a playlist linked to an address can be downloaded again
+** shortcuts (icons) to the download, statistics, battle and rankings
+** screens; a playlist linked to an address can be downloaded again (its
+** address is shown over the icon)
 */
 static void shortcuts(app_t *app)
 {
-    float sync[4] = {1000, 20, 220, 56};
+    float sync[4] = {1505, 20, 56, 56};
     source_t *src = source_get(app->lib, app->libscene->playlist_id);
 
-    if (src && widget_button(app, sync, "Synchroniser")) {
+    if (src && widget_icon_tip(app, sync, ICON_SYNC, src->url)) {
         app->sync_playlist = src->playlist_id;
         scene_open(app, DOWNLOAD);
     }
-    if (src)
-        widget_tip(app, sync, src->url);
-    if (widget_button(app, (float [4]){1235, 20, 220, 56}, "Télécharger"))
+    if (widget_icon_tip(app, (float [4]){1573, 20, 56, 56}, ICON_DOWNLOAD,
+            "Télécharger"))
         scene_open(app, DOWNLOAD);
-    if (widget_button(app, (float [4]){1470, 20, 150, 56}, "Battle"))
-        scene_open(app, BATTLE);
-    if (widget_button(app, (float [4]){1635, 20, 230, 56}, "Classements"))
-        scene_open(app, RANKING);
-    if (widget_button(app, (float [4]){765, 20, 220, 56}, "Statistiques"))
+    if (widget_icon_tip(app, (float [4]){1673, 20, 56, 56}, ICON_CHART,
+            "Statistiques"))
         scene_open(app, STATS);
+    if (widget_icon_tip(app, (float [4]){1741, 20, 56, 56}, ICON_SWORDS,
+            "Battle"))
+        scene_open(app, BATTLE);
+    if (widget_icon_tip(app, (float [4]){1809, 20, 56, 56}, ICON_TROPHY,
+            "Classements"))
+        scene_open(app, RANKING);
 }
 
 /*

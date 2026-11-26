@@ -24,6 +24,7 @@
     #define BG_PATH "assets/background.jpg"
     #define BG_BLUR_PATH "assets/background_blurred.jpg"
     #define NO_COVER_PATH "assets/no_cover.png"
+    #define BACK_X 24
     #define ATLAS_CELL 256
     #define ATLAS_COLS 10
     #define ICON_CELL(icon, filled) ((icon) + (filled) * NB_ICONS)
@@ -546,6 +547,9 @@ void widget_tip(app_t *app, float const *rect, char const *str);
 void widget_tip_draw(app_t *app);
 void widget_help(app_t *app, float const *rect, char const *str);
 int widget_icon(app_t *app, float const *rect, int icon, int state);
+int widget_icon_tip(app_t *app, float const *rect, int icon,
+    char const *tip);
+int widget_back(app_t *app);
 void text_fit(app_t *app, sfText *text, char const *str, float max_w);
 void widget_fit(app_t *app, char const *str, float const *pos,
     sfColor const *color);

@@ -64,7 +64,7 @@ static void notes_button(app_t *app)
 {
     float rect[4] = {1240, 130, 260, 56};
 
-    if (widget_button(app, rect, "Découverte"))
+    if (widget_icon_button(app, rect, ICON_CLOCK, "Découverte"))
         edit_notes_open(app);
 }
 
@@ -146,9 +146,11 @@ static void buttons(app_t *app, edit_t *edit)
 {
     float y = 840 + app->extra_h;
 
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Enregistrer"))
+    if (widget_icon_button(app, (float [4]){130, y, 260, 56}, ICON_SAVE,
+            "Enregistrer"))
         save(app);
-    if (widget_button(app, (float [4]){410, y, 260, 56}, "Annuler"))
+    if (widget_icon_button(app, (float [4]){410, y, 260, 56}, ICON_UNDO,
+            "Annuler"))
         scene_back(app);
     like_buttons(app, KIND_SONG, edit->song->id, (float [3]){1060, y + 6, 0});
     if (widget_button(app, (float [4]){690, y, 340, 56},

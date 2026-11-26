@@ -91,12 +91,13 @@ void boards_edit(app_t *app)
     rules(app, bd);
     if (bd->board->id != BOARD_GENERAL)
         boards_add_column(app);
-    if (widget_button(app, (float [4]){130, y, 260, 56}, "Retour")) {
+    if (widget_back(app)) {
         boards_leave(app);
         return;
     }
-    if (bd->board->id != BOARD_GENERAL && widget_button(app,
-            (float [4]){1380, y, 400, 56}, "Supprimer le classement"))
+    if (bd->board->id != BOARD_GENERAL && widget_icon_button(app,
+            (float [4]){1380, y, 400, 56}, ICON_TRASH,
+            "Supprimer le classement"))
         bd->mode = BOARDS_CONFIRM;
 }
 

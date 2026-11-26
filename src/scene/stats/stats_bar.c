@@ -69,8 +69,9 @@ static void sort_buttons(app_t *app, float y)
             opt->sort++;
         app->stats->dirty = 1;
     }
-    if (widget_button(app, (float [4]){1540, y, 240, 52}, opt->ascending
-            ? "Croissant" : "Décroissant")) {
+    if (widget_icon_tip(app, (float [4]){1540, y, 52, 52}, opt->ascending
+            ? ICON_ASC : ICON_DESC, opt->ascending ? "Croissant"
+            : "Décroissant")) {
         opt->ascending = !opt->ascending;
         app->stats->dirty = 1;
     }

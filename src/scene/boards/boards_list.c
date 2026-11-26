@@ -82,10 +82,9 @@ void boards_list(app_t *app)
 {
     widget_text(app, "Classements", (float [3]){130, 115, 40}, &sfWhite);
     rows(app);
-    if (widget_button(app, (float [4]){1300, BOARDS_ROWS_Y, 480, 56},
-            "Nouveau classement"))
+    if (widget_icon_button(app, (float [4]){1300, BOARDS_ROWS_Y, 480, 56},
+            ICON_PLUS, "Nouveau classement"))
         create(app);
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+    if (widget_back(app))
         scene_back(app);
 }

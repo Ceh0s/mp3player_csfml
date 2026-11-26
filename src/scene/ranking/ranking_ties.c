@@ -58,7 +58,8 @@ static void buttons(app_t *app, ranking_t *ranking)
         qsort(ranking->order, ranking->nb, sizeof(rank_t), &by_artist);
         sorted = 1;
     }
-    if (widget_button(app, (float [4]){970, y, 240, 56}, "Aléatoire")) {
+    if (widget_icon_button(app, (float [4]){970, y, 240, 56}, ICON_DICE,
+            "Aléatoire")) {
         shuffle(ranking->order, ranking->nb);
         sorted = 1;
     }

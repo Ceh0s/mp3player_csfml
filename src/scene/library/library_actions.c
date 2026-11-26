@@ -41,13 +41,16 @@ static void label(app_t *app, char const *text, float y)
 static void opinion_row(app_t *app, float y)
 {
     label(app, "Avis", y);
-    if (widget_button(app, (float [4]){520, y, 200, 52}, "J'aime"))
+    if (widget_icon_tip(app, (float [4]){520, y, 52, 52}, ICON_LIKE,
+            "J'aime"))
         bulk_like(app, 1);
-    if (widget_button(app, (float [4]){735, y, 240, 52}, "Je n'aime pas"))
+    if (widget_icon_tip(app, (float [4]){587, y, 52, 52}, ICON_DISLIKE,
+            "Je n'aime pas"))
         bulk_like(app, -1);
-    if (widget_button(app, (float [4]){990, y, 220, 52}, "Sans avis"))
+    if (widget_icon_tip(app, (float [4]){654, y, 52, 52}, ICON_CLOSE,
+            "Sans avis"))
         bulk_like(app, 0);
-    if (widget_button(app, (float [4]){1225, y, 430, 52},
+    if (widget_button(app, (float [4]){740, y, 430, 52},
             "Appliquer les suggestions"))
         bulk_suggest(app);
 }
@@ -82,9 +85,11 @@ static void playlist_row(app_t *app, float y)
     widget_text(app, name, (float [3]){590, y + 12, 26}, &sfWhite);
     if (widget_button(app, (float [4]){960, y, 52, 52}, ">"))
         next_playlist(app, 1);
-    if (widget_button(app, (float [4]){1030, y, 200, 52}, "Ajouter"))
+    if (widget_icon_tip(app, (float [4]){1030, y, 52, 52}, ICON_PLUS,
+            "Ajouter à la playlist"))
         bulk_playlist(app, 1);
-    if (widget_button(app, (float [4]){1245, y, 200, 52}, "Retirer"))
+    if (widget_icon_tip(app, (float [4]){1097, y, 52, 52}, ICON_MINUS,
+            "Retirer de la playlist"))
         bulk_playlist(app, 0);
 }
 
@@ -96,8 +101,9 @@ static void confirm_button(app_t *app, float const *rect, int action,
 {
     selection_t *sel = &app->libscene->sel;
     int asked = sel->confirm == action;
+    int icon = action == SEL_EXCLUDE ? ICON_BAN : ICON_TRASH;
 
-    if (!widget_button(app, rect, labels[asked]))
+    if (!widget_icon_button(app, rect, icon, labels[asked]))
         return;
     sel->confirm = asked ? 0 : action;
     if (asked)
@@ -144,7 +150,7 @@ void library_actions(app_t *app)
     library_insert_rows(app, 420);
     library_image_row(app, 590);
     remove_row(app, 665);
-    if (widget_button(app, (float [4]){1455, 790 + app->extra_h, 200, 52},
+    if (widget_icon_tip(app, (float [4]){1690, 140, 56, 56}, ICON_CLOSE,
             "Fermer"))
         sel->open = 0;
 }

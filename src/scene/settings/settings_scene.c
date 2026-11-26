@@ -63,8 +63,7 @@ static void view(app_t *app)
     widget_text(app, "Paramètres", (float [3]){130, 125, 40}, &sfWhite);
     switch_row(app, 250, &set->help, help);
     switch_row(app, 330, &set->ellipsis, ellipsis);
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+    if (widget_back(app))
         scene_back(app);
 }
 

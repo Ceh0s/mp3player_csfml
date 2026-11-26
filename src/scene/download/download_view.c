@@ -93,11 +93,11 @@ static void buttons(app_t *app, download_t *dl)
 {
     float cookies[4] = {460, 330, 420, 56};
 
-    if (dl->queue && widget_button(app, (float [4]){130, 330, 300, 56},
-            "Annuler"))
+    if (dl->queue && widget_icon_button(app, (float [4]){130, 330, 300, 56},
+            ICON_STOP, "Annuler"))
         download_cancel(app);
-    else if (!dl->queue && widget_button(app,
-            (float [4]){130, 330, 300, 56}, "Télécharger"))
+    else if (!dl->queue && widget_icon_button(app,
+            (float [4]){130, 330, 300, 56}, ICON_DOWNLOAD, "Télécharger"))
         dlscene_start(app);
     if (widget_button(app, cookies, dl->cookies ? "Cookies " DL_BROWSER
             " : oui" : "Cookies " DL_BROWSER " : non"))
@@ -147,7 +147,6 @@ void dlscene_view(app_t *app)
         dlscene_failures(app, dl, 795);
     }
     dlscene_status(app, dl);
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+    if (widget_back(app))
         scene_back(app);
 }

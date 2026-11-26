@@ -28,7 +28,8 @@ void dlscene_refused(app_t *app)
             &sfWhite);
         format_time(text, sizeof(text), rej->duration * 1000L);
         widget_text(app, text, (float [3]){1070, y + 8, 22}, &gray);
-        if (widget_button(app, (float [4]){1405, y, 250, 44}, "Reprendre")) {
+        if (widget_icon_tip(app, (float [4]){1611, y, 44, 44}, ICON_UNDO,
+                "Reprendre")) {
             rejected_remove(app->lib, rej->id);
             db_save_rejected(app->lib);
             return;

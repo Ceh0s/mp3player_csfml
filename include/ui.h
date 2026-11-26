@@ -29,7 +29,9 @@ typedef enum anchor_e {
 /*
 ** icons of the atlas (assets/atlas.png, cells of ATLAS_CELL pixels on
 ** ATLAS_COLS columns): each one is drawn once in outline, then a second
-** time as a filled disc (ICON_X / ICON_Y in mp3player.h)
+** time as a filled disc (ICON_X / ICON_Y in mp3player.h); built by
+** tools/atlas/make_atlas.sh, the icons after ICON_BACK come from
+** tools/atlas/icons/ in the order of tools/atlas/icons.txt
 */
 typedef enum icon_e {
     ICON_PLAY,
@@ -57,6 +59,26 @@ typedef enum icon_e {
     ICON_GEAR,
     ICON_POWER,
     ICON_BACK,
+    ICON_SWORDS,
+    ICON_TROPHY,
+    ICON_CHART,
+    ICON_COPY,
+    ICON_DOWNLOAD,
+    ICON_SYNC,
+    ICON_SEARCH,
+    ICON_TRASH,
+    ICON_EDIT,
+    ICON_CHECK,
+    ICON_CLOCK,
+    ICON_PLUS,
+    ICON_MINUS,
+    ICON_CLOSE,
+    ICON_SAVE,
+    ICON_UNDO,
+    ICON_IMAGE,
+    ICON_DICE,
+    ICON_SKIP,
+    ICON_BAN,
     NB_ICONS
 } icon_t;
 

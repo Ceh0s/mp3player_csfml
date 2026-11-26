@@ -56,15 +56,18 @@ static int hidden(app_t *app, int i)
 */
 static int flagged_buttons(app_t *app, dl_entry_t *e, float y)
 {
-    if (widget_button(app, (float [4]){1180, y, 190, 44}, "Télécharger")) {
+    if (widget_icon_tip(app, (float [4]){1507, y, 44, 44}, ICON_DOWNLOAD,
+            "Télécharger")) {
         download_accept(app, e);
         return 1;
     }
-    if (widget_button(app, (float [4]){1385, y, 130, 44}, "Refuser")) {
+    if (widget_icon_tip(app, (float [4]){1559, y, 44, 44}, ICON_CLOSE,
+            "Refuser")) {
         download_refuse(app, e);
         return 1;
     }
-    if (widget_button(app, (float [4]){1530, y, 125, 44}, "Exclure")) {
+    if (widget_icon_tip(app, (float [4]){1611, y, 44, 44}, ICON_BAN,
+            "Exclure")) {
         download_exclude(app, e);
         return 1;
     }
@@ -134,7 +137,8 @@ static void footer(app_t *app, dlscene_t *scene)
     if (scene->popup == DL_POPUP_REFUSED || scene->popup == DL_POPUP_EXCLUDED
         || scene->popup == DL_POPUP_UNAVAILABLE)
         dlscene_archive_footer(app, y);
-    if (widget_button(app, (float [4]){1455, y, 200, 52}, "Fermer"))
+    if (widget_icon_tip(app, (float [4]){1690, 140, 56, 56}, ICON_CLOSE,
+            "Fermer"))
         scene->popup = DL_POPUP_NONE;
 }
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" color="white">
+<g transform="rotate(45 128 128)">
+<rect fill="currentColor" x="114" y="90" width="28" height="70"/>
+<polygon fill="currentColor" points="114,166 142,166 128,192"/>
+<rect fill="currentColor" x="114" y="66" width="28" height="18" rx="4"/>
+</g>
+</svg>

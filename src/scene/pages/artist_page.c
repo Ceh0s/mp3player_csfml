@@ -81,8 +81,7 @@ void artist_page(app_t *app, artist_t *artist, int *back)
             (float [3]){130, 225, 30}, &sfWhite);
     if (artist)
         like_buttons(app, KIND_ARTIST, artist->id,
-            (float [3]){420, 846 + app->extra_h, 0});
-    if (widget_button(app, (float [4]){130, 840 + app->extra_h, 260, 56},
-            "Retour"))
+            (float [3]){130, 846 + app->extra_h, 0});
+    if (widget_back(app))
         *back = 1;
 }

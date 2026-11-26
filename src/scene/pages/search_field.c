@@ -12,12 +12,14 @@
 
 #include "mp3player.h"
 
-static const sfColor gray = {150, 150, 150, 255};
-
+/*
+** an empty field shows a magnifying glass (drawn only, not a button)
+*/
 void search_field(app_t *app, float const *rect)
 {
     search_t *search = &app->search;
-    float hint[3] = {rect[0] + 14, rect[1] + rect[3] / 4 - 4, rect[3] / 2};
+    float side = rect[3] - 12;
+    float glass[4] = {rect[0] + 8, rect[1] + 6, side, side};
 
     widget_field(app, rect, search->text, search->focus);
     if (app->wg->mode != WG_DRAW)
@@ -25,7 +27,7 @@ void search_field(app_t *app, float const *rect)
     search->shown = 1;
     memcpy(search->rect, rect, sizeof(search->rect));
     if (search->text[0] == '\0' && !search->focus)
-        widget_text(app, "Rechercher...", hint, &gray);
+        widget_icon(app, glass, ICON_SEARCH, ICON_DIM);
 }
 
 /*

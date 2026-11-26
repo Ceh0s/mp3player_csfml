@@ -42,10 +42,10 @@ static void menu_left(app_t *app, float y)
     if (widget_icon_button(app, (float [4]){160, y, 250, 64}, ICON_NOTE,
             "Bibliothèque"))
         scene_open(app, LIBRARY);
-    if (widget_icon_button(app, (float [4]){430, y, 250, 64}, ICON_STAR,
+    if (widget_icon_button(app, (float [4]){430, y, 250, 64}, ICON_SWORDS,
             "Battle"))
         scene_open(app, BATTLE);
-    if (widget_icon_button(app, (float [4]){700, y, 250, 64}, ICON_LIST,
+    if (widget_icon_button(app, (float [4]){700, y, 250, 64}, ICON_TROPHY,
             "Classements"))
         scene_open(app, RANKING);
 }
@@ -55,10 +55,10 @@ static void menu(app_t *app)
     float y = 740 + app->extra_h / 2;
 
     menu_left(app, y);
-    if (widget_icon_button(app, (float [4]){970, y, 250, 64}, ICON_SLIDERS,
+    if (widget_icon_button(app, (float [4]){970, y, 250, 64}, ICON_CHART,
             "Statistiques"))
         scene_open(app, STATS);
-    if (widget_icon_button(app, (float [4]){1240, y, 250, 64}, ICON_SHARE,
+    if (widget_icon_button(app, (float [4]){1240, y, 250, 64}, ICON_COPY,
             "Doublons")) {
         app->dup_since = 0;
         scene_open(app, DUPLICATES);

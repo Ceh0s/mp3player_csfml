@@ -18,10 +18,10 @@ static const sfColor checked = {250, 200, 60, 255};
 void library_select_toggle(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    float rect[4] = {540, 20, 210, 56};
+    float rect[4] = {540, 20, 250, 56};
 
-    if (!widget_button(app, rect, scene->selecting ? "> Sélection <"
-            : "Sélection"))
+    if (!widget_icon_button(app, rect, ICON_CHECK, scene->selecting
+            ? "> Sélection <" : "Sélection"))
         return;
     scene->selecting = !scene->selecting;
     scene->sel.open = 0;

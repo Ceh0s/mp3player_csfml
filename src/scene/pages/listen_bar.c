@@ -28,7 +28,8 @@ int listen_button(app_t *app, song_t *song, float const *rect)
     int playing = listen_mine(app, song)
         && sfMusic_getStatus(app->player->preview) == sfPlaying;
 
-    if (!widget_button(app, rect, playing ? "Pause" : "Écouter"))
+    if (!widget_icon_button(app, rect, playing ? ICON_PAUSE : ICON_PLAY,
+            playing ? "Pause" : "Écouter"))
         return 0;
     preview_toggle(app, song);
     return 1;

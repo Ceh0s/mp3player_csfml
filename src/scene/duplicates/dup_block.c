@@ -62,10 +62,10 @@ static int choice(app_t *app, dup_group_t *group, int i, float y)
 
     if (dup_row(app, group, i, y))
         return 3;
-    if (widget_button(app, (float [4]){1215, y + 8, 265, 44},
-            "Garder celui-ci"))
+    if (widget_icon_button(app, (float [4]){1215, y + 8, 265, 44},
+            ICON_CHECK, "Garder celui-ci"))
         return 1;
-    if (widget_button(app, no, "Pas un doublon"))
+    if (widget_icon_button(app, no, ICON_CLOSE, "Pas un doublon"))
         return 2;
     return 0;
 }
