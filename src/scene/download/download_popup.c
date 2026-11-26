@@ -25,9 +25,30 @@ static char const *const help[] = {"", "",
     "Absents de la playlist du site.", "", "",
     "Anciennes versions de titres republiés.", ""};
 
-int dlpopup_rows(app_t *app)
+/*
+** the rows of the list go from DLPOPUP_ROWS_Y to the footer, in the
+** window; content = their height (counted at the last drawing)
+*/
+static void frame(app_t *app, float content)
 {
-    return (720 + app->extra_h - DLPOPUP_ROWS_Y) / DLPOPUP_STEP;
+    float area[4] = {270, DLPOPUP_ROWS_Y, 1376,
+        720 + app->extra_h - DLPOPUP_ROWS_Y};
+
+    scroll_frame(&app->dlscene->list, area, content);
+}
+
+/*
+** the next matching row of the list (i counts them from -1): y is where
+** it is drawn; returns 1 if it is at least partly seen
+*/
+int dlpopup_place(app_t *app, int *i, float *y)
+{
+    scroll_t const *list = &app->dlscene->list;
+
+    (*i)++;
+    app->dlscene->nb_rows = *i + 1;
+    *y = scroll_y(list, *i * DLPOPUP_STEP);
+    return scroll_seen(list, *y, DLPOPUP_STEP);
 }
 
 static void row_text(app_t *app, char const *title, int duration, float y)
@@ -42,13 +63,6 @@ static void row_text(app_t *app, char const *title, int duration, float y)
     else
         format_time(time, sizeof(time), duration * 1000L);
     widget_text(app, time, (float [3]){1070, y + 8, 22}, &gray);
-}
-
-static int hidden(app_t *app, int i)
-{
-    int first = app->dlscene->scroll;
-
-    return i < first || i - first >= dlpopup_rows(app);
 }
 
 /*
@@ -80,16 +94,12 @@ static int flagged_buttons(app_t *app, dl_entry_t *e, float y)
 static void flagged_rows(app_t *app, download_t *dl)
 {
     int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
+    float y = 0;
     char title[NAME_LEN + 32];
 
     for (dl_entry_t *e = dl->flagged; e; e = e->next) {
-        if (!search_text(app, e->title))
+        if (!search_text(app, e->title) || !dlpopup_place(app, &i, &y))
             continue;
-        i++;
-        if (hidden(app, i))
-            continue;
-        y += DLPOPUP_STEP;
         snprintf(title, sizeof(title), "%s%s", e->was_refused ?
             "Déjà refusé : " : "", e->title);
         row_text(app, title, e->duration, y);
@@ -112,7 +122,7 @@ static void tab(app_t *app, float const *xw, char const *name,
     if (!widget_button(app, (float [4]){xw[0], 160, xw[1], 46}, label))
         return;
     scene->popup = popup;
-    scene->scroll = 0;
+    scroll_jump(&scene->list, 0);
     scene->confirm = 0;
     scene->archived = 0;
     scene->clear = 0;
@@ -167,7 +177,10 @@ static void tabs(app_t *app)
     tab(app, (float [2]){1515, 140}, "Bilan", DL_POPUP_REPORT);
 }
 
-static void page(app_t *app, dl_popup_t popup)
+/*
+** the rows of the page shown
+*/
+static void page_rows(app_t *app, dl_popup_t popup)
 {
     if (popup == DL_POPUP_FLAGGED)
         flagged_rows(app, &app->download);
@@ -185,6 +198,27 @@ static void page(app_t *app, dl_popup_t popup)
         dlscene_splits(app);
 }
 
+/*
+** the rows are cut at the top and bottom of the list; its height is only
+** known after a whole drawing (a click may stop the rows)
+*/
+static void page(app_t *app, dl_popup_t popup)
+{
+    dlscene_t *scene = app->dlscene;
+
+    if (popup == DL_POPUP_REPORT)
+        dlscene_report_head(app);
+    frame(app, scene->list.content);
+    scene->nb_rows = 0;
+    if (scroll_rows_begin(app, &scene->list)) {
+        page_rows(app, popup);
+        scroll_rows_end(app);
+    }
+    if (app->wg->mode == WG_DRAW)
+        frame(app, scene->nb_rows * DLPOPUP_STEP);
+    scroll_bar_draw(app, &scene->list);
+}
+
 void dlscene_popup(app_t *app)
 {
     sfFloatRect view = app->view_rect;
@@ -200,7 +234,7 @@ void dlscene_popup(app_t *app)
         &gray);
     if (app->search.changed) {
         app->search.changed = 0;
-        app->dlscene->scroll = 0;
+        scroll_jump(&app->dlscene->list, 0);
     }
     search_field(app, (float [4]){1200, 222, 455, 48});
     page(app, app->dlscene->popup);

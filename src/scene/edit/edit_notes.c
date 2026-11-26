@@ -79,57 +79,74 @@ static void status(library_t *lib, int playlist, song_t const *song,
         sum.first ? " (depuis le début)" : "");
 }
 
-static int list_rows(app_t *app)
+/*
+** the playlists, left column, from y 356 to the buttons; they scroll
+*/
+static void frame(app_t *app, notes_edit_t *notes)
 {
-    return (820 + app->extra_h - 360) / 56;
+    float area[4] = {120, 356, 930, 820 + app->extra_h - 356};
+    int nb = 0;
+
+    for (playlist_t *pl = app->lib->playlists; pl; pl = pl->next)
+        nb++;
+    scroll_frame(&notes->lists, area, nb * 56);
 }
 
 static void playlists(app_t *app, edit_t *edit)
 {
     notes_edit_t *notes = &edit->notes;
-    int row = -notes->scroll;
+    int row = 0;
     float y = 0;
     char text[NAME_LEN + 8];
 
     widget_text(app, "Passages dans les playlists", (float [3]){130, 315, 24},
         &sfWhite);
+    frame(app, notes);
+    scroll_bar_draw(app, &notes->lists);
+    if (!scroll_rows_begin(app, &notes->lists))
+        return;
     for (playlist_t *pl = app->lib->playlists; pl; pl = pl->next) {
-        y = 360 + row * 56;
+        y = scroll_y(&notes->lists, row * 56 + 4);
         row++;
-        if (row <= 0 || row > list_rows(app))
+        if (!scroll_seen(&notes->lists, y, 48))
             continue;
         snprintf(text, sizeof(text), pl->id == notes->playlist ? "> %s <"
             : "%s", pl->name);
         if (widget_button(app, (float [4]){130, y, 380, 48}, text)) {
             notes->playlist = pl->id;
-            notes->scroll_rows = 0;
+            scroll_jump(&notes->periods, 0);
             edit->focus = FOCUS_FOUND;
         }
         status(app->lib, pl->id, edit->song, text);
         widget_fit(app, text, (float [4]){530, y + 10, 22, 530}, &gray);
     }
+    scroll_rows_end(app);
 }
 
 /*
-** the wheel moves the list under the mouse
+** the wheel moves the list under the mouse, two rows
 */
 void edit_notes_scroll(app_t *app, float delta)
 {
     notes_edit_t *notes = &app->edit->notes;
-    int *scroll = app->mouse.x < 1080 ? &notes->scroll
-        : &notes->scroll_rows;
-    int nb = 0;
 
-    if (scroll == &notes->scroll)
-        for (playlist_t *pl = app->lib->playlists; pl; pl = pl->next)
-            nb++;
-    for (int i = 0; scroll != &notes->scroll && i < notes->nb; i++)
-        nb += edit_period_shown(notes, i);
-    *scroll -= (int)delta;
-    if (*scroll > nb - 1)
-        *scroll = nb - 1;
-    if (*scroll < 0)
-        *scroll = 0;
+    if (app->mouse.x < 1080)
+        scroll_by(&notes->lists, -delta * 2 * 56);
+    else
+        scroll_by(&notes->periods, -delta * 2 * 58);
+}
+
+/*
+** each column has its slider
+*/
+void edit_notes_update(app_t *app)
+{
+    notes_edit_t *notes = &app->edit->notes;
+
+    scroll_grab(app, &notes->lists);
+    scroll_grab(app, &notes->periods);
+    scroll_update(app, &notes->lists);
+    scroll_update(app, &notes->periods);
 }
 
 static void buttons(app_t *app, edit_t *edit)

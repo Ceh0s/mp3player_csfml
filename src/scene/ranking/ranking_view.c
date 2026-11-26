@@ -23,7 +23,7 @@ static void tab_button(app_t *app, float const *rect, ranking_tab_t tab,
         return;
     app->ranking->tab = tab;
     app->ranking->undo_ask = 0;
-    app->ranking->scroll = 0;
+    scroll_jump(&app->ranking->list, 0);
 }
 
 static void tabs(app_t *app)
@@ -45,13 +45,14 @@ static void tabs(app_t *app)
         app->show_images = !app->show_images;
 }
 
-static void content(app_t *app, ranking_t const *ranking)
+static void tab_content(app_t *app, ranking_t const *ranking)
 {
     if (ranking->tab == TAB_HISTORY) {
         ranking_history(app);
         return;
     }
     if (ranking->nb == 0) {
+        ranking_list_frame(app, CONTENT_Y, 0);
         widget_text(app, "Rien à classer dans ce classement.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
         return;
@@ -62,6 +63,16 @@ static void content(app_t *app, ranking_t const *ranking)
         ranking_board(app);
     if (ranking->tab == TAB_TIES)
         ranking_ties(app);
+}
+
+/*
+** each tab gives the size of its list (ranking->list), whose slider is
+** drawn on the right
+*/
+static void content(app_t *app, ranking_t const *ranking)
+{
+    tab_content(app, ranking);
+    scroll_bar_draw(app, &ranking->list);
 }
 
 static void bottom(app_t *app, ranking_t *ranking)

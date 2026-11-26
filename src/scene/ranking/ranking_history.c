@@ -88,11 +88,6 @@ int ranking_history_count(app_t *app)
     return nb;
 }
 
-int ranking_history_rows(app_t *app)
-{
-    return (CONTENT_BOTTOM + app->extra_h - CONTENT_Y) / HISTORY_STEP;
-}
-
 static void when(app_t *app, hist_t const *item, float y)
 {
     time_t date = item->date;
@@ -197,25 +192,28 @@ static int undo_button(app_t *app, hist_t const *item, float y)
 void ranking_history(app_t *app)
 {
     history_t const *history = &app->ranking->history;
-    int skip = app->ranking->scroll;
-    int rows = ranking_history_rows(app);
-    float y = CONTENT_Y;
+    scroll_t *list = &app->ranking->list;
+    int count = ranking_history_count(app);
+    int row = 0;
+    float y = 0;
 
-    if (ranking_history_count(app) == 0)
+    if (count == 0)
         widget_text(app, history->nb == 0 ? "Aucune battle dans ce "
             "classement." : "Aucune battle trouvée.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
-    for (int i = history->nb - 1; i >= 0 && rows > 0; i--) {
+    ranking_list_frame(app, CONTENT_Y, count * HISTORY_STEP);
+    if (!scroll_rows_begin(app, list))
+        return;
+    for (int i = history->nb - 1; i >= 0; i--) {
         if (!shown(app, &history->items[i]))
             continue;
-        if (skip > 0) {
-            skip--;
+        y = scroll_y(list, row * HISTORY_STEP);
+        row++;
+        if (!scroll_seen(list, y, HISTORY_STEP))
             continue;
-        }
         draw_item(app, &history->items[i], y);
         if (undo_button(app, &history->items[i], y))
-            return;
-        y += HISTORY_STEP;
-        rows--;
+            break;
     }
+    scroll_rows_end(app);
 }

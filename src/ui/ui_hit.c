@@ -7,10 +7,20 @@
 
 #include "mp3player.h"
 
+static int in_rect(sfVector2f mouse, float const *rect)
+{
+    return mouse.x >= rect[0] && mouse.x <= rect[0] + rect[2]
+        && mouse.y >= rect[1] && mouse.y <= rect[1] + rect[3];
+}
+
+/*
+** the part of a list hidden by its cut (clip.c) is under nothing
+*/
 int mouse_in_rect(app_t *app, float const *rect)
 {
-    return app->mouse.x >= rect[0] && app->mouse.x <= rect[0] + rect[2]
-        && app->mouse.y >= rect[1] && app->mouse.y <= rect[1] + rect[3];
+    if (app->wg && app->wg->clip_on && !in_rect(app->mouse, app->wg->clip_area))
+        return 0;
+    return in_rect(app->mouse, rect);
 }
 
 /*

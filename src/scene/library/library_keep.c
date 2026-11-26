@@ -18,7 +18,7 @@ void library_keep(app_t *app)
     library_keep_t *keep = &app->library_keep;
 
     keep->playlist_id = app->libscene->playlist_id;
-    keep->scroll = app->libscene->scroll_to;
+    keep->scroll = app->libscene->list.to;
     snprintf(keep->search, NAME_LEN, "%s", app->search.text);
 }
 
@@ -44,6 +44,5 @@ void library_restore_scroll(app_t *app)
 {
     if (!same_tab(app))
         return;
-    app->libscene->scroll = app->library_keep.scroll;
-    app->libscene->scroll_to = app->library_keep.scroll;
+    scroll_jump(&app->libscene->list, app->library_keep.scroll);
 }

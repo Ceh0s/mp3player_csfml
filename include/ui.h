@@ -128,7 +128,9 @@ typedef struct caret_s {
 /*
 ** picture / circle : shapes drawing the images (square or round)
 ** tip : text of the hovered element, drawn last by widget_tip_draw
-** clip : view of the part of the screen drawn (clip.c)
+** clip : view of the part of the screen drawn (clip.c), clip_on / clip_area
+** : while it is used, and the part ({x, y, w, h}): the mouse out of it is
+** over nothing
 ** caret : cursor of the field being typed in (text_caret.c)
 ** icon : sprite of the atlas drawing the icons (widget_icon.c)
 */
@@ -139,10 +141,28 @@ typedef struct widgets_s {
     sfRectangleShape *picture;
     sfCircleShape *circle;
     sfView *clip;
+    int clip_on;
+    float clip_area[4];
     char tip[TIP_LEN];
     wg_mode_t mode;
     caret_t caret;
 } widgets_t;
+
+/*
+** a list that scrolls in pixels (src/ui/scroll.c): area = {x, y, w, h}
+** of its rows on the screen, content = height of all of them, pos = pixels
+** hidden above (shown now), to = the same once slid; held / grab : the
+** slider held and where; was_down : left button down at the last tick
+*/
+typedef struct scroll_s {
+    float area[4];
+    float content;
+    float pos;
+    float to;
+    int held;
+    float grab;
+    int was_down;
+} scroll_t;
 
 /*
 ** an image loaded for the screens (only those shown are loaded);

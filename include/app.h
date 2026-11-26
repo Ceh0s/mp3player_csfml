@@ -60,6 +60,7 @@ struct app_s {
     long delta_us;
     long save_us;
     long tick_loop;
+    int scroll_held;
     scene_id_t scene;
     scene_id_t next_scene;
     scene_id_t path[NB_SCENES];

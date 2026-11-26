@@ -23,7 +23,7 @@ void ranking_hover(app_t *app, rank_t const *rank, float const *rect)
 void ranking_open_hover(app_t *app)
 {
     ranking_t *ranking = app->ranking;
-    ranking_keep_t keep = {1, ranking->tab, ranking->scroll,
+    ranking_keep_t keep = {1, ranking->tab, ranking->list.to,
         ranking->open_tier};
 
     if (!ranking->hover.song && !ranking->hover.artist)
@@ -42,9 +42,7 @@ void ranking_restore(app_t *app)
     if (!app->ranking_keep.active)
         return;
     ranking->tab = app->ranking_keep.tab;
-    ranking->scroll = app->ranking_keep.scroll;
+    scroll_jump(&ranking->list, app->ranking_keep.scroll);
     ranking->open_tier = app->ranking_keep.open_tier;
     app->ranking_keep.active = 0;
-    if (ranking->tab != TAB_TIERS)
-        ranking_scroll(app, 0);
 }

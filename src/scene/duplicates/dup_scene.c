@@ -59,7 +59,6 @@ void dupscene_layout(app_t *app)
 
     background_layout(app, app->dupscene->bg);
     sfRectangleShape_setSize(app->dupscene->panel, size);
-    dupscene_scroll(app, 0);
 }
 
 /*

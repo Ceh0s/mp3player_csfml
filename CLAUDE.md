@@ -107,7 +107,9 @@ src/scene/             table des scènes
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
                        lecteur, search_field : champ de recherche)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets, coupe d'une
-                       zone de l'écran (clip.c), icônes de
+                       zone de l'écran (clip.c), défilement commun des
+                       listes (scroll.c : calcul ; scroll_bar.c : coupe
+                       et barre), icônes de
                        l'atlas (widget_icon.c : contour, disque plein = état actif,
                        estompé = inactif), ligne de titre (widget_song.c : titre en
                        gros, artistes dessous), « … » (text_fit.c), champ de
@@ -314,6 +316,18 @@ Principes en place :
   la bibliothèque font 64 px ; un clic est cherché par la position de la souris. Avis
   à droite de chaque ligne (les deux icônes au survol, l'avis donné toujours visible).
   Tri : bouton « Tri : … » qui ouvre la liste des critères, sens par une icône.
+- **Défilement** (`scroll_t`, `src/ui/scroll.c`, `scroll_bar.c`) : toute liste plus haute que
+  sa zone défile en pixels, en douceur, avec une barre à droite (saisie, glissée, clic sur la
+  piste). À chaque dessin, la liste donne sa zone et la hauteur de son contenu
+  (`scroll_frame`), place ses lignes avec `scroll_y`, saute celles hors de vue
+  (`scroll_seen`) et les entoure de `scroll_rows_begin` / `_end` (coupe ; au clic, rien
+  hors de la zone ; `mouse_in_rect` ignore la souris hors de la coupe). Molette =
+  `scroll_by` (deux lignes), remise en haut ou place gardée = `scroll_jump`. Dans
+  `update` : `scroll_grab` (appui sur la barre) puis `scroll_update` ; le relâchement qui
+  suit est avalé par `loop.c` (`app->scroll_held`). Listes : bibliothèque, classements
+  (leaderboard, départage avec défilement auto en glissant, historique, tier ouvert),
+  statistiques, doublons, playlist, listes du téléchargement, page « Découverte » (une
+  barre par colonne), titres de la page artiste, classements personnalisés et leurs règles.
 - **Échap** remonte aussi : classements (fenêtre de reset), bibliothèque (liste des
   tris, fenêtre des actions, puis mode sélection), statistiques (champ de date). Les écrans avec saisie gèrent Espace eux-mêmes.
 - **Recherche** (`search_field.c`, `app->search`, vidée à chaque changement d'écran, sauf
@@ -416,6 +430,12 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 
 ## Plan de développement
 
+### Phase 4.20 — Défilement partout (faite)
+- Le défilement de la bibliothèque devient commun (`scroll_t`, voir « Défilement ») et sert à
+  toutes les listes qui dépassent. Le tier ouvert en grand défile au lieu d'écrire « +N ».
+  La page artiste montre tous ses titres (8 au plus avant), la liste des classements
+  personnalisés et leurs règles ne sont plus coupées.
+
 ### Phase 4.19 — Mode sombre (faite)
 - Bascule « Mode sombre » dans les Paramètres (`dark` dans `settings.tsv`) : fond noir,
   textes, icônes, boutons et pochettes plus doux, image par défaut et lettres des tiers
@@ -445,10 +465,9 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
   `battles.log`, et les Elo rejoués. Caché si la catégorie ou la recherche cache cette battle.
 
 ### Phase 4.15 — Défilement fluide, tri par date d'ajout (faite)
-- **Bibliothèque** : défilement en pixels (`library_scroll.c` : `scroll` affiché, `scroll_to`
-  visé, rapproché selon `delta_us`), lignes coupées en haut et en bas (`clip.c`), slider à
-  droite. La boucle passe à 16 ms (`TICK_SMOOTH`) seulement pendant le mouvement. Les autres
-  listes défilent encore par ligne.
+- **Bibliothèque** : défilement en pixels, lignes coupées en haut et en bas (`clip.c`), slider
+  à droite. La boucle passe à 16 ms (`TICK_SMOOTH`) seulement pendant le mouvement. Étendu à
+  toutes les listes en 4.20.
 - **Place gardée** (`library_keep.c`, `app->library_keep`) : position et recherche retrouvées au
   retour de n'importe quel écran, si l'onglet est le même, jusqu'à la fermeture ; gardée aussi
   sur place quand les titres changent (`list_refresh` : avis, suppression, téléchargement).

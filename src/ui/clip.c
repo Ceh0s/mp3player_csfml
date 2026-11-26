@@ -20,6 +20,8 @@ void clip_begin(app_t *app, float const *rect)
         (rect[1] - all.top) / all.height, rect[2] / all.width,
         rect[3] / all.height};
 
+    app->wg->clip_on = 1;
+    memcpy(app->wg->clip_area, rect, sizeof(app->wg->clip_area));
     sfView_reset(app->wg->clip, area);
     sfView_setViewport(app->wg->clip, part);
     sfRenderWindow_setView(app->window, app->wg->clip);
@@ -27,5 +29,6 @@ void clip_begin(app_t *app, float const *rect)
 
 void clip_end(app_t *app)
 {
+    app->wg->clip_on = 0;
     sfRenderWindow_setView(app->window, app->view);
 }

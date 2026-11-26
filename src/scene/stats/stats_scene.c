@@ -73,7 +73,7 @@ void stats_event(app_t *app, sfEvent *event)
     if (event->type == sfEvtMouseButtonPressed
         && event->mouseButton.button == sfMouseRight
         && (app->stats->hover.song || app->stats->hover.artist)) {
-        app->stats_opt.scroll = app->stats->scroll;
+        app->stats_opt.scroll = app->stats->list.to;
         page_open(app, &app->stats->hover);
         return;
     }
@@ -84,6 +84,12 @@ void stats_event(app_t *app, sfEvent *event)
     app->wg->mode = WG_CLICK;
     stats_view(app);
     app->wg->mode = WG_DRAW;
+}
+
+void stats_update(app_t *app)
+{
+    scroll_grab(app, &app->stats->list);
+    scroll_update(app, &app->stats->list);
 }
 
 void stats_draw(app_t *app)
@@ -106,7 +112,6 @@ void stats_layout(app_t *app)
 
     background_layout(app, app->stats->bg);
     sfRectangleShape_setSize(app->stats->panel, size);
-    stats_scroll(app, 0);
 }
 
 void stats_destroy(app_t *app)

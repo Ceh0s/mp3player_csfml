@@ -20,6 +20,7 @@ void boards_open(app_t *app, board_t *board)
     bd->focus = 0;
     bd->search[0] = '\0';
     bd->nb_results = 0;
+    scroll_jump(&bd->list, 0);
     snprintf(bd->name, NAME_LEN, "%s", board->name);
     app->arena.board = board->id;
     boards_count(app);
@@ -42,6 +43,7 @@ void boards_leave(app_t *app)
     }
     bd->mode = BOARDS_LIST;
     bd->board = NULL;
+    scroll_jump(&bd->list, 0);
 }
 
 /*
@@ -59,23 +61,35 @@ static void create(app_t *app)
 }
 
 /*
-** one button per ranking, as many as the screen can hold
+** one button per ranking; they scroll
 */
 static void rows(app_t *app)
 {
-    float y = BOARDS_ROWS_Y;
+    scroll_t *list = &app->boards->list;
+    float area[4] = {120, BOARDS_ROWS_Y, 1120,
+        CONTENT_BOTTOM + app->extra_h - BOARDS_ROWS_Y};
+    int nb = 0;
+    float y = 0;
 
+    for (board_t *board = app->lib->boards; board; board = board->next)
+        nb += board->id >= 0;
+    scroll_frame(list, area, nb * 62);
+    scroll_bar_draw(app, list);
+    if (!scroll_rows_begin(app, list))
+        return;
+    nb = 0;
     for (board_t *board = app->lib->boards; board; board = board->next) {
         if (board->id < 0)
             continue;
-        if (y + 52 > CONTENT_BOTTOM + app->extra_h)
-            break;
-        if (widget_button(app, (float [4]){130, y, 1100, 52}, board->name)) {
+        y = scroll_y(list, nb * 62);
+        nb++;
+        if (scroll_seen(list, y, 52) && widget_button(app,
+                (float [4]){130, y, 1100, 52}, board->name)) {
             boards_open(app, board);
-            return;
+            break;
         }
-        y += 62;
     }
+    scroll_rows_end(app);
 }
 
 void boards_list(app_t *app)

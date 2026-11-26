@@ -73,7 +73,7 @@ void edit_artist(app_t *app)
 {
     int back = 0;
 
-    artist_page(app, app->edit->artist, &back);
+    artist_page(app, app->edit->artist, &app->edit->titles, &back);
     if (app->edit->artist) {
         image(app, app->edit);
         rename_box(app, app->edit);

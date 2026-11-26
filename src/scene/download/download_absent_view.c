@@ -49,19 +49,15 @@ static int row_buttons(app_t *app, int i, int id, float y)
 void dlscene_absent(app_t *app)
 {
     download_t *dl = &app->download;
-    int first = app->dlscene->scroll;
     song_t *song = NULL;
     int shown = -1;
     float y = 0;
 
     for (int i = 0; i < dl->nb_absent; i++) {
         song = song_by_id(app->lib, dl->absent[i]);
-        if (song && !search_song(app, song))
+        if ((song && !search_song(app, song))
+            || !dlpopup_place(app, &shown, &y))
             continue;
-        shown++;
-        if (shown < first || shown - first >= dlpopup_rows(app))
-            continue;
-        y = DLPOPUP_ROWS_Y + (shown - first) * DLPOPUP_STEP;
         if (song)
             row_text(app, song, y);
         if (row_buttons(app, i, dl->absent[i], y))

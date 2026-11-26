@@ -46,12 +46,20 @@ void boards_event(app_t *app, sfEvent *event)
             scene_back(app);
         boards_leave(app);
     }
+    if (event->type == sfEvtMouseWheelScrolled)
+        scroll_by(&bd->list, -event->mouseWheelScroll.delta * 2 * 62);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;
     app->wg->mode = WG_CLICK;
     build(app);
     app->wg->mode = WG_DRAW;
+}
+
+void boards_update(app_t *app)
+{
+    scroll_grab(app, &app->boards->list);
+    scroll_update(app, &app->boards->list);
 }
 
 void boards_draw(app_t *app)

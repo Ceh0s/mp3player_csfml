@@ -38,7 +38,7 @@ void ranking_search(app_t *app)
 {
     if (app->search.changed) {
         app->search.changed = 0;
-        app->ranking->scroll = 0;
+        scroll_jump(&app->ranking->list, 0);
     }
     if (!app->ranking->reset)
         search_field(app, (float [4]){1280, 115, 500, 52});

@@ -110,6 +110,8 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 
 SRC_UI	=	src/ui/image_cache.c\
 		src/ui/dark_mode.c\
+		src/ui/scroll.c\
+		src/ui/scroll_bar.c\
 		src/ui/clip.c\
 		src/ui/ui_element.c\
 		src/ui/ui_hit.c\

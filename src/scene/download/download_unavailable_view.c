@@ -33,12 +33,11 @@ void dlscene_unavailable(app_t *app)
 {
     library_t *lib = app->lib;
     int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
+    float y = 0;
 
     for (rejected_t *un = lib->unavailable; un; un = un->next) {
-        if (!dlpopup_shown(app, un, &i))
+        if (!dlpopup_shown(app, un, &i, &y))
             continue;
-        y += DLPOPUP_STEP;
         row_text(app, un, y);
         if (widget_icon_tip(app, (float [4]){1611, y, 44, 44}, ICON_SYNC,
                 "Retenter")) {
@@ -62,7 +61,7 @@ static void retry_all(app_t *app)
             unavailable_remove(app->lib, un->id);
     }
     db_save_unavailable(app->lib);
-    app->dlscene->scroll = 0;
+    scroll_jump(&app->dlscene->list, 0);
 }
 
 void dlscene_unavailable_footer(app_t *app, float y)

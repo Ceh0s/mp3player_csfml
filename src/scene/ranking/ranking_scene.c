@@ -44,7 +44,7 @@ static void ranking_key(app_t *app, sfEvent *event)
     if (!ranking->reset && ranking->open_tier >= 0
         && ranking->tab == TAB_TIERS) {
         ranking->open_tier = -1;
-        ranking->scroll = 0;
+        scroll_jump(&ranking->list, 0);
         return;
     }
     if (!ranking->reset) {
@@ -58,12 +58,8 @@ static void ranking_key(app_t *app, sfEvent *event)
 void ranking_event(app_t *app, sfEvent *event)
 {
     ranking_key(app, event);
-    if (event->type == sfEvtMouseWheelScrolled
-        && app->ranking->tab != TAB_TIERS)
+    if (event->type == sfEvtMouseWheelScrolled)
         ranking_scroll(app, event->mouseWheelScroll.delta);
-    if (event->type == sfEvtMouseWheelScrolled
-        && app->ranking->tab == TAB_TIERS && app->ranking->open_tier >= 0)
-        app->ranking->scroll -= (int)event->mouseWheelScroll.delta;
     if (event->type == sfEvtMouseButtonPressed && !app->ranking->reset
         && event->mouseButton.button == sfMouseRight) {
         ranking_open_hover(app);
@@ -80,6 +76,17 @@ void ranking_event(app_t *app, sfEvent *event)
     app->wg->mode = WG_CLICK;
     ranking_view(app);
     app->wg->mode = WG_DRAW;
+}
+
+/*
+** the slider is not taken under the reset window
+*/
+void ranking_update(app_t *app)
+{
+    if (!app->ranking->reset)
+        scroll_grab(app, &app->ranking->list);
+    scroll_update(app, &app->ranking->list);
+    ranking_drag_scroll(app);
 }
 
 void ranking_draw(app_t *app)
@@ -100,7 +107,6 @@ void ranking_layout(app_t *app)
 
     background_layout(app, app->ranking->bg);
     sfRectangleShape_setSize(app->ranking->panel, size);
-    ranking_scroll(app, 0);
 }
 
 void ranking_destroy(app_t *app)

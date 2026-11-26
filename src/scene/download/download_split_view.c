@@ -67,17 +67,12 @@ static int choose(app_t *app, artist_t *artist, float y)
 void dlscene_splits(app_t *app)
 {
     int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
-    int first = app->dlscene->scroll;
+    float y = 0;
 
     for (artist_t *a = app->lib->artists; a; a = a->next) {
         if (artist_split_state(app->lib, a) != 2
-            || !search_text(app, a->name))
+            || !search_text(app, a->name) || !dlpopup_place(app, &i, &y))
             continue;
-        i++;
-        if (i < first || i - first >= dlpopup_rows(app))
-            continue;
-        y += DLPOPUP_STEP;
         describe(app, a, y);
         if (choose(app, a, y))
             return;

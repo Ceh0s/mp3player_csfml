@@ -67,19 +67,32 @@ static int rule_row(app_t *app, boards_t *bd, rule_t *rule, float y)
     return 1;
 }
 
+/*
+** the rules, left of the column adding them; they scroll
+*/
 static void rules(app_t *app, boards_t *bd)
 {
-    float y = BOARDS_ROWS_Y + 50;
+    float top = BOARDS_ROWS_Y + 46;
+    float area[4] = {120, top, 940, CONTENT_BOTTOM + app->extra_h - top};
+    int nb = 0;
+    float y = 0;
 
     widget_text(app, "Une exclusion l'emporte sur une inclusion.",
         (float [3]){130, BOARDS_ROWS_Y, 22}, &gray);
+    for (rule_t *rule = bd->board->rules; rule; rule = rule->next)
+        nb++;
+    scroll_frame(&bd->list, area, nb * 56);
+    scroll_bar_draw(app, &bd->list);
+    if (!scroll_rows_begin(app, &bd->list))
+        return;
+    nb = 0;
     for (rule_t *rule = bd->board->rules; rule; rule = rule->next) {
-        if (y + 48 > CONTENT_BOTTOM + app->extra_h)
-            return;
-        if (rule_row(app, bd, rule, y))
-            return;
-        y += 56;
+        y = scroll_y(&bd->list, nb * 56 + 4);
+        nb++;
+        if (scroll_seen(&bd->list, y, 48) && rule_row(app, bd, rule, y))
+            break;
     }
+    scroll_rows_end(app);
 }
 
 void boards_edit(app_t *app)

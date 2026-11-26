@@ -93,7 +93,7 @@ static void report_button(app_t *app, download_t const *dl)
             "Voir le bilan"))
         return;
     app->dlscene->popup = DL_POPUP_REPORT;
-    app->dlscene->scroll = 0;
+    scroll_jump(&app->dlscene->list, 0);
 }
 
 void dlscene_status(app_t *app, download_t const *dl)

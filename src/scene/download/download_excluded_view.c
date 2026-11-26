@@ -64,14 +64,13 @@ static int take_back(app_t *app, rejected_t const *ex, float y)
 void dlscene_excluded(app_t *app)
 {
     int i = -1;
-    float y = DLPOPUP_ROWS_Y - DLPOPUP_STEP;
+    float y = 0;
 
     if (app->lib->excluded && app->lib->excluded->song_id < 0)
         excluded_songs(app->lib);
     for (rejected_t *ex = app->lib->excluded; ex; ex = ex->next) {
-        if (!dlpopup_shown(app, ex, &i))
+        if (!dlpopup_shown(app, ex, &i, &y))
             continue;
-        y += DLPOPUP_STEP;
         widget_fit(app, ex->title, (float [4]){300, y + 8, 22, 820},
             &sfWhite);
         if (forget_button(app, ex, i, y) || take_back(app, ex, y))

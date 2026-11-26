@@ -126,7 +126,7 @@ static void flagged_button(app_t *app, download_t *dl)
     dl->ask = 0;
     dl->show_report = 0;
     app->dlscene->popup = page;
-    app->dlscene->scroll = 0;
+    scroll_jump(&app->dlscene->list, 0);
 }
 
 void dlscene_view(app_t *app)

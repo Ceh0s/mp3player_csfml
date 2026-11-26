@@ -100,5 +100,4 @@ void ranking_build(app_t *app)
         return;
     score_pool(app, &pool);
     free(pool.items);
-    ranking_scroll(app, 0);
 }

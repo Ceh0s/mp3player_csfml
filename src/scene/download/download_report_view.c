@@ -66,17 +66,22 @@ static void report_row(app_t *app, dl_report_t const *line, float y)
 */
 static void status_rows(app_t *app, report_status_t status, int *i)
 {
-    int first = app->dlscene->scroll;
-    int rows = dlpopup_rows(app);
+    float y = 0;
 
     for (dl_report_t *line = app->download.report; line; line = line->next) {
         if (line->status != status || !search_text(app, line->title))
             continue;
-        if (*i >= first && *i - first < rows)
-            report_row(app, line, DLPOPUP_ROWS_Y + (*i - first)
-                * DLPOPUP_STEP);
-        (*i)++;
+        if (dlpopup_place(app, i, &y))
+            report_row(app, line, y);
     }
+}
+
+/*
+** above the list, out of its scroll
+*/
+void dlscene_report_head(app_t *app)
+{
+    summary(app, &app->download);
 }
 
 /*
@@ -84,18 +89,8 @@ static void status_rows(app_t *app, report_status_t status, int *i)
 */
 void dlscene_report(app_t *app)
 {
-    int i = 0;
+    int i = -1;
 
-    summary(app, &app->download);
     for (int s = 0; s < NB_REPORTS; s++)
         status_rows(app, s, &i);
-}
-
-int dlscene_report_lines(app_t *app)
-{
-    int nb = 0;
-
-    for (dl_report_t *line = app->download.report; line; line = line->next)
-        nb++;
-    return nb;
 }

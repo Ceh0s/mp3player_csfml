@@ -24,18 +24,11 @@ static int shown(app_t *app, dup_group_t const *group)
 }
 
 /*
-** delta = 0 only keeps the scroll valid (after a resize or a choice)
+** the wheel moves about two songs
 */
 void dupscene_scroll(app_t *app, float delta)
 {
-    dupscene_t *scene = app->dupscene;
-    int max = dup_same_count(app) + scene->list.nb - 1;
-
-    scene->scroll -= (int)delta;
-    if (scene->scroll > max)
-        scene->scroll = max;
-    if (scene->scroll < 0)
-        scene->scroll = 0;
+    scroll_by(&app->dupscene->rows, -delta * 2 * DUP_ROW_H);
 }
 
 static void status(app_t *app, dupscene_t *scene)
@@ -99,24 +92,51 @@ static int item(app_t *app, int n, int nb_same, float y)
     return dup_block(app, &app->dupscene->list.groups[n - nb_same], y);
 }
 
+/*
+** the items go from DUP_ROWS_Y to the bottom of the table
+*/
+static void frame(app_t *app, dupscene_t *scene, int nb_same)
+{
+    float area[4] = {PANEL_X, DUP_ROWS_Y, PANEL_W,
+        CONTENT_BOTTOM + app->extra_h - DUP_ROWS_Y};
+    float content = 0;
+
+    for (int n = 0; scene->ready && n < nb_same + scene->list.nb; n++)
+        content += item_h(app, n, nb_same);
+    scroll_frame(&scene->rows, area, content);
+}
+
+/*
+** offset : height of the items above, from the top of the list
+*/
+static void items(app_t *app, dupscene_t *scene, int nb_same)
+{
+    float offset = 0;
+    float y = 0;
+    float h = 0;
+
+    if (!scroll_rows_begin(app, &scene->rows))
+        return;
+    for (int n = 0; scene->ready && n < nb_same + scene->list.nb; n++) {
+        h = item_h(app, n, nb_same);
+        y = scroll_y(&scene->rows, offset);
+        offset += h;
+        if (h > 0 && scroll_seen(&scene->rows, y, h)
+            && item(app, n, nb_same, y))
+            break;
+    }
+    scroll_rows_end(app);
+}
+
 void dupscene_view(app_t *app)
 {
     dupscene_t *scene = app->dupscene;
-    float bottom = CONTENT_BOTTOM + app->extra_h;
     int nb_same = dup_same_count(app);
-    float y = DUP_ROWS_Y;
-    float h = 0;
 
     header(app, scene);
-    for (int n = scene->scroll; scene->ready
-        && n < nb_same + scene->list.nb; n++) {
-        h = item_h(app, n, nb_same);
-        if (y > DUP_ROWS_Y && y + h > bottom)
-            break;
-        if (h > 0 && item(app, n, nb_same, y))
-            break;
-        y += h;
-    }
+    frame(app, scene, nb_same);
+    items(app, scene, nb_same);
+    scroll_bar_draw(app, &scene->rows);
     if (widget_back(app))
         scene_back(app);
 }

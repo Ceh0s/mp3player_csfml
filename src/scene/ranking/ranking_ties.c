@@ -83,22 +83,27 @@ static void tie_line(app_t *app, rank_t const *rank, int i, float y)
 void ranking_ties(app_t *app)
 {
     ranking_t *ranking = app->ranking;
-    int rows = ranking_rows(app);
     int shown = -1;
+    float y = 0;
     char const *help = "Ex æquo : glisse une ligne pour la déplacer.";
 
     if (app->search.text[0] != '\0')
         help = "Vide la recherche pour déplacer les lignes.";
     widget_text(app, help, (float [3]){130, CONTENT_Y, 22}, &gray);
-    for (int i = 0; i < ranking->nb; i++) {
-        if (!ranking_match(app, &ranking->order[i]))
-            continue;
-        shown++;
-        if (shown >= ranking->scroll && shown < ranking->scroll + rows)
-            tie_line(app, &ranking->order[i], i, CONTENT_Y + BOARD_STEP
-                + (shown - ranking->scroll) * BOARD_STEP);
+    ranking_list_frame(app, ranking_list_top() - 8,
+        ranking_count(app) * BOARD_STEP);
+    if (scroll_rows_begin(app, &ranking->list)) {
+        for (int i = 0; i < ranking->nb; i++) {
+            if (!ranking_match(app, &ranking->order[i]))
+                continue;
+            shown++;
+            y = scroll_y(&ranking->list, shown * BOARD_STEP) + 8;
+            if (scroll_seen(&ranking->list, y - 8, BOARD_STEP))
+                tie_line(app, &ranking->order[i], i, y);
+        }
+        if (app->wg->mode == WG_DRAW)
+            ranking_drag_draw(app);
+        scroll_rows_end(app);
     }
-    if (app->wg->mode == WG_DRAW)
-        ranking_drag_draw(app);
     buttons(app, ranking);
 }

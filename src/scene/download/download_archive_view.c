@@ -16,15 +16,12 @@
 ** 1 if the row is on the screen: in the list shown (archived or not),
 ** matching the search and in the scroll; i counts the rows matching
 */
-int dlpopup_shown(app_t *app, rejected_t const *item, int *i)
+int dlpopup_shown(app_t *app, rejected_t const *item, int *i, float *y)
 {
-    int first = app->dlscene->scroll;
-
     if (item->archived != app->dlscene->archived
         || !search_text(app, item->title))
         return 0;
-    (*i)++;
-    return *i >= first && *i - first < dlpopup_rows(app);
+    return dlpopup_place(app, i, y);
 }
 
 /*
@@ -48,7 +45,7 @@ static void archive_all(app_t *app)
         db_save_excluded(app->lib);
     if (popup == DL_POPUP_UNAVAILABLE)
         db_save_unavailable(app->lib);
-    app->dlscene->scroll = 0;
+    scroll_jump(&app->dlscene->list, 0);
 }
 
 void dlscene_archive_footer(app_t *app, float y)
@@ -59,7 +56,7 @@ void dlscene_archive_footer(app_t *app, float y)
     if (widget_button(app, (float [4]){300, y, 330, 52}, scene->archived
             ? "Voir la liste" : "Voir les archivés")) {
         scene->archived = !scene->archived;
-        scene->scroll = 0;
+        scroll_jump(&scene->list, 0);
         scene->clear = 0;
         scene->forget = 0;
     }

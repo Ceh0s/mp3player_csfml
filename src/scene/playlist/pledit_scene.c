@@ -72,6 +72,12 @@ void pledit_event(app_t *app, sfEvent *event)
     app->wg->mode = WG_DRAW;
 }
 
+void pledit_update(app_t *app)
+{
+    scroll_grab(app, &app->pledit->list);
+    scroll_update(app, &app->pledit->list);
+}
+
 void pledit_draw(app_t *app)
 {
     background_draw(app, app->pledit->bg);
@@ -88,7 +94,6 @@ void pledit_layout(app_t *app)
 
     background_layout(app, app->pledit->bg);
     sfRectangleShape_setSize(app->pledit->panel, size);
-    pledit_scroll(app, 0);
 }
 
 /*

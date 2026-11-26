@@ -11,12 +11,6 @@
 
 static const sfColor gray = {180, 180, 180, 255};
 
-int stats_rows_shown(app_t *app)
-{
-    return (CONTENT_BOTTOM + app->extra_h - STATS_Y - BOARD_STEP)
-        / BOARD_STEP;
-}
-
 static int match(app_t *app, stat_row_t const *row)
 {
     if (row->artist)
@@ -25,23 +19,27 @@ static int match(app_t *app, stat_row_t const *row)
 }
 
 /*
-** delta = 0 only keeps the scroll valid (after a resize or a change)
+** the wheel moves two rows
 */
 void stats_scroll(app_t *app, float delta)
 {
-    statscene_t *scene = app->stats;
+    scroll_by(&app->stats->list, -delta * 2 * BOARD_STEP);
+}
+
+/*
+** the rows go from under the column names to the bottom of the table;
+** content = their height
+*/
+static void frame(app_t *app, statscene_t *scene)
+{
+    float top = STATS_Y + BOARD_STEP - 8;
+    float area[4] = {PANEL_X, top, PANEL_W,
+        CONTENT_BOTTOM + app->extra_h - top};
     int nb = 0;
 
     for (int i = 0; i < scene->nb; i++)
         nb += match(app, &scene->rows[i]);
-    if (delta > 0)
-        scene->scroll--;
-    if (delta < 0)
-        scene->scroll++;
-    if (scene->scroll > nb - stats_rows_shown(app))
-        scene->scroll = nb - stats_rows_shown(app);
-    if (scene->scroll < 0)
-        scene->scroll = 0;
+    scroll_frame(&scene->list, area, nb * BOARD_STEP);
 }
 
 static void header(app_t *app)
@@ -92,20 +90,24 @@ static void draw_line(app_t *app, int i, float y)
 /*
 ** shown : rows matching the search before this one
 */
-static void lines(app_t *app, statscene_t const *scene)
+static void lines(app_t *app, statscene_t *scene)
 {
     int shown = -1;
-    int rows = stats_rows_shown(app);
     float y = 0;
 
+    frame(app, scene);
+    if (!scroll_rows_begin(app, &scene->list))
+        return;
     for (int i = 0; i < scene->nb; i++) {
         if (!match(app, &scene->rows[i]))
             continue;
         shown++;
-        y = STATS_Y + BOARD_STEP + (shown - scene->scroll) * BOARD_STEP;
-        if (shown >= scene->scroll && shown < scene->scroll + rows)
+        y = scroll_y(&scene->list, shown * BOARD_STEP) + 8;
+        if (scroll_seen(&scene->list, y - 8, BOARD_STEP))
             draw_line(app, i, y);
     }
+    scroll_rows_end(app);
+    scroll_bar_draw(app, &scene->list);
 }
 
 void stats_view(app_t *app)

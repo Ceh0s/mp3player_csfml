@@ -59,7 +59,7 @@ void stats_dates(app_t *app)
     note(app);
     if (app->search.changed) {
         app->search.changed = 0;
-        app->stats->scroll = 0;
+        scroll_jump(&app->stats->list, 0);
     }
     search_field(app, (float [4]){1300, 250, 480, 52});
 }

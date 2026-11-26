@@ -161,7 +161,7 @@ static void left_release(app_t *app)
         app->wg->mode = WG_DRAW;
         return;
     }
-    if (slider_release(app) || drag_release(app) || bar_open_song(app))
+    if (drag_release(app) || bar_open_song(app))
         return;
     if (bar_seek(app) == 0)
         click(app);
@@ -201,11 +201,9 @@ void libscene_event(app_t *app, sfEvent *event)
     if (event->type == sfEvtMouseWheelScrolled)
         list_scroll(app, -event->mouseWheelScroll.delta * LIST_NOTCH);
     if (event->type == sfEvtMouseButtonPressed
-        && event->mouseButton.button == sfMouseLeft) {
-        slider_press(app);
-        if (!app->libscene->selecting)
-            drag_press(app);
-    }
+        && event->mouseButton.button == sfMouseLeft
+        && !app->libscene->selecting)
+        drag_press(app);
     if (event->type == sfEvtMouseButtonReleased
         && event->mouseButton.button == sfMouseRight)
         right_click(app);
@@ -241,7 +239,7 @@ static void draw_rows(app_t *app)
     list_values(app);
     drag_draw(app);
     clip_end(app);
-    slider_draw(app);
+    scroll_bar_draw(app, &app->libscene->list);
 }
 
 void libscene_draw(app_t *app)

@@ -59,6 +59,9 @@ static int row_view(app_t *app, edit_t *edit, int i, float y)
     return 1;
 }
 
+/*
+** the new stay is at the end: the list goes down to it
+*/
 static void add_row(edit_t *edit)
 {
     notes_edit_t *notes = &edit->notes;
@@ -77,6 +80,7 @@ static void add_row(edit_t *edit)
     for (int i = 0; i < notes->nb; i++)
         if (edit_period_shown(notes, i))
             row->old.first = notes->rows[i].old.first;
+    scroll_jump(&notes->periods, notes->periods.content + 58);
 }
 
 /*
@@ -108,19 +112,29 @@ void edit_periods(app_t *app)
     edit_t *edit = app->edit;
     notes_edit_t *notes = &edit->notes;
     float bottom = 770 + app->extra_h;
-    int row = -notes->scroll_rows;
+    float area[4] = {1080, 356, PANEL_X + PANEL_W - 1080, bottom - 8 - 356};
+    int row = 0;
     float y = 0;
 
     if (notes->playlist == 0)
         return;
     widget_text(app, "Périodes", (float [3]){1090, 315, 24}, &sfWhite);
-    for (int i = 0; i < notes->nb; i++) {
-        if (!edit_period_shown(notes, i))
-            continue;
-        y = 360 + row * 58;
-        row++;
-        if (row > 0 && y + 58 <= bottom && row_view(app, edit, i, y))
-            break;
+    for (int i = 0; i < notes->nb; i++)
+        row += edit_period_shown(notes, i);
+    scroll_frame(&notes->periods, area, row * 58);
+    scroll_bar_draw(app, &notes->periods);
+    row = 0;
+    if (scroll_rows_begin(app, &notes->periods)) {
+        for (int i = 0; i < notes->nb; i++) {
+            if (!edit_period_shown(notes, i))
+                continue;
+            y = scroll_y(&notes->periods, row * 58 + 4);
+            row++;
+            if (scroll_seen(&notes->periods, y, 50)
+                && row_view(app, edit, i, y))
+                break;
+        }
+        scroll_rows_end(app);
     }
     if (widget_button(app, (float [4]){1090, bottom, 220, 50}, "+ Période"))
         add_row(edit);

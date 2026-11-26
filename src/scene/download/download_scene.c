@@ -45,26 +45,7 @@ static void key_pressed(app_t *app, sfKeyCode key)
 
 static void wheel(app_t *app, float delta)
 {
-    dlscene_t *scene = app->dlscene;
-    int nb = app->download.nb_absent;
-
-    if (scene->popup == DL_POPUP_FLAGGED)
-        nb = entries_count(app->download.flagged);
-    if (scene->popup == DL_POPUP_REFUSED)
-        nb = rejected_count(app->lib, scene->archived);
-    if (scene->popup == DL_POPUP_EXCLUDED)
-        nb = excluded_count(app->lib, scene->archived);
-    if (scene->popup == DL_POPUP_UNAVAILABLE)
-        nb = unavailable_count(app->lib, scene->archived);
-    if (scene->popup == DL_POPUP_REPORT)
-        nb = dlscene_report_lines(app);
-    if (scene->popup == DL_POPUP_SPLITS)
-        nb = dlscene_split_count(app);
-    scene->scroll -= (int)delta;
-    if (scene->scroll > nb - dlpopup_rows(app))
-        scene->scroll = nb - dlpopup_rows(app);
-    if (scene->scroll < 0)
-        scene->scroll = 0;
+    scroll_by(&app->dlscene->list, -delta * 2 * DLPOPUP_STEP);
 }
 
 /*
@@ -86,6 +67,17 @@ void dlscene_event(app_t *app, sfEvent *event)
     app->wg->mode = WG_CLICK;
     dlscene_view(app);
     app->wg->mode = WG_DRAW;
+}
+
+/*
+** the list over the screen scrolls; nothing to scroll without it
+*/
+void dlscene_update(app_t *app)
+{
+    if (app->dlscene->popup == DL_POPUP_NONE)
+        return;
+    scroll_grab(app, &app->dlscene->list);
+    scroll_update(app, &app->dlscene->list);
 }
 
 void dlscene_draw(app_t *app)

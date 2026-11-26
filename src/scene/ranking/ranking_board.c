@@ -14,32 +14,38 @@
 static const sfColor gray = {180, 180, 180, 255};
 
 /*
-** rows of the leaderboard (and of the "Départage" tab) on the screen
+** y of the text of the first row of the leaderboard (and of the
+** "Départage" tab), under the column names
 */
-int ranking_rows(app_t *app)
+float ranking_list_top(void)
 {
-    if (app->ranking->tab == TAB_HISTORY)
-        return ranking_history_rows(app);
-    return (CONTENT_BOTTOM + app->extra_h - CONTENT_Y - BOARD_STEP)
-        / BOARD_STEP;
+    return CONTENT_Y + BOARD_STEP;
 }
 
 /*
-** delta = 0 only keeps the scroll valid (after a resize)
+** the list of the tab shown goes from top to the bottom of the table
+*/
+void ranking_list_frame(app_t *app, float top, float content)
+{
+    float area[4] = {PANEL_X, top, PANEL_W,
+        CONTENT_BOTTOM + app->extra_h - top};
+
+    scroll_frame(&app->ranking->list, area, content);
+}
+
+/*
+** the wheel moves two rows of the tab shown (or of images)
 */
 void ranking_scroll(app_t *app, float delta)
 {
     ranking_t *ranking = app->ranking;
-    int max = ranking_count(app) - ranking_rows(app);
+    float step = BOARD_STEP;
 
-    if (delta > 0)
-        ranking->scroll--;
-    if (delta < 0)
-        ranking->scroll++;
-    if (ranking->scroll > max)
-        ranking->scroll = max;
-    if (ranking->scroll < 0)
-        ranking->scroll = 0;
+    if (ranking->tab == TAB_HISTORY)
+        step = HISTORY_STEP;
+    if (ranking->tab == TAB_TIERS)
+        step = TILE_MAX + TILE_GAP;
+    scroll_by(&ranking->list, -delta * 2 * step);
 }
 
 static void header(app_t *app)
@@ -90,17 +96,21 @@ static void draw_line(app_t *app, int i, float y)
 void ranking_board(app_t *app)
 {
     ranking_t *ranking = app->ranking;
-    int rows = ranking_rows(app);
     int shown = -1;
+    float y = 0;
 
     header(app);
+    ranking_list_frame(app, ranking_list_top() - 8,
+        ranking_count(app) * BOARD_STEP);
+    if (!scroll_rows_begin(app, &ranking->list))
+        return;
     for (int i = 0; i < ranking->nb; i++) {
         if (!ranking_match(app, &ranking->ranks[i]))
             continue;
         shown++;
-        if (shown < ranking->scroll || shown >= ranking->scroll + rows)
-            continue;
-        draw_line(app, i, CONTENT_Y + BOARD_STEP
-            + (shown - ranking->scroll) * BOARD_STEP);
+        y = scroll_y(&ranking->list, shown * BOARD_STEP) + 8;
+        if (scroll_seen(&ranking->list, y - 8, BOARD_STEP))
+            draw_line(app, i, y);
     }
+    scroll_rows_end(app);
 }

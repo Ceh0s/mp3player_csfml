@@ -23,7 +23,7 @@ static int is_custom(app_t *app)
 static int drop_place(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    float pos = app->mouse.y - LIST_Y + (int)scene->scroll + LIST_STEP / 2;
+    float pos = app->mouse.y - LIST_Y + (int)scene->list.pos + LIST_STEP / 2;
     int place = pos / LIST_STEP;
     int first = 0;
     int last = 0;

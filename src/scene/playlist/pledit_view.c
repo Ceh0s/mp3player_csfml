@@ -19,7 +19,7 @@ void pledit_search(app_t *app)
     song_t *song = NULL;
 
     pl->nb_found = 0;
-    pl->scroll = 0;
+    scroll_jump(&pl->list, 0);
     for (int i = 0; i < app->lib->nb; i++) {
         song = app->lib->present[i];
         if (!str_contains(song_title(song), pl->search) && (!song->artists
@@ -30,24 +30,12 @@ void pledit_search(app_t *app)
     }
 }
 
-static int visible_rows(app_t *app)
-{
-    return (PL_ROWS_BOTTOM + app->extra_h - PL_ROWS_Y) / PL_ROW_STEP;
-}
-
 /*
-** delta = 0 only keeps the scroll valid (after a resize)
+** the wheel moves two rows
 */
 void pledit_scroll(app_t *app, float delta)
 {
-    pledit_t *pl = app->pledit;
-    int max = pl->nb_found - visible_rows(app);
-
-    pl->scroll -= (int)delta;
-    if (pl->scroll > max)
-        pl->scroll = max;
-    if (pl->scroll < 0)
-        pl->scroll = 0;
+    scroll_by(&app->pledit->list, -delta * 2 * PL_ROW_STEP);
 }
 
 static void header(app_t *app, pledit_t *pl)
@@ -69,17 +57,26 @@ static void header(app_t *app, pledit_t *pl)
     widget_text(app, count, (float [3]){130, 278, 22}, &gray);
 }
 
+/*
+** the songs found, checked if in the playlist; they scroll
+*/
 static void song_rows(app_t *app, pledit_t *pl)
 {
     song_t *song = NULL;
-    int rows = visible_rows(app);
     float y = 0;
     float text[4] = {210, 0, 1550, PL_ROW_STEP - 12};
+    float area[4] = {PANEL_X, PL_ROWS_Y, PANEL_W,
+        PL_ROWS_BOTTOM + app->extra_h - PL_ROWS_Y};
 
-    for (int i = pl->scroll; i < pl->nb_found && i < pl->scroll + rows;
-        i++) {
+    scroll_frame(&pl->list, area, pl->nb_found * PL_ROW_STEP);
+    scroll_bar_draw(app, &pl->list);
+    if (!scroll_rows_begin(app, &pl->list))
+        return;
+    for (int i = 0; i < pl->nb_found; i++) {
         song = pl->found[i];
-        y = PL_ROWS_Y + (i - pl->scroll) * PL_ROW_STEP;
+        y = scroll_y(&pl->list, i * PL_ROW_STEP);
+        if (!scroll_seen(&pl->list, y, PL_ROW_STEP))
+            continue;
         if (widget_button(app, (float [4]){130, y, 1650, PL_ROW_STEP - 6},
                 playlist_has_song(app->lib, pl->playlist, song) ? "[x]"
                 : "[  ]"))
@@ -87,6 +84,7 @@ static void song_rows(app_t *app, pledit_t *pl)
         text[1] = y + 4;
         widget_song(app, song, text, &sfWhite);
     }
+    scroll_rows_end(app);
 }
 
 /*

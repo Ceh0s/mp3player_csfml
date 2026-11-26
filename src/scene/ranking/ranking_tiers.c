@@ -90,16 +90,80 @@ static void title_hover(app_t *app, rank_t const *rank, float const *pos,
 }
 
 /*
-** row = {y, h}; the titles that do not fit are counted in "+N"
+** place of the next name of a tier shown alone: pos = {x, line} moves
+** after it (line = its height from the top of the names); returns its
+** width
+*/
+static float next_name(app_t *app, char const *name, float *pos)
+{
+    float width = widget_text_width(app, name, 20) + 40;
+
+    if (pos[0] + width > 1700 && pos[0] > 250) {
+        pos[0] = 250;
+        pos[1] += 30;
+    }
+    pos[0] += width;
+    return width;
+}
+
+/*
+** height of the names of a tier shown alone
+*/
+static float names_height(app_t *app, int tier)
+{
+    ranking_t *ranking = app->ranking;
+    float pos[2] = {250, 4};
+
+    for (int i = 0; i < ranking->nb; i++)
+        if (ranking->tiers[i] == tier
+            && ranking_match(app, &ranking->ranks[i]))
+            next_name(app, rank_name(&ranking->ranks[i]), pos);
+    return pos[1] + 34;
+}
+
+/*
+** a tier shown alone: every name, scrolled
+*/
+static void open_titles(app_t *app, int tier, float const *row)
+{
+    ranking_t *ranking = app->ranking;
+    scroll_t *list = &ranking->list;
+    float pos[2] = {250, 4};
+    float width = 0;
+    float y = 0;
+
+    ranking_open_frame(app, row, names_height(app, tier));
+    scroll_rows_begin(app, list);
+    for (int i = 0; i < ranking->nb; i++) {
+        if (ranking->tiers[i] != tier
+            || !ranking_match(app, &ranking->ranks[i]))
+            continue;
+        width = next_name(app, rank_name(&ranking->ranks[i]), pos);
+        y = scroll_y(list, pos[1]);
+        if (!scroll_seen(list, y, 30))
+            continue;
+        widget_text(app, rank_name(&ranking->ranks[i]),
+            (float [3]){pos[0] - width, y, 20}, &sfWhite);
+        title_hover(app, &ranking->ranks[i], (float [2]){pos[0], y}, width);
+    }
+    scroll_rows_end(app);
+}
+
+/*
+** row = {y, h}; the titles that do not fit are counted in "+N" (all of
+** them are shown, scrolled, in a tier shown alone)
 */
 static int draw_titles(app_t *app, int tier, float const *row)
 {
     ranking_t *ranking = app->ranking;
     float pos[3] = {250, row[0] + 8, 20};
     int hidden = 0;
-
     char const *name = NULL;
 
+    if (ranking->open_tier >= 0) {
+        open_titles(app, tier, row);
+        return 0;
+    }
     for (int i = 0; i < ranking->nb; i++) {
         if (ranking->tiers[i] != tier
             || !ranking_match(app, &ranking->ranks[i]))
@@ -174,7 +238,7 @@ static void open_tier(app_t *app)
 
     if (label_clicked(app, row)) {
         ranking->open_tier = -1;
-        ranking->scroll = 0;
+        scroll_jump(&ranking->list, 0);
         return;
     }
     if (app->wg->mode == WG_DRAW)
@@ -194,11 +258,12 @@ void ranking_tiers(app_t *app)
         open_tier(app);
         return;
     }
+    ranking_list_frame(app, CONTENT_Y, 0);
     for (int t = 0; t <= TIER_UNRANKED; t++) {
         row[0] = CONTENT_Y + t * height;
         if (label_clicked(app, row)) {
             app->ranking->open_tier = t;
-            app->ranking->scroll = 0;
+            scroll_jump(&app->ranking->list, 0);
             return;
         }
         if (app->wg->mode == WG_DRAW)

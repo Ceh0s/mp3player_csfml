@@ -48,48 +48,69 @@ static void tile(app_t *app, rank_t const *rank, float const *rect)
 }
 
 /*
-** lines of images skipped at the top: only for a tier shown alone
-** (ranking->scroll, kept between 0 and the last full screen)
+** the area of a tier shown alone, right of its label; it scrolls
+** (ranking->list), content = height of its images or names
 */
-static int skipped_lines(ranking_t *ranking, int count, int per_line,
-    float const *row)
+void ranking_open_frame(app_t *app, float const *row, float content)
 {
-    float size = TILE_MAX + TILE_GAP;
-    int lines = (count + per_line - 1) / per_line;
-    int max = lines - (int)((row[1] - 8) / size);
+    float area[4] = {TILES_X - 4, row[0] + 4,
+        PANEL_X + PANEL_W - TILES_X + 4, row[1] - 8};
 
-    if (ranking->open_tier < 0)
-        return 0;
-    if (ranking->scroll > max)
-        ranking->scroll = max;
-    if (ranking->scroll < 0)
-        ranking->scroll = 0;
-    return ranking->scroll;
+    scroll_frame(&app->ranking->list, area, content);
 }
 
 /*
-** row = {y, h}; returns the number of images that do not fit
+** a tier shown alone: every image, big, scrolled
+*/
+static void open_tiles(app_t *app, int tier, float const *row)
+{
+    ranking_t *ranking = app->ranking;
+    float step = TILE_MAX + TILE_GAP;
+    int per_line = (TILES_RIGHT - TILES_X) / step;
+    int lines = (tier_count(app, tier) + per_line - 1) / per_line;
+    int shown = 0;
+    float rect[4] = {0, 0, TILE_MAX, TILE_MAX};
+
+    ranking_open_frame(app, row, lines * step);
+    scroll_rows_begin(app, &ranking->list);
+    for (int i = 0; i < ranking->nb; i++) {
+        if (ranking->tiers[i] != tier
+            || !ranking_match(app, &ranking->ranks[i]))
+            continue;
+        rect[0] = TILES_X + (shown % per_line) * step;
+        rect[1] = scroll_y(&ranking->list, (shown / per_line) * step);
+        shown++;
+        if (scroll_seen(&ranking->list, rect[1], TILE_MAX))
+            tile(app, &ranking->ranks[i], rect);
+    }
+    scroll_rows_end(app);
+}
+
+/*
+** row = {y, h}; returns the number of images that do not fit (none for
+** a tier shown alone: it scrolls)
 */
 int ranking_tiles(app_t *app, int tier, float const *row)
 {
     ranking_t *ranking = app->ranking;
     int count = tier_count(app, tier);
-    float size = ranking->open_tier >= 0 ? TILE_MAX : tile_size(count, row);
+    float size = tile_size(count, row);
     int per_line = (TILES_RIGHT - TILES_X) / (size + TILE_GAP);
-    int skip = skipped_lines(ranking, count, per_line, row);
     int shown = 0;
     int hidden = 0;
     float rect[4] = {0, 0, size, size};
 
+    if (ranking->open_tier >= 0) {
+        open_tiles(app, tier, row);
+        return 0;
+    }
     for (int i = 0; i < ranking->nb; i++) {
         if (ranking->tiers[i] != tier
             || !ranking_match(app, &ranking->ranks[i]))
             continue;
         rect[0] = TILES_X + (shown % per_line) * (size + TILE_GAP);
-        rect[1] = row[0] + 4 + (shown / per_line - skip) * (size + TILE_GAP);
+        rect[1] = row[0] + 4 + (shown / per_line) * (size + TILE_GAP);
         shown++;
-        if (rect[1] < row[0])
-            continue;
         if (rect[1] + size > row[0] + row[1] - 4)
             hidden++;
         else

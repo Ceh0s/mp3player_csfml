@@ -28,7 +28,7 @@ static void row_rect(libscene_t const *scene, int row, float *rect)
 */
 int list_click(app_t *app)
 {
-    if (app->libscene->sort_open || app->libscene->slider_held
+    if (app->libscene->sort_open || app->libscene->list.held
         || app->mouse.x < LIST_X || app->mouse.x > LIST_LIKES_X - 8)
         return -1;
     return list_row_at(app);

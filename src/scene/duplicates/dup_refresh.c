@@ -67,5 +67,4 @@ void dupscene_clean(app_t *app)
     }
     list->nb = kept;
     sort_groups(list);
-    dupscene_scroll(app, 0);
 }

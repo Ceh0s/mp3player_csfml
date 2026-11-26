@@ -29,8 +29,7 @@ int list_create(app_t *app)
     list_free(app);
     if (!playlist)
         scene->playlist_id = 0;
-    scene->scroll = 0;
-    scene->scroll_to = 0;
+    scroll_jump(&scene->list, 0);
     scene->view = malloc(sizeof(song_t *) * (app->lib->nb + 1));
     if (!scene->view)
         return 84;
@@ -49,13 +48,11 @@ int list_create(app_t *app)
 int list_refresh(app_t *app)
 {
     libscene_t *scene = app->libscene;
-    float scroll = scene->scroll;
-    float scroll_to = scene->scroll_to;
+    scroll_t kept = scene->list;
 
     if (list_create(app) == 84)
         return 84;
-    scene->scroll = scroll;
-    scene->scroll_to = scroll_to;
+    scene->list = kept;
     list_scroll(app, 0);
     return 0;
 }

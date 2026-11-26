@@ -89,6 +89,8 @@ void dupscene_update(app_t *app)
 {
     dupscene_t *scene = app->dupscene;
 
+    scroll_grab(app, &scene->rows);
+    scroll_update(app, &scene->rows);
     if (scene->ready)
         return;
     if (scene->done < scene->nb_todo) {

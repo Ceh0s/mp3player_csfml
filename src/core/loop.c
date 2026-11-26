@@ -79,15 +79,29 @@ static void draw(app_t *app)
     sfRenderWindow_display(app->window);
 }
 
+/*
+** the lists that move set the tick back to TICK_SMOOTH (scroll.c)
+*/
 static void update(app_t *app)
 {
     app->delta_us = sfTime_asMicroseconds(sfClock_restart(app->delta));
+    app->tick_loop = TICK_MS;
+    app->scroll_held = 0;
     player_update(app);
     download_poll(app);
     if (scenes[app->scene].update)
         scenes[app->scene].update(app);
     autosave(app);
     window_apply_toggle(app);
+}
+
+/*
+** the release of a held slider is not a click on what is under it
+*/
+static int released_slider(app_t *app, sfEvent const *event)
+{
+    return app->scroll_held && event->type == sfEvtMouseButtonReleased
+        && event->mouseButton.button == sfMouseLeft;
 }
 
 static void poll_events(app_t *app)
@@ -100,6 +114,8 @@ static void poll_events(app_t *app)
         arrow_scroll(&event);
         if ((typing(app) && caret_key(app, &event))
             || search_event(app, &event))
+            continue;
+        if (released_slider(app, &event))
             continue;
         global_event(app, &event);
         scenes[app->scene].event(app, &event);

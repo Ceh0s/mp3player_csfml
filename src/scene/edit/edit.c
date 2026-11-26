@@ -75,12 +75,27 @@ void edit_event(app_t *app, sfEvent *event)
     }
     if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_NOTES)
         edit_notes_scroll(app, event->mouseWheelScroll.delta);
+    if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_ARTIST)
+        scroll_by(&edit->titles, -event->mouseWheelScroll.delta * 80);
     if (event->type != sfEvtMouseButtonReleased
         || event->mouseButton.button != sfMouseLeft)
         return;
     app->wg->mode = WG_CLICK;
     build(app);
     app->wg->mode = WG_DRAW;
+}
+
+/*
+** lists that scroll: the page "Découverte", the songs of the artist page
+*/
+void edit_update(app_t *app)
+{
+    if (app->edit->mode == EDIT_NOTES)
+        edit_notes_update(app);
+    if (app->edit->mode != EDIT_ARTIST)
+        return;
+    scroll_grab(app, &app->edit->titles);
+    scroll_update(app, &app->edit->titles);
 }
 
 void edit_draw(app_t *app)

@@ -135,8 +135,7 @@ void stats_build(app_t *app)
     free(by_id);
     free(view);
     if (app->stats_opt.scroll > 0) {
-        scene->scroll = app->stats_opt.scroll;
+        scroll_jump(&scene->list, app->stats_opt.scroll);
         app->stats_opt.scroll = 0;
     }
-    stats_scroll(app, 0);
 }

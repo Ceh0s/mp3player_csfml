@@ -114,11 +114,8 @@ typedef struct selection_s {
 ** shown : song written in the bottom bar (has_shown = 0 before the 1st)
 ** drag_row : row held by the mouse in the custom order (-1 if none),
 ** press : where it was pressed, dragging : 1 once the mouse moved
-** scroll / scroll_to : pixels of the list above its first row shown, now
-** and once it has slid (library_scroll.c); height : pixels of the list on
-** the screen
-** slider_held : 1 while the slider is held, slider_grab : where, from
-** the top of its handle
+** list : its scroll in pixels and its slider (scroll.c, library_scroll.c);
+** height : pixels of the list on the screen
 ** selecting : 1 in the selection mode (a click checks a song), sel : it
 ** sort_open : 1 while the list of the sort criteria is open
 */
@@ -138,10 +135,7 @@ typedef struct libscene_s {
     sfText *now_artist;
     sfText *time;
     sfText *hint;
-    float scroll;
-    float scroll_to;
-    int slider_held;
-    float slider_grab;
+    scroll_t list;
     int height;
     song_t *shown;
     int has_shown;
@@ -200,8 +194,8 @@ typedef struct image_input_s {
 ** (old.song = 0 for a new one), from / to : dates typed, first : see
 ** period_t (the one of each playlist is on all its rows), removed : 1
 ** once "Retirer" was clicked
-** playlist : the one whose stays are shown; scroll / scroll_rows : first
-** playlist and first stay shown; row / side : date field receiving the
+** playlist : the one whose stays are shown; lists / periods : scroll of
+** the playlists and of its stays (scroll.c); row / side : date field receiving the
 ** keys (side 0 = from, 1 = to); msg : why it was not saved
 */
     #define PERIOD_ROWS 64
@@ -221,8 +215,8 @@ typedef struct notes_edit_s {
     period_row_t rows[PERIOD_ROWS];
     int nb;
     int playlist;
-    int scroll;
-    int scroll_rows;
+    scroll_t lists;
+    scroll_t periods;
     int row;
     int side;
     char msg[96];
@@ -233,7 +227,7 @@ typedef struct notes_edit_s {
 ** input : "add an artist" field, suggest : existing artists matching it
 ** show_hidden : 1 to list the hidden suggestions too (EDIT_TITLES page)
 ** search / results / target : choice of the song to merge into
-** artist : artist shown by the artist page
+** artist : artist shown by the artist page, titles : scroll of its songs
 ** image : import of an image for the song or the artist shown
 ** exclude : EDIT_ASK_EXCLUDE or EDIT_ASK_DELETE once "Exclure" or
 ** "Supprimer du lecteur" was clicked (a second click confirms), 0 if none
@@ -264,6 +258,7 @@ typedef struct edit_s {
     int exclude;
     char rename[NAME_LEN];
     artist_t *renamed;
+    scroll_t titles;
     notes_edit_t notes;
 } edit_t;
 
@@ -296,8 +291,9 @@ typedef enum ranking_tab_e {
 ** one; order : the same in the order chosen between ex aequo
 ** ("Départage" tab, drag_row : row held, -1 if none)
 ** reset : 1 while the reset window is open, confirm : what is typed in it
-** open_tier : tier shown alone on the whole table (-1 = all of them),
-** scrolled by lines of images (scroll)
+** open_tier : tier shown alone on the whole table (-1 = all of them)
+** list : scroll of the tab shown (scroll.c; leaderboard, ties, history,
+** tier shown alone)
 ** hover : song or artist under the mouse at the last drawing (both NULL
 ** if none), opened by a right click (ranking_open.c)
 ** undo_left : battles of the history that may still be undone, undo_ask :
@@ -312,7 +308,7 @@ typedef struct ranking_s {
     rank_t *order;
     int *tiers;
     int nb;
-    int scroll;
+    scroll_t list;
     int drag_row;
     int dragging;
     sfVector2f press;
@@ -333,7 +329,7 @@ typedef struct ranking_s {
 typedef struct ranking_keep_s {
     int active;
     int tab;
-    int scroll;
+    float scroll;
     int open_tier;
 } ranking_keep_t;
 
@@ -357,7 +353,7 @@ typedef struct pledit_s {
     int confirm;
     song_t **found;
     int nb_found;
-    int scroll;
+    scroll_t list;
     char takeout[NAME_LEN];
     char takeout_msg[160];
     int takeout_ask;
@@ -374,6 +370,7 @@ typedef enum boards_mode_e {
 ** name : name being typed, applied when leaving the edition
 ** results : rules that can be added for what is typed in search
 ** members : number of songs in the ranking
+** list : scroll of the rankings, or of the rules of the one edited
 */
 typedef struct boards_s {
     sfTexture *bg_texture;
@@ -387,6 +384,7 @@ typedef struct boards_s {
     rule_t results[BOARD_RESULTS];
     int nb_results;
     int members;
+    scroll_t list;
 } boards_t;
 
 /*
@@ -396,8 +394,9 @@ typedef struct boards_s {
 ** limit), focus : field receiving the keys (DL_FIELD_...)
 ** targets : local playlists chosen to receive the songs
 ** link / absent : options of a single playlist (dl_options_t)
-** popup : list shown over the screen (DL_POPUP_...), scroll : its
-** first row shown, confirm : song whose files are about to be removed
+** popup : list shown over the screen (DL_POPUP_...), list : scroll of its
+** rows (scroll.c), nb_rows : rows of it counted at the last drawing,
+** confirm : song whose files are about to be removed
 ** (asked a second time), 0 if none
 ** archived : 1 to show the archived rows of "Refusés" / "Exclus",
 ** clear : 1 once "Vider la liste" was clicked (asked a second time),
@@ -436,7 +435,8 @@ typedef struct dlscene_s {
     int link;
     int absent;
     dl_popup_t popup;
-    int scroll;
+    scroll_t list;
+    int nb_rows;
     int confirm;
     int archived;
     int clear;
@@ -448,8 +448,8 @@ typedef struct dlscene_s {
 ** sound of the songs in them is read, one song per tick (todo, done:
 ** the window keeps being drawn); ready once every group is compared
 ** auto_merged : songs merged on their own (dup_merge.c)
-** scroll : first item shown (the files of identical sound, then the
-** groups), confirm : file of identical sound about to be removed + 1
+** rows : scroll of the items (the files of identical sound, then the
+** groups; scroll.c), confirm : file of identical sound about to be removed + 1
 ** (asked a second time), 0 if none
 */
 typedef struct dupscene_s {
@@ -462,7 +462,7 @@ typedef struct dupscene_s {
     int done;
     int ready;
     int auto_merged;
-    int scroll;
+    scroll_t rows;
     int confirm;
 } dupscene_t;
 
@@ -514,13 +514,13 @@ typedef struct stats_opt_s {
     int ascending;
     char from[STAT_DATE_LEN];
     char to[STAT_DATE_LEN];
-    int scroll;
+    float scroll;
 } stats_opt_t;
 
 /*
 ** statistics screen: log : listens.log read when the screen opens (nb_log
 ** sessions), rows : the leaderboard (nb of them), rebuilt when a choice
-** changes (dirty), scroll : first row shown, focus : 0, or the date field
+** changes (dirty), list : their scroll (scroll.c), focus : 0, or the date field
 ** receiving the keys (1 = from, 2 = to); hover : song or artist under
 ** the mouse at the last drawing, opened by a right click (page_open.c)
 */
@@ -532,7 +532,7 @@ typedef struct statscene_s {
     int nb_log;
     stat_row_t *rows;
     int nb;
-    int scroll;
+    scroll_t list;
     int focus;
     int dirty;
     rank_t hover;
