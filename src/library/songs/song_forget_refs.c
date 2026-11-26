@@ -107,6 +107,7 @@ void song_forget_refs(library_t *lib, int id)
     forget_pairs(lib, id);
     forget_suggestions(lib, id);
     notes_remove(lib, id);
+    manual_forget(lib, id);
     periods_forget(lib, 0, id);
     for (board_t *board = lib->boards; board; board = board->next)
         forget_rules(board, id);

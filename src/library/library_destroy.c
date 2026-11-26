@@ -83,6 +83,7 @@ void library_destroy(library_t *lib)
     notes_remove(lib, 0);
     periods_forget(lib, 0, 0);
     video_aliases_free(lib);
+    manual_forget(lib, -1);
     free(lib->present);
     free(lib);
 }

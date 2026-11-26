@@ -100,7 +100,7 @@ static void when(app_t *app, hist_t const *item, float y)
     widget_text(app, text, (float [3]){130, y + 34, 22}, &gray);
     if (item->reset || app->arena.category != CAT_TOTAL)
         return;
-    utf8_cut(text, elo_categories[item->category], 14);
+    utf8_cut(text, category_name(item->category), 14);
     widget_text(app, text, (float [3]){130, y + 64, 18}, &gray);
 }
 

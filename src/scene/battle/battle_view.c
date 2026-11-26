@@ -118,14 +118,24 @@ static void bottom(app_t *app, battle_t *battle)
         battle_next(app);
 }
 
+/*
+** the list of the categories is above the screen: it takes the clicks
+** first and is drawn last
+*/
 void battle_view(app_t *app)
 {
     battle_t *battle = app->battle;
+    int *category = &app->arena.category;
 
+    if (app->wg->mode == WG_CLICK
+        && category_overlay(app, category, NB_CATEGORIES) == 1) {
+        battle_next(app);
+        return;
+    }
     widget_text(app, "Battle", (float [3]){130, 115, 40}, &sfWhite);
     if (board_bar(app, &app->arena))
         battle_reload(app);
-    if (category_bar(app, &app->arena.category, NB_CATEGORIES, 1))
+    if (category_bar(app, &app->arena.category, 1))
         battle_next(app);
     if (battle->has_pair)
         cards(app, battle);
@@ -135,4 +145,6 @@ void battle_view(app_t *app)
             "battle.",
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
     bottom(app, battle);
+    if (app->wg->mode == WG_DRAW)
+        category_overlay(app, category, NB_CATEGORIES);
 }

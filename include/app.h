@@ -30,6 +30,7 @@
 ** battle_keep : ids of the two songs of the battle while one of them is
 ** edited (right click), shown again when coming back (0 = none)
 ** ranking_keep : the same for the rankings screen
+** catlist : list of the categories and window of their description
 ** library_keep : place and search of the library when it was left
 ** edit_artist : artist whose page the edit scene opens on (no song)
 ** dl_range : duration range typed last on the download screen (seconds,
@@ -79,6 +80,7 @@ struct app_s {
     song_t *edit_song;
     int battle_keep[2];
     ranking_keep_t ranking_keep;
+    catlist_t catlist;
     artist_t *edit_artist;
     int dl_range[2];
     playlist_t *edit_playlist;

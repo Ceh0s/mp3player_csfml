@@ -157,6 +157,22 @@ typedef struct library_keep_s {
     char search[NAME_LEN];
 } library_keep_t;
 
+/*
+** stats of a song or an artist, in a window over its page (stat_panel.c):
+** open : 1 while shown, choose : 1 to show every stat with its box,
+** subject : whose stats (song resolved), values : of each stat (0 to 100,
+** -1 = none, -2 = not for this kind), rows / nb : stats drawn at the
+** last frame, in their order
+*/
+typedef struct statpanel_s {
+    int open;
+    int choose;
+    rank_t subject;
+    int values[NB_STATS];
+    int rows[NB_STATS];
+    int nb;
+} statpanel_t;
+
 typedef enum edit_mode_e {
     EDIT_MAIN,
     EDIT_SEARCH,
@@ -228,6 +244,7 @@ typedef struct notes_edit_s {
 ** show_hidden : 1 to list the hidden suggestions too (EDIT_TITLES page)
 ** search / results / target : choice of the song to merge into
 ** artist : artist shown by the artist page, titles : scroll of its songs
+** stats : window of the stats of the song or of the artist shown
 ** image : import of an image for the song or the artist shown
 ** exclude : EDIT_ASK_EXCLUDE or EDIT_ASK_DELETE once "Exclure" or
 ** "Supprimer du lecteur" was clicked (a second click confirms), 0 if none
@@ -259,6 +276,7 @@ typedef struct edit_s {
     char rename[NAME_LEN];
     artist_t *renamed;
     scroll_t titles;
+    statpanel_t stats;
     notes_edit_t notes;
 } edit_t;
 
@@ -326,6 +344,21 @@ typedef struct ranking_s {
 ** what the rankings screen shows again when coming back from the page
 ** of a song or an artist (active = 1 then)
 */
+/*
+** list of the categories opened by the category bar (category_list.c),
+** shared by the battle and ranking screens: open : 1 while it is shown,
+** nb : its rows at the last drawing; edit : stat + 1 whose description
+** is being typed (0 if none, also from the stats of a page), text / flaw :
+** its working copy
+*/
+typedef struct catlist_s {
+    int open;
+    int nb;
+    int edit;
+    char text[DESC_LEN];
+    int flaw;
+} catlist_t;
+
 typedef struct ranking_keep_s {
     int active;
     int tab;

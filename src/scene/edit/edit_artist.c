@@ -69,6 +69,18 @@ static void rename_box(app_t *app, edit_t *edit)
         edit_rename_artist(app);
 }
 
+/*
+** window of the stats of the artist (bars of the categories)
+*/
+static void stats_button(app_t *app, edit_t *edit)
+{
+    rank_t rank = {NULL, edit->artist, 0, 0, 0};
+
+    if (widget_icon_button(app, (float [4]){1040, 130, 240, 56}, ICON_CHART,
+            "Stats"))
+        stat_panel_open(app, &edit->stats, &rank);
+}
+
 void edit_artist(app_t *app)
 {
     int back = 0;
@@ -77,6 +89,7 @@ void edit_artist(app_t *app)
     if (app->edit->artist) {
         image(app, app->edit);
         rename_box(app, app->edit);
+        stats_button(app, app->edit);
     }
     if (!back)
         return;

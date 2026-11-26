@@ -86,6 +86,8 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/pages/artist_page.c\
 		src/scene/pages/board_bar.c\
 		src/scene/pages/category_bar.c\
+		src/scene/pages/category_list.c\
+		src/scene/pages/stat_panel.c\
 		src/scene/pages/image_box.c\
 		src/scene/pages/like_buttons.c\
 		src/scene/pages/page_open.c\
@@ -128,6 +130,7 @@ SRC_UI	=	src/ui/image_cache.c\
 
 SRC_ELO	=	src/elo/elo_categories.c\
 		src/elo/elo_pair.c\
+		src/elo/elo_percent.c\
 		src/elo/elo_pool.c\
 		src/elo/elo_rating.c\
 		src/elo/elo_reset.c\
@@ -190,6 +193,8 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/suggest/suggest_text.c\
 		src/library/suggest/suggest_words.c\
 		src/library/likes/likes.c\
+		src/library/categories/category_opts.c\
+		src/library/categories/manual_stats.c\
 		src/library/images/cover_check.c\
 		src/library/images/image_path.c\
 		src/library/images/images.c\
@@ -261,6 +266,7 @@ SRC_DATA	=	src/data/db_all.c\
 		src/data/db_excluded.c\
 		src/data/db_unavailable.c\
 		src/data/db_likes.c\
+		src/data/db_categories.c\
 		src/data/db_ties.c\
 		src/data/logs.c\
 		src/data/tsv.c

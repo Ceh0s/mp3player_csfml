@@ -68,6 +68,18 @@ static void notes_button(app_t *app)
         edit_notes_open(app);
 }
 
+/*
+** window of the stats of the song (bars of the categories)
+*/
+static void stats_button(app_t *app, edit_t *edit)
+{
+    rank_t rank = {edit->song, NULL, 0, 0, 0};
+
+    if (widget_icon_button(app, (float [4]){960, 130, 260, 56}, ICON_CHART,
+            "Stats"))
+        stat_panel_open(app, &edit->stats, &rank);
+}
+
 static void header(app_t *app, edit_t *edit)
 {
     char info[NAME_LEN * 3];
@@ -80,6 +92,7 @@ static void header(app_t *app, edit_t *edit)
         &sfWhite);
     listen(app, edit->song);
     notes_button(app);
+    stats_button(app, edit);
     widget_text(app, info, (float [3]){130, 180, 22}, &gray);
     widget_text(app, "Titre", (float [3]){130, 228, 26}, &sfWhite);
     if (widget_field(app, (float [4]){130, 265, 1100, 56}, edit->title,

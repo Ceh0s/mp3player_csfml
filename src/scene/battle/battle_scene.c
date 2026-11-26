@@ -85,6 +85,8 @@ static void right_click(app_t *app)
 
 void battle_event(app_t *app, sfEvent *event)
 {
+    if (catlist_event(app, event))
+        return;
     if (event->type == sfEvtKeyPressed)
         battle_key(app, event->key.code);
     if (event->type == sfEvtMouseButtonReleased

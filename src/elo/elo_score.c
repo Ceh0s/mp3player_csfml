@@ -41,17 +41,22 @@ int subject_resolve(library_t *lib, elo_kind_t kind, int id)
     return song ? song->id : 0;
 }
 
+/*
+** in TOTAL, a category measuring a flaw counts the other way (flipped
+** around ELO_START): it lowers the total
+*/
 static void add_category(library_t *lib, arena_t const *arena,
     int category, rank_t *out)
 {
     arena_t one = {arena->kind, arena->board, category};
     elo_t *elo = elo_find(lib, &one, rank_id(out));
+    int flip = arena->category == CAT_TOTAL && lib->cats[category].flaw;
 
     if (!elo) {
         out->rating += ELO_START;
         return;
     }
-    out->rating += elo->rating;
+    out->rating += flip ? 2 * ELO_START - elo->rating : elo->rating;
     out->battles += elo->battles;
     out->wins += elo->wins;
 }
@@ -69,6 +74,6 @@ void elo_score(library_t *lib, arena_t const *arena, rank_t *out)
         return;
     }
     for (int i = 0; i < NB_CATEGORIES; i++)
-        if (category_rated(i))
+        if (category_rated(lib, i))
             add_category(lib, arena, i, out);
 }

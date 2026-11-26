@@ -86,7 +86,8 @@ static void bottom(app_t *app, ranking_t *ranking)
 }
 
 /*
-** the reset window takes the clicks while it is open
+** the reset window takes the clicks while it is open, then the list of
+** the categories (drawn above the screen)
 */
 void ranking_view(app_t *app)
 {
@@ -96,15 +97,23 @@ void ranking_view(app_t *app)
         ranking_reset_view(app);
         return;
     }
+    if (app->wg->mode == WG_CLICK && category_overlay(app,
+            &app->arena.category, NB_CATEGORIES + 1)) {
+        ranking_build(app);
+        return;
+    }
     widget_text(app, "Classements", (float [3]){130, 115, 40}, &sfWhite);
     ranking_search(app);
     if (board_bar(app, &app->arena))
         ranking_build(app);
-    if (category_bar(app, &app->arena.category, NB_CATEGORIES + 1, 0))
+    if (category_bar(app, &app->arena.category, 0))
         ranking_build(app);
     tabs(app);
     content(app, ranking);
     bottom(app, ranking);
+    if (app->wg->mode == WG_DRAW && category_overlay(app,
+            &app->arena.category, NB_CATEGORIES + 1))
+        ranking_build(app);
     if (ranking->reset)
         ranking_reset_view(app);
 }

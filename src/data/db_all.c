@@ -28,6 +28,9 @@ static void load_more(library_t *lib)
     tsv_read(NOTES_DB, &db_parse_note, lib);
     tsv_read(PERIODS_DB, &db_parse_period, lib);
     tsv_read(ALIASES_DB, &db_parse_alias, lib);
+    category_opts_default(lib);
+    tsv_read(CATEGORIES_DB, &db_parse_category, lib);
+    tsv_read(MANUAL_DB, &db_parse_manual, lib);
 }
 
 void db_load_all(library_t *lib)
@@ -72,7 +75,9 @@ int db_save_all(library_t *lib)
         ret = 84;
     if (db_save_notes(lib) == 84 || db_save_aliases(lib) == 84)
         ret = 84;
-    if (db_save_splits(lib) == 84)
+    if (db_save_splits(lib) == 84 || db_save_categories(lib) == 84)
+        ret = 84;
+    if (db_save_manual(lib) == 84)
         ret = 84;
     return ret;
 }

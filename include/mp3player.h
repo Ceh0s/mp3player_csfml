@@ -65,6 +65,8 @@
     #define SPLITS_DB "data/artist_splits.tsv"
     #define SPLITS_COLUMNS "name\tchoice"
     #define NOTES_DB "data/song_notes.tsv"
+    #define CATEGORIES_DB "data/categories.tsv"
+    #define MANUAL_DB "data/manual_stats.tsv"
     #define NOTES_COLUMNS "song_id\tfound\tdate"
     #define PERIODS_DB "data/playlist_history.tsv"
     #define PERIODS_COLS_1 "playlist_id\tsong_id\tstart\tend"
@@ -101,6 +103,8 @@
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
     #define PLAYLISTS_COLUMNS "id\tname\tauto"
     #define LIKES_COLUMNS "kind\tid\tvalue"
+    #define CATEGORIES_COLUMNS "name\ttotal\tshown\tmeasure\tdescription"
+    #define MANUAL_COLUMNS "song_id\tstat\tvalue"
     #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle\tarchived"
     #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason\tarchived"
     #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
@@ -192,7 +196,6 @@
     #include <SFML/Audio.h>
 
 extern const scene_t scenes[NB_SCENES];
-extern const char *const elo_categories[NB_CATEGORIES];
 
 // src/core : app, main loop, window, view, signals
 app_t *app_create(void);
@@ -503,7 +506,16 @@ void artist_page(app_t *app, artist_t *artist, scroll_t *titles,
     int *back);
 int like_row(app_t *app, song_t const *song, float const *rect, float x);
 int like_buttons(app_t *app, elo_kind_t kind, int id, float const *pos);
-int category_bar(app_t *app, int *category, int nb, int random);
+int category_bar(app_t *app, int *category, int random);
+int category_list(app_t *app, int *category, int nb);
+int category_overlay(app_t *app, int *category, int nb);
+int catlist_event(app_t *app, sfEvent *event);
+void catdesc_open(app_t *app, int stat);
+int elo_percent(library_t *lib, arena_t const *arena, int subject);
+void stat_panel_open(app_t *app, statpanel_t *panel, rank_t const *subject);
+void stat_panel(app_t *app, statpanel_t *panel);
+void stat_panel_right(app_t *app, statpanel_t *panel);
+int catdesc_view(app_t *app);
 int board_bar(app_t *app, arena_t *arena);
 int image_box(app_t *app, rank_t const *rank, image_input_t *input,
     float const *pos);
@@ -901,8 +913,11 @@ int suggest_apply_song(library_t *lib, song_t *song);
 
 // src/elo : ratings, without any display
 int category_find(char const *name);
+int stat_find(char const *name);
 char const *category_name(int category);
-int category_rated(int category);
+char const *stat_name(int stat);
+int category_rated(library_t const *lib, int category);
+category_def_t const *category_def(int stat);
 int kind_find(char const *name);
 char const *kind_name(elo_kind_t kind);
 elo_t *elo_find(library_t *lib, arena_t const *arena, int subject);
@@ -968,6 +983,15 @@ void db_parse_tie(library_t *lib, char **fields, int nb);
 int db_save_ties(library_t *lib);
 void db_parse_like(library_t *lib, char **fields, int nb);
 int db_save_likes(library_t *lib);
+void db_parse_category(library_t *lib, char **fields, int nb);
+int db_save_categories(library_t *lib);
+void db_parse_manual(library_t *lib, char **fields, int nb);
+int db_save_manual(library_t *lib);
+void category_opts_default(library_t *lib);
+void category_set_desc(library_t *lib, int stat, char const *text);
+void manual_set(library_t *lib, int song_id, int stat, int value);
+int manual_get(library_t *lib, song_t *song, int stat);
+void manual_forget(library_t *lib, int song_id);
 void db_parse_excluded(library_t *lib, char **fields, int nb);
 int db_save_excluded(library_t *lib);
 void db_parse_unavailable(library_t *lib, char **fields, int nb);

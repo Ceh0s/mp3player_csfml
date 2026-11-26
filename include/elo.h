@@ -8,7 +8,11 @@
 #ifndef ELO_H_
     #define ELO_H_
 
-    #define NB_CATEGORIES 8
+    #define NB_CATEGORIES 13
+    #define NB_MANUAL 1
+    #define NB_STATS (NB_CATEGORIES + NB_MANUAL)
+    #define STAT_RECENCY NB_CATEGORIES
+    #define DESC_LEN 160
     #define CAT_ALL 0
     #define CAT_TOTAL NB_CATEGORIES
     #define BOARD_GENERAL 0
@@ -19,6 +23,42 @@
     #define NB_TIERS 6
     #define UNDO_MAX 3
     #define TIER_UNRANKED NB_TIERS
+
+/*
+** a stat of the songs: the battle categories (NB_CATEGORIES), then those
+** set by hand (NB_MANUAL, not Elo); default values (elo_categories.c),
+** changed by the author in data/categories.tsv: total : counted in TOTAL
+** (and drawn by "Catégorie aléatoire"), flaw : 1 if it measures a flaw
+** (its bar is red when high, it lowers TOTAL)
+*/
+typedef struct category_def_s {
+    char const *name;
+    int total;
+    int flaw;
+    char const *desc;
+} category_def_t;
+
+/*
+** the same, as the author set them; shown : its bar is drawn on the pages
+** of the songs and artists
+*/
+typedef struct cat_opt_s {
+    int total;
+    int shown;
+    int flaw;
+    char desc[DESC_LEN];
+} cat_opt_t;
+
+/*
+** a stat set by hand: raw id of the song, index of the stat (>=
+** NB_CATEGORIES), value from 0 to 100
+*/
+typedef struct manual_s {
+    int song_id;
+    int stat;
+    int value;
+    struct manual_s *next;
+} manual_t;
 
 typedef enum elo_kind_e {
     KIND_SONG,

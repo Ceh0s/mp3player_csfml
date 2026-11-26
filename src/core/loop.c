@@ -24,7 +24,7 @@ static int typing(app_t *app)
 {
     scene_id_t scene = app->scene;
 
-    if (app->search.focus)
+    if (app->search.focus || app->catlist.edit)
         return 1;
     if (scene == RANKING)
         return app->ranking && app->ranking->reset;
@@ -38,9 +38,14 @@ static int typing(app_t *app)
 
 /*
 ** the screens with pages or lists over them handle escape themselves
+** (the list of the categories too, category_list.c)
 */
-static int own_escape(scene_id_t scene)
+static int own_escape(app_t *app)
 {
+    scene_id_t scene = app->scene;
+
+    if (app->catlist.open || app->catlist.edit)
+        return 1;
     return scene == EDIT || scene == BOARDS || scene == DOWNLOAD
         || scene == RANKING || scene == LIBRARY || scene == STATS;
 }
@@ -55,7 +60,7 @@ static void global_event(app_t *app, sfEvent *event)
         return;
     if (event->key.code == sfKeyF11)
         app->toggle_fullscreen = 1;
-    if (event->key.code == sfKeyEscape && !own_escape(app->scene))
+    if (event->key.code == sfKeyEscape && !own_escape(app))
         scene_back(app);
     if (event->key.code == sfKeySpace && !typing(app))
         player_toggle(app);

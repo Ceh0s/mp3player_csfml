@@ -52,18 +52,63 @@ int edit_init(app_t *app)
     return 0;
 }
 
+/*
+** the window of the stats, or of the description of one of them, over
+** the page
+*/
+static void overlays(app_t *app)
+{
+    if (app->catlist.edit)
+        catdesc_view(app);
+    else
+        stat_panel(app, &app->edit->stats);
+}
+
+/*
+** a window over the page takes the clicks first and is drawn last
+*/
 static void build(app_t *app)
 {
     void (*const screens[6])(app_t *) = {&edit_main, &edit_search,
         &edit_confirm, &edit_artist, &edit_titles, &edit_notes};
 
+    if (app->wg->mode == WG_CLICK
+        && (app->catlist.edit || app->edit->stats.open)) {
+        overlays(app);
+        return;
+    }
     screens[app->edit->mode](app);
+    if (app->wg->mode == WG_DRAW)
+        overlays(app);
+}
+
+/*
+** while the stats are shown, Escape closes them and a right click opens
+** the description of a stat; returns 1 if the event is taken
+*/
+static int panel_event(app_t *app, sfEvent *event)
+{
+    statpanel_t *panel = &app->edit->stats;
+
+    if (catlist_event(app, event))
+        return 1;
+    if (!panel->open || (event->type == sfEvtMouseButtonReleased
+        && event->mouseButton.button == sfMouseLeft))
+        return 0;
+    if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape)
+        panel->open = 0;
+    if (event->type == sfEvtMouseButtonPressed
+        && event->mouseButton.button == sfMouseRight)
+        stat_panel_right(app, panel);
+    return 1;
 }
 
 void edit_event(app_t *app, sfEvent *event)
 {
     edit_t *edit = app->edit;
 
+    if (panel_event(app, event))
+        return;
     if (event->type == sfEvtTextEntered)
         edit_text_entered(app, event->text.unicode);
     if (event->type == sfEvtKeyPressed && event->key.code == sfKeyEscape) {
@@ -90,6 +135,8 @@ void edit_event(app_t *app, sfEvent *event)
 */
 void edit_update(app_t *app)
 {
+    if (app->edit->stats.open || app->catlist.edit)
+        return;
     if (app->edit->mode == EDIT_NOTES)
         edit_notes_update(app);
     if (app->edit->mode != EDIT_ARTIST)

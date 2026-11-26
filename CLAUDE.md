@@ -105,7 +105,9 @@ src/scene/             table des scènes
     pages/             morceaux d'écran réutilisables (artist_page, category_bar,
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
-                       lecteur, search_field : champ de recherche)
+                       lecteur, search_field : champ de recherche,
+                       category_list : liste des catégories et fenêtre de
+                       description, stat_panel : barres de stats d'une page)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets, coupe d'une
                        zone de l'écran (clip.c), défilement commun des
                        listes (scroll.c : calcul ; scroll_bar.c : coupe
@@ -120,7 +122,8 @@ src/ui/                tables d'éléments (atlas), collisions, formes, widgets,
                        text_char_x),
                        widgets image / infobulle (widget_help : seulement si l'aide au
                        survol est activée), cache des textures d'images
-src/elo/               catégories, calcul Elo, score (TOTAL), pool d'une arène, paires,
+src/elo/               catégories (valeurs par défaut), calcul Elo, score (TOTAL),
+                       rang en pourcentage (elo_percent.c), pool d'une arène, paires,
                        reset (ligne « reset » dans battles.log), historique d'une
                        arène (elo_history.c : battles.log rejoué pour ce type et ce
                        classement, places comptées dans la poule actuelle)
@@ -152,6 +155,9 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
     periods/           périodes des musiques dans les playlists : suivi (periods_sync.c),
                        résumé (periods_sum.c), import Takeout (takeout.c, _songs)
     likes/             avis (+1/-1) et playlists auto « Titres likés / dislikés »
+    categories/        réglages des catégories (category_opts.c : total,
+                       affichée, qualité / défaut, description), stats réglées à
+                       la main (manual_stats.c)
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
@@ -338,6 +344,22 @@ Principes en place :
   d'abord. Le glisser-déposer est coupé pendant une recherche.
 - **Arène** (`app->arena`) : type (musiques/artistes) + classement + catégorie, partagée par
   les scènes battle et classements.
+- **Catégories** : le tableau `const` de `elo_categories.c` donne les noms et les valeurs par
+  défaut ; `lib->cats` (`categories.tsv`) garde les choix de l'auteur : compté dans TOTAL
+  (et tiré par « Catégorie aléatoire », `category_rated(lib, cat)`), barre affichée,
+  qualité ou défaut (un défaut compté dans TOTAL compte à l'envers, `2 * 1500 - R`),
+  description. Les stats réglées à la main (« Biais de récence ») suivent les catégories
+  dans `lib->cats` (indices `NB_CATEGORIES` et plus) : leur nom est donné par `stat_name`,
+  car `category_name(CAT_TOTAL)` vaut « TOTAL ». Le bouton de catégorie (`category_bar`)
+  ouvre une liste par-dessus (`category_list`, état dans `app->catlist`) : clic = choisir,
+  case = total, survol = description, clic droit = fenêtre de description. La liste prend
+  les clics avant l'écran (`category_overlay` en tête de la vue au clic, en fin au dessin)
+  et ses touches par `catlist_event`, appelé en premier par les scènes.
+- **Barres de stats** (`stat_panel.c`, bouton « Stats » de la page d'une musique ou d'un
+  artiste) : rang en pourcentage (`elo_percent`) dans le classement de l'arène (celui
+  choisi en battle et dans les classements), parmi les présents avec au moins une battle
+  dans la catégorie ; rouge → jaune → vert, inversé pour un défaut ; « - » sans battle.
+  Valeurs lues à l'ouverture de la fenêtre.
 
 ## Données (`data/`, format TSV v2)
 
@@ -377,6 +399,8 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
+| `categories.tsv` | choix de l'auteur sur chaque stat (par nom) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description ; absente = valeurs par défaut, barres affichées = celles du total |
+| `manual_stats.tsv` | stats réglées à la main (« Biais de récence ») : id brut, nom de la stat, valeur de 0 à 100 |
 | `song_notes.tsv` | où et quand une musique a été trouvée (id brut, deux textes libres) |
 | `playlist_history.tsv` | périodes d'une musique dans une playlist : playlist, id brut, début (0 = inconnu), fin (0 = en cours, -1 = inconnue), origine du début (unknown/auto/import/hand), « depuis le début » (auto/yes/no) |
 | `video_aliases.tsv` | vidéo gardée par une playlist du site → vidéo jouée à sa place (lue à la synchronisation, sert à l'import Takeout) |
@@ -429,6 +453,18 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.21 — Catégories en liste, descriptions, barres de stats (faite)
+- **Catégories** (13) : + Mémorabilité, Fidélité (dans le total), Obsession, Entêtement et
+  Lassitude (défauts), hors total. Régularité et Peak, demandées par l'auteur, deviennent
+  Fidélité (elle revient au fil des mois, à part de Rejouabilité) et Obsession (elle a
+  tourné en boucle), votées de mémoire ; Persistance est coupée en Mémorabilité (qualité)
+  et Entêtement (défaut) ; Lassitude répond au cas « écoutée en boucle puis lassante ».
+- **Liste** à la place de « < nom > », case « total », description (clic droit, au
+  survol, sous la barre ou à droite de « Catégorie aléatoire »).
+- **Barres de stats** sur la page d'une musique et d'un artiste, choix des barres
+  affichées commun à toutes les pages, indépendant du total.
+- **Biais de récence** : réglé à la main (clic sur sa barre), titres seulement.
 
 ### Phase 4.20 — Défilement partout (faite)
 - Le défilement de la bibliothèque devient commun (`scroll_t`, voir « Défilement ») et sert à
@@ -629,8 +665,8 @@ playlist (« Synchroniser », titres retirés), écran des doublons (métadonné
 ### Phase 4.5 — Playlists, classements personnalisés, battles d'artistes, images (faite)
 - Catégories : **Tout confondu** (jugement libre, indépendant, catégorie principale, jamais
   tirée au hasard, exclue de TOTAL), Mélodie, Production, Émotion, Rejouabilité,
-  Nostalgie, puis (4.7) Meme material et Agression auditive (hors TOTAL et hors aléatoire).
-  Mêmes catégories pour les artistes.
+  Nostalgie, puis (4.7) Meme material et Agression auditive (hors TOTAL et hors aléatoire),
+  puis (4.21) les autres, réglables. Mêmes catégories pour les artistes.
 
 ### Phase 4 — Battle, Elo, tier list, leaderboard (faite)
 - **Elo standard** : `E_a = 1 / (1 + 10^((R_b - R_a) / 400))`,
@@ -660,6 +696,10 @@ l'historique, alias compris). Seules les musiques présentes sont listées.
 À faire : albums, genres, historique, autres idées de l'auteur.
 
 ### Idées notées pour plus tard
+- Biais de récence calculé : Elo des 30 premiers jours après l'ajout à la playlist comparé
+  à l'Elo actuel, quand les battles couvriront plusieurs mois ; la valeur réglée à la main
+  resterait prioritaire. Fidélité et Obsession pourraient aussi être mesurées dans
+  `listens.log` (semaines avec écoute, plus forte semaine) quand il sera assez long.
 - Reconnaissance audio (AcoustID / MusicBrainz) pour identifier automatiquement artiste et
   titre : demande Internet et des bibliothèques en plus.
 - Onglets de playlists : défilement quand il y en a trop (ceux qui dépassent sont cachés).

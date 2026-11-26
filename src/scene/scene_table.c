@@ -45,6 +45,7 @@ int scene_switch(app_t *app)
     image_cache_clear(app);
     memset(&app->search, 0, sizeof(search_t));
     memset(&app->wg->caret, 0, sizeof(caret_t));
+    memset(&app->catlist, 0, sizeof(catlist_t));
     app->scene = app->next_scene;
     if (scenes[app->scene].init(app) == 84)
         return 84;

@@ -57,6 +57,8 @@ static void ranking_key(app_t *app, sfEvent *event)
 
 void ranking_event(app_t *app, sfEvent *event)
 {
+    if (catlist_event(app, event))
+        return;
     ranking_key(app, event);
     if (event->type == sfEvtMouseWheelScrolled)
         ranking_scroll(app, event->mouseWheelScroll.delta);
@@ -79,11 +81,11 @@ void ranking_event(app_t *app, sfEvent *event)
 }
 
 /*
-** the slider is not taken under the reset window
+** the slider is not taken under the reset window nor the categories
 */
 void ranking_update(app_t *app)
 {
-    if (!app->ranking->reset)
+    if (!app->ranking->reset && !app->catlist.open && !app->catlist.edit)
         scroll_grab(app, &app->ranking->list);
     scroll_update(app, &app->ranking->list);
     ranking_drag_scroll(app);

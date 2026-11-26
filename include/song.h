@@ -582,6 +582,8 @@ typedef struct library_s {
     period_t *periods;
     video_alias_t *aliases;
     settings_t settings;
+    cat_opt_t cats[NB_STATS];
+    manual_t *manual;
     int envelopes_changed;
     song_t **present;
     int nb;
