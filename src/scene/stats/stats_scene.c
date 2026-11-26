@@ -90,7 +90,7 @@ void stats_draw(app_t *app)
 {
     if (app->stats->dirty)
         stats_build(app);
-    sfRenderWindow_drawSprite(app->window, app->stats->bg, NULL);
+    background_draw(app, app->stats->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->stats->panel,
         NULL);
     app->wg->mode = WG_DRAW;

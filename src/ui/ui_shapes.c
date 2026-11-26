@@ -63,6 +63,15 @@ sfSprite *background_create(char const *path, sfTexture **texture)
 }
 
 /*
+** nothing in dark mode: the window is already cleared in black
+*/
+void background_draw(app_t *app, sfSprite *sprite)
+{
+    if (!app->lib->settings.dark)
+        sfRenderWindow_drawSprite(app->window, sprite, NULL);
+}
+
+/*
 ** the background covers the whole view without being distorted:
 ** same scale on both axes, centered, the overflow is cropped
 */

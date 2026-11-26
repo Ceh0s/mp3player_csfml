@@ -100,7 +100,7 @@ void battle_event(app_t *app, sfEvent *event)
 
 void battle_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->battle->bg, NULL);
+    background_draw(app, app->battle->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->battle->panel,
         NULL);
     app->wg->mode = WG_DRAW;

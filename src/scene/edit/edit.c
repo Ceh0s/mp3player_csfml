@@ -85,7 +85,7 @@ void edit_event(app_t *app, sfEvent *event)
 
 void edit_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->edit->bg, NULL);
+    background_draw(app, app->edit->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->edit->panel, NULL);
     app->wg->mode = WG_DRAW;
     build(app);

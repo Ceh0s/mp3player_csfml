@@ -109,6 +109,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/ranking/ranking_view.c
 
 SRC_UI	=	src/ui/image_cache.c\
+		src/ui/dark_mode.c\
 		src/ui/clip.c\
 		src/ui/ui_element.c\
 		src/ui/ui_hit.c\

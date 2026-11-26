@@ -14,10 +14,12 @@ static int load_textures(app_t *app)
 {
     app->atlas = sfTexture_createFromFile(ATLAS_PATH, NULL);
     app->no_cover = sfTexture_createFromFile(NO_COVER_PATH, NULL);
-    if (!app->atlas || !app->no_cover)
+    app->no_cover_dark = dark_invert(NO_COVER_PATH);
+    if (!app->atlas || !app->no_cover || !app->no_cover_dark)
         return 84;
     sfTexture_setSmooth(app->atlas, sfTrue);
     sfTexture_setSmooth(app->no_cover, sfTrue);
+    sfTexture_setSmooth(app->no_cover_dark, sfTrue);
     return 0;
 }
 

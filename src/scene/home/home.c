@@ -87,7 +87,7 @@ void home_event(app_t *app, sfEvent *event)
 
 void home_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->home->bg, NULL);
+    background_draw(app, app->home->bg);
     ui_draw(app, app->home->ui);
     app->wg->mode = WG_DRAW;
     menu(app);

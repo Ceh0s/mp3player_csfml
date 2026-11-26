@@ -246,7 +246,7 @@ static void draw_rows(app_t *app)
 
 void libscene_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->libscene->bg, NULL);
+    background_draw(app, app->libscene->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->libscene->panel,
         NULL);
     app->wg->mode = WG_DRAW;

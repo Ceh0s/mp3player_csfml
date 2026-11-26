@@ -19,7 +19,7 @@ void widget_rect(app_t *app, float const *rect, sfColor const *color)
         return;
     sfRectangleShape_setPosition(box, (sfVector2f){rect[0], rect[1]});
     sfRectangleShape_setSize(box, (sfVector2f){rect[2], rect[3]});
-    sfRectangleShape_setFillColor(box, *color);
+    sfRectangleShape_setFillColor(box, dark_soften(app, *color));
     sfRectangleShape_setOutlineThickness(box, 0);
     sfRenderWindow_drawRectangleShape(app->window, box, NULL);
 }

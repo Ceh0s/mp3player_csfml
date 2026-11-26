@@ -214,6 +214,12 @@ Principes en place :
   le texte reste pour une confirmation en deux clics ou une bascule qui écrit son état.
   « Retour » = flèche `widget_back` en haut à gauche de chaque écran (Échap fait pareil),
   « Fermer » d'une fenêtre par-dessus = croix juste à sa droite.
+- **Mode sombre** (Paramètres, `src/ui/dark_mode.c`) : appliqué à chaque image aux points
+  communs, sans toucher aux couleurs des écrans : pas de fond (`background_draw`), textes
+  (`text_draw`) et rectangles (`widget_rect`) à 80 % (`dark_soften`), icônes estompées,
+  images et sprites teintés (`dark_tint`), boutons gris foncé opaques (`widget_box`). Les
+  éléments noirs sont inversés : image par défaut (`no_cover_dark`, inversée au lancement),
+  lettres des tiers en blanc sur une case assombrie.
 - **Images** : chargées à la demande (`image_get`) et libérées à chaque changement de scène.
   Musiques carrées, artistes ronds (comme YT Music).
 - **Téléchargement** : `fork` + `execvp("yt-dlp")` dans son propre groupe de processus,
@@ -365,7 +371,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
 | `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite, `periods_started` = suivi des playlists commencé |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `dark` = mode sombre, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite, `periods_started` = suivi des playlists commencé |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -409,6 +415,11 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.19 — Mode sombre (faite)
+- Bascule « Mode sombre » dans les Paramètres (`dark` dans `settings.tsv`) : fond noir,
+  textes, icônes, boutons et pochettes plus doux, image par défaut et lettres des tiers
+  inversées (voir « Mode sombre » dans les principes).
 
 ### Phase 4.18 — Icônes (faite)
 - **Atlas** : 20 icônes dessinées en SVG dans le style existant (épées, trophée, graphique,

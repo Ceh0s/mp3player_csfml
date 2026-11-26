@@ -84,7 +84,7 @@ void ranking_event(app_t *app, sfEvent *event)
 
 void ranking_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->ranking->bg, NULL);
+    background_draw(app, app->ranking->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->ranking->panel,
         NULL);
     app->wg->mode = WG_DRAW;

@@ -552,6 +552,7 @@ typedef struct settings_s {
     int volume;
     int mute;
     int ellipsis;
+    int dark;
     int battle_match;
     int links_ordered;
     int periods_started;

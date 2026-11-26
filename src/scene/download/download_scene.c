@@ -90,7 +90,7 @@ void dlscene_event(app_t *app, sfEvent *event)
 
 void dlscene_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->dlscene->bg, NULL);
+    background_draw(app, app->dlscene->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->dlscene->panel,
         NULL);
     app->wg->mode = WG_DRAW;

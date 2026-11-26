@@ -4,7 +4,7 @@
 ** File description:
 ** reads and writes settings.tsv: the settings of the application, one
 ** per line (name, value); an unknown name is ignored
-** (help, dup_remove, shuffle, repeat, volume, mute, ellipsis: see
+** (help, dup_remove, shuffle, repeat, volume, mute, ellipsis, dark: see
 ** settings_t; next_song: see db_parse_setting)
 */
 
@@ -42,6 +42,8 @@ void db_parse_setting(library_t *lib, char **fields, int nb)
         lib->settings.dup_remove = value != 0;
     if (strcmp(fields[0], "ellipsis") == 0)
         lib->settings.ellipsis = value != 0;
+    if (strcmp(fields[0], "dark") == 0)
+        lib->settings.dark = value != 0;
     if (strcmp(fields[0], "battle_match") == 0)
         lib->settings.battle_match = value != 0;
     if (strcmp(fields[0], "links_ordered") == 0)
@@ -79,6 +81,7 @@ int db_save_settings(library_t *lib)
     fprintf(file, "volume\t%d\n", lib->settings.volume);
     fprintf(file, "mute\t%d\n", lib->settings.mute);
     fprintf(file, "ellipsis\t%d\n", lib->settings.ellipsis);
+    fprintf(file, "dark\t%d\n", lib->settings.dark);
     fprintf(file, "next_song\t%d\n", lib->next_song);
     fprintf(file, "next_artist\t%d\n", lib->next_artist);
     fprintf(file, "battle_match\t%d\n", lib->settings.battle_match);

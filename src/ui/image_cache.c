@@ -46,6 +46,8 @@ sfTexture *image_get(app_t *app, rank_t const *rank, int small)
         image = image_load(app, rank, small);
     if (image && image->texture)
         return image->texture;
+    if (app->lib->settings.dark)
+        return app->no_cover_dark;
     return app->no_cover;
 }
 

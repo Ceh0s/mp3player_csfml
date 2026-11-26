@@ -23,6 +23,11 @@ static char const *const ellipsis[3] = {
     "Points de suspension : non",
     "Coupe les titres trop longs."
 };
+static char const *const dark_mode[3] = {
+    "Mode sombre : activé",
+    "Mode sombre : désactivé",
+    ""
+};
 
 int settings_init(app_t *app)
 {
@@ -63,6 +68,7 @@ static void view(app_t *app)
     widget_text(app, "Paramètres", (float [3]){130, 125, 40}, &sfWhite);
     switch_row(app, 250, &set->help, help);
     switch_row(app, 330, &set->ellipsis, ellipsis);
+    switch_row(app, 410, &set->dark, dark_mode);
     if (widget_back(app))
         scene_back(app);
 }
@@ -79,7 +85,7 @@ void settings_event(app_t *app, sfEvent *event)
 
 void settings_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->settings->bg, NULL);
+    background_draw(app, app->settings->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->settings->panel,
         NULL);
     app->wg->mode = WG_DRAW;

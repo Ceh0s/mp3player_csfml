@@ -49,6 +49,7 @@ struct app_s {
     sfText *run_text;
     sfTexture *atlas;
     sfTexture *no_cover;
+    sfTexture *no_cover_dark;
     image_t *images;
     int show_images;
     sfVector2f mouse;

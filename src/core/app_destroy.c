@@ -20,6 +20,8 @@ static void destroy_shared(app_t *app)
         sfTexture_destroy(app->atlas);
     if (app->no_cover)
         sfTexture_destroy(app->no_cover);
+    if (app->no_cover_dark)
+        sfTexture_destroy(app->no_cover_dark);
     if (app->ticks)
         sfClock_destroy(app->ticks);
     if (app->delta)

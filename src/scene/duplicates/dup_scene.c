@@ -45,7 +45,7 @@ void dupscene_event(app_t *app, sfEvent *event)
 
 void dupscene_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->dupscene->bg, NULL);
+    background_draw(app, app->dupscene->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->dupscene->panel,
         NULL);
     app->wg->mode = WG_DRAW;

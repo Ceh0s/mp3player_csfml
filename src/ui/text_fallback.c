@@ -137,10 +137,7 @@ static void draw_run(app_t *app, sfText const *text, size_t const *range,
     free(part);
 }
 
-/*
-** replaces sfRenderWindow_drawText for every text of the program
-*/
-void text_draw(app_t *app, sfText const *text)
+static void draw_mixed(app_t *app, sfText const *text)
 {
     sfUint32 const *str = sfText_getUnicodeString(text);
     unsigned int size = sfText_getCharacterSize(text);
@@ -160,4 +157,17 @@ void text_draw(app_t *app, sfText const *text)
         draw_run(app, text, range, font);
         range[0] = range[1];
     }
+}
+
+/*
+** replaces sfRenderWindow_drawText for every text of the program; the
+** color is softened in dark mode, then given back to the text
+*/
+void text_draw(app_t *app, sfText *text)
+{
+    sfColor color = sfText_getFillColor(text);
+
+    sfText_setFillColor(text, dark_soften(app, color));
+    draw_mixed(app, text);
+    sfText_setFillColor(text, color);
 }

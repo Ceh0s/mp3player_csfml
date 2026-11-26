@@ -114,21 +114,33 @@ static int draw_titles(app_t *app, int tier, float const *row)
     return hidden;
 }
 
+/*
+** in dark mode the box of the tier is darker and its letter white (black
+** on a light box otherwise)
+*/
 static void draw_row(app_t *app, int tier, float const *row)
 {
     char more[16];
     int hidden = 0;
     float label[4] = {130, row[0], 100, row[1] - 8};
+    int dark = app->lib->settings.dark;
+    sfColor const *letter = dark ? &sfWhite : &sfBlack;
+    sfColor box = tier_colors[tier];
 
     widget_help(app, label, app->ranking->open_tier < 0
         ? "Voir tout ce tier" : "Revenir à la tier list");
-    widget_rect(app, label, &tier_colors[tier]);
+    if (dark) {
+        box.r /= 2;
+        box.g /= 2;
+        box.b /= 2;
+    }
+    widget_rect(app, label, &box);
     if (tier == TIER_UNRANKED)
         widget_text(app, tier_names[tier],
-            (float [3]){142, row[0] + row[1] / 2 - 28, 20}, &sfBlack);
+            (float [3]){142, row[0] + row[1] / 2 - 28, 20}, letter);
     else
         widget_text(app, tier_names[tier],
-            (float [3]){165, row[0] + row[1] / 2 - 30, 40}, &sfBlack);
+            (float [3]){165, row[0] + row[1] / 2 - 30, 40}, letter);
     if (app->show_images)
         hidden = ranking_tiles(app, tier, row);
     else

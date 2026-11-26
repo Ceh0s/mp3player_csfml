@@ -19,9 +19,12 @@ static void draw_icon(app_t *app, float const *rect, int icon, int state)
     int filled = state == ICON_FILLED;
     sfIntRect area = {ICON_X(icon, filled), ICON_Y(icon, filled),
         ATLAS_CELL, ATLAS_CELL};
+    int dark = app->lib->settings.dark;
     sfColor color = {255, 255, 255, state == ICON_DIM ? 110 : 235};
     sfVector2f scale = {rect[2] / ATLAS_CELL, rect[3] / ATLAS_CELL};
 
+    if (dark)
+        color.a = state == ICON_DIM ? 90 : 185;
     if (mouse_in_rect(app, rect))
         color = (sfColor){255, 220, 120, 255};
     sfSprite_setTextureRect(sprite, area);

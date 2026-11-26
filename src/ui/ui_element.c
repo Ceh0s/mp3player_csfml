@@ -47,8 +47,8 @@ ui_t *ui_create(sfTexture *texture, ui_def_t const *defs, int nb)
 
 void ui_draw(app_t *app, ui_t *ui)
 {
-    sfColor idle = {255, 255, 255, 255};
-    sfColor hover = {255, 255, 255, 200};
+    sfColor idle = dark_tint(app);
+    sfColor hover = {idle.r, idle.g, idle.b, 200};
 
     for (int i = 0; i < ui->nb; i++) {
         if (!ui->visible[i] || !ui->sprites[i])

@@ -21,12 +21,14 @@ void widget_image(app_t *app, sfTexture *texture, float const *rect,
     if (app->wg->mode != WG_DRAW || !texture)
         return;
     if (round) {
+        sfCircleShape_setFillColor(circle, dark_tint(app));
         sfCircleShape_setTexture(circle, texture, sfTrue);
         sfCircleShape_setRadius(circle, rect[2] / 2);
         sfCircleShape_setPosition(circle, (sfVector2f){rect[0], rect[1]});
         sfRenderWindow_drawCircleShape(app->window, circle, NULL);
         return;
     }
+    sfRectangleShape_setFillColor(picture, dark_tint(app));
     sfRectangleShape_setTexture(picture, texture, sfTrue);
     sfRectangleShape_setSize(picture, (sfVector2f){rect[2], rect[3]});
     sfRectangleShape_setPosition(picture, (sfVector2f){rect[0], rect[1]});

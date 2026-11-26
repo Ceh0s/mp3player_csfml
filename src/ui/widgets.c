@@ -77,6 +77,10 @@ void widget_box(app_t *app, float const *rect, int focused)
     sfColor hover = {70, 70, 70, 230};
     sfColor outline = {255, 200, 0, 255};
 
+    if (app->lib->settings.dark) {
+        idle = (sfColor){28, 28, 28, 255};
+        hover = (sfColor){55, 55, 55, 255};
+    }
     sfRectangleShape_setPosition(box, (sfVector2f){rect[0], rect[1]});
     sfRectangleShape_setSize(box, (sfVector2f){rect[2], rect[3]});
     sfRectangleShape_setFillColor(box,

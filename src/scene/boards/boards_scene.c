@@ -56,7 +56,7 @@ void boards_event(app_t *app, sfEvent *event)
 
 void boards_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->boards->bg, NULL);
+    background_draw(app, app->boards->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->boards->panel,
         NULL);
     app->wg->mode = WG_DRAW;

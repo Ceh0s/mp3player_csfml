@@ -74,7 +74,7 @@ void pledit_event(app_t *app, sfEvent *event)
 
 void pledit_draw(app_t *app)
 {
-    sfRenderWindow_drawSprite(app->window, app->pledit->bg, NULL);
+    background_draw(app, app->pledit->bg);
     sfRenderWindow_drawRectangleShape(app->window, app->pledit->panel,
         NULL);
     app->wg->mode = WG_DRAW;
