@@ -159,7 +159,7 @@
     #define CAT_BAR_Y 260
     #define CONTENT_Y 350
     #define BATTLE_CARD_Y 340
-    #define BATTLE_CARD_H 450
+    #define BATTLE_CARD_H 400
     #define FIELD_SHOWN 400
     #define STATS_Y 330
     #define CONTENT_BOTTOM 820
@@ -918,6 +918,7 @@ int stat_find(char const *name);
 char const *category_name(int category);
 char const *stat_name(int stat);
 int category_rated(library_t const *lib, int category);
+int category_random(library_t const *lib, int current);
 category_def_t const *category_def(int stat);
 int kind_find(char const *name);
 char const *kind_name(elo_kind_t kind);

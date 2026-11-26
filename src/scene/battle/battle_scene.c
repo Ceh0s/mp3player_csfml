@@ -8,10 +8,15 @@
 
 #include "mp3player.h"
 
+/*
+** back from a page with a pair kept (battle_restore), the category of
+** that pair is kept too, even if "Catégorie aléatoire" is on
+*/
 int battle_init(app_t *app)
 {
     float panel[4] = {87, 110, 1745, PANEL_H};
     sfColor dark = {0, 0, 0, 140};
+    int category = 0;
 
     app->battle = calloc(1, sizeof(battle_t));
     if (!app->battle)
@@ -23,7 +28,10 @@ int battle_init(app_t *app)
         return 84;
     if (app->arena.category == CAT_TOTAL)
         app->arena.category = CAT_ALL;
+    category = app->arena.category;
     battle_reload(app);
+    if (app->battle_keep[0] != 0)
+        app->arena.category = category;
     battle_restore(app);
     return 0;
 }

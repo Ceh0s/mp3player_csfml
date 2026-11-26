@@ -96,6 +96,25 @@ int category_rated(library_t const *lib, int category)
     return lib->cats[category].total;
 }
 
+/*
+** a category counted in TOTAL different from the current one (never
+** "Tout confondu" unless the author counted it)
+*/
+int category_random(library_t const *lib, int current)
+{
+    int choices[NB_CATEGORIES];
+    int nb = 0;
+
+    for (int i = 0; i < NB_CATEGORIES; i++)
+        if (category_rated(lib, i) && i != current) {
+            choices[nb] = i;
+            nb++;
+        }
+    if (nb == 0)
+        return current;
+    return choices[rand() % nb];
+}
+
 static char const *const kind_names[NB_KINDS] = {"song", "artist"};
 
 /*

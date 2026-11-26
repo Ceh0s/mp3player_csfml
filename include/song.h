@@ -554,6 +554,7 @@ typedef struct settings_s {
     int ellipsis;
     int dark;
     int battle_match;
+    int battle_random;
     int links_ordered;
     int periods_started;
 } settings_t;

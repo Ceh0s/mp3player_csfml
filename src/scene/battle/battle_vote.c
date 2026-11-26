@@ -9,7 +9,8 @@
 #include "mp3player.h"
 
 /*
-** the preview of the pair stops, the arrows choose again
+** the preview of the pair stops, the arrows choose again; a new
+** category is drawn if "Catégorie aléatoire" is on
 */
 void battle_next(app_t *app)
 {
@@ -17,6 +18,8 @@ void battle_next(app_t *app)
 
     preview_stop(app);
     battle->focus = -1;
+    if (app->lib->settings.battle_random)
+        app->arena.category = category_random(app->lib, app->arena.category);
     battle->has_pair = elo_pick_pair(app->lib, &app->arena, &battle->pool,
         battle->pair);
 }

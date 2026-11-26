@@ -22,7 +22,7 @@ static void card_stats(app_t *app, rank_t const *rank, float x)
     snprintf(line, sizeof(line), "Elo %.0f en %s   -   %d battle%s   -   "
         "%d %%", score.rating, category_name(app->arena.category),
         score.battles, score.battles > 1 ? "s" : "", percent);
-    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 404, 22}, &gray);
+    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 356, 22}, &gray);
 }
 
 /*
@@ -36,14 +36,14 @@ static void card_detail(app_t *app, rank_t const *rank, float x)
 
     if (rank->song) {
         widget_text(app, rank->song->artists ? rank->song->artists
-            : "Artiste inconnu", (float [3]){x, BATTLE_CARD_Y + 364, 24},
+            : "Artiste inconnu", (float [3]){x, BATTLE_CARD_Y + 318, 24},
             &gray);
         return;
     }
     ms = artist_listen_ms(app->lib, rank->artist->id);
     format_time(time, sizeof(time), ms);
     snprintf(line, sizeof(line), "%s d'écoute", time);
-    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 364, 24}, &gray);
+    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 318, 24}, &gray);
 }
 
 /*
@@ -53,8 +53,8 @@ static void card_detail(app_t *app, rank_t const *rank, float x)
 */
 static int card(app_t *app, rank_t const *rank, float x)
 {
-    float picture[4] = {x + 235, BATTLE_CARD_Y + 16, 290, 290};
-    float name[4] = {x + 30, BATTLE_CARD_Y + 320, 32, 700};
+    float picture[4] = {x + 255, BATTLE_CARD_Y + 16, 250, 250};
+    float name[4] = {x + 30, BATTLE_CARD_Y + 276, 32, 700};
     int clicked = 0;
 
     if (app->wg->mode == WG_CLICK && battle_listen(app, rank, x))
@@ -72,13 +72,9 @@ static int card(app_t *app, rank_t const *rank, float x)
 
 static void cards(app_t *app, battle_t *battle)
 {
-    float y = BATTLE_CARD_Y + BATTLE_CARD_H;
     float middle = BATTLE_CARD_Y + BATTLE_CARD_H / 2 - 30;
 
     widget_text(app, "VS", (float [3]){930, middle, 48}, &sfWhite);
-    if (app->arena.kind == KIND_SONG)
-        widget_text(app, "Clic droit : page de la musique",
-            (float [3]){130, y + 6, 22}, &gray);
     if (card(app, &battle->pair[0], 130)) {
         battle_vote(app, 0);
         return;
@@ -91,6 +87,27 @@ static void cards(app_t *app, battle_t *battle)
         battle_frame(app, battle->focus == 0 ? 130 : 1030);
 }
 
+/*
+** the category in play, centered under the cards: its name, then its
+** description (useful when it was drawn by "Catégorie aléatoire")
+*/
+static void category_shown(app_t *app)
+{
+    int category = app->arena.category;
+    char const *name = category_name(category);
+    char const *desc = category < NB_CATEGORIES
+        ? app->lib->cats[category].desc : "Somme des catégories cochées.";
+    float y = BATTLE_CARD_Y + BATTLE_CARD_H + 10;
+    float width = widget_text_width(app, name, 34);
+
+    widget_text(app, name, (float [3]){960 - width / 2, y, 34}, &sfWhite);
+    width = widget_text_width(app, desc, 22);
+    if (width > 1650)
+        width = 1650;
+    widget_fit(app, desc, (float [4]){960 - width / 2, y + 48, 22, 1650},
+        &gray);
+}
+
 static void bottom(app_t *app, battle_t *battle)
 {
     float y = 840 + app->extra_h;
@@ -101,6 +118,9 @@ static void bottom(app_t *app, battle_t *battle)
 
     if (widget_back(app))
         scene_back(app);
+    if (battle->has_pair && app->arena.kind == KIND_SONG)
+        widget_text(app, "Clic droit : page de la musique",
+            (float [3]){410, y + 16, 22}, &gray);
     if (widget_icon_button(app, history, ICON_CLOCK, "Historique")) {
         battle_open_history(app);
         return;
@@ -129,6 +149,8 @@ void battle_view(app_t *app)
 
     if (app->wg->mode == WG_CLICK
         && category_overlay(app, category, NB_CATEGORIES) == 1) {
+        app->lib->settings.battle_random = 0;
+        db_save_settings(app->lib);
         battle_next(app);
         return;
     }
@@ -137,9 +159,10 @@ void battle_view(app_t *app)
         battle_reload(app);
     if (category_bar(app, &app->arena.category, 1))
         battle_next(app);
-    if (battle->has_pair)
+    if (battle->has_pair) {
+        category_shown(app);
         cards(app, battle);
-    else
+    } else
         widget_text(app, app->arena.kind == KIND_SONG ? "Pas assez de "
             "musiques pour une battle." : "Pas assez d'artistes pour une "
             "battle.",

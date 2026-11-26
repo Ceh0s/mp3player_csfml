@@ -409,7 +409,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `downloads.log` | bilan de chaque file : date, statut (added/present/excluded/refused/flagged/unavailable/failed/interrupted), titre, détail |
 | `suggestions.tsv` | suggestions de titre cachées ou supprimées : id brut, règle (par nom, dont `artist_first` / `title_first` = suppositions « X - Y »), texte retiré, état |
 | `artist_splits.tsv` | noms d'artistes écrits en liste (« A, B ») : nom, `split` ou `keep` (garder entier ; aussi quand un nom à virgule est enregistré dans l'édition) |
-| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `dark` = mode sombre, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `links_ordered` = réparation unique de l'ordre des artistes faite, `periods_started` = suivi des playlists commencé |
+| `settings.tsv` | paramètres (clé, valeur) : `help` = aide au survol, `dup_remove` = bascule « Supprimer le fichier en trop » des doublons, `shuffle` = lecture aléatoire, `repeat` = boucle (0 non, 1 file, 2 titre), `volume` (0 à 100), `mute`, `ellipsis` = « … » sur les textes trop longs, `dark` = mode sombre, `next_song` / `next_artist` = premier id de musique / d'artiste jamais donné, `battle_match` = rencontres équilibrées en battle, `battle_random` = catégorie tirée à chaque battle, `links_ordered` = réparation unique de l'ordre des artistes faite, `periods_started` = suivi des playlists commencé |
 | `images/.covers_checked` | marque la réparation unique des images décalées (faite) |
 | `images/songs/`, `images/artists/` | `<id>.jpg` (400 px) et `<id>_s.jpg` (120 px), carrés |
 
@@ -453,6 +453,14 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.22 — Catégorie aléatoire à chaque battle (faite)
+- « Catégorie aléatoire : oui / non » est une bascule (`battle_random`) : à oui, chaque
+  nouvelle paire tire sa catégorie (`category_random`, dans `battle_next`) parmi celles du
+  total, sauf au retour d'une page (même paire, même catégorie). Choisir une catégorie
+  dans la liste remet la bascule à non.
+- Nom et description de la catégorie en jeu centrés sous les cartes (cartes moins
+  hautes, 400 px).
 
 ### Phase 4.21 — Catégories en liste, descriptions, barres de stats (faite)
 - **Catégories** (13) : + Mémorabilité, Fidélité (dans le total), Obsession, Entêtement et

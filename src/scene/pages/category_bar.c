@@ -12,34 +12,32 @@
 static const sfColor gray = {190, 190, 190, 255};
 
 /*
-** a category counted in TOTAL different from the current one (never
-** "Tout confondu" unless the author counted it)
+** "Catégorie aléatoire": on, each new battle draws its category
+** (battle_next); turned on, it draws one at once
 */
-static int random_category(app_t *app, int current)
+static void random_toggle(app_t *app, int *category)
 {
-    int choices[NB_CATEGORIES];
-    int nb = 0;
+    float dice[4] = {650, CAT_BAR_Y, 460, 56};
+    int *on = &app->lib->settings.battle_random;
 
-    for (int i = 0; i < NB_CATEGORIES; i++)
-        if (category_rated(app->lib, i) && i != current) {
-            choices[nb] = i;
-            nb++;
-        }
-    if (nb == 0)
-        return current;
-    return choices[rand() % nb];
+    if (!widget_icon_button(app, dice, ICON_DICE, *on
+            ? "Catégorie aléatoire : oui" : "Catégorie aléatoire : non"))
+        return;
+    *on = !*on;
+    db_save_settings(app->lib);
+    if (*on)
+        *category = category_random(app->lib, *category);
 }
 
 /*
-** random adds the "Catégorie aléatoire" button (battle screen: the
-** description goes right of it, above the cards); returns 1 if the
-** category changed (the list returns it on its own, category_list)
+** random adds the "Catégorie aléatoire" toggle (battle screen: the
+** description is written under the cards, battle_view.c); returns 1 if
+** the category changed (the list returns it on its own, category_list)
 */
 int category_bar(app_t *app, int *category, int random)
 {
     int old = *category;
     float button[4] = {130, CAT_BAR_Y, 490, 56};
-    float dice[4] = {650, CAT_BAR_Y, 360, 56};
     char const *desc = *category < NB_CATEGORIES
         ? app->lib->cats[*category].desc : "Somme des catégories cochées.";
 
@@ -47,13 +45,9 @@ int category_bar(app_t *app, int *category, int random)
     if (widget_icon_button(app, button, ICON_LIST, category_name(*category)))
         app->catlist.open = !app->catlist.open;
     if (random)
-        widget_fit(app, desc, (float [4]){1030, CAT_BAR_Y + 16, 20, 750},
-            &gray);
+        random_toggle(app, category);
     else
         widget_fit(app, desc, (float [4]){130, CAT_BAR_Y + 62, 20, 1650},
             &gray);
-    if (random && widget_icon_button(app, dice, ICON_DICE,
-            "Catégorie aléatoire"))
-        *category = random_category(app, *category);
     return *category != old;
 }
