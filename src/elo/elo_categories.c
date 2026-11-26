@@ -27,9 +27,9 @@ static const category_def_t defs[NB_STATS] = {
     {"Agression auditive", 0, 0, "Intensité, violence du son."},
     {"Entêtement", 0, 1,
         "Colle à la tête sans qu'on le veuille, finit par agacer."},
-    {"Lassitude", 0, 1, "Moins aimée qu'au début : elle a fini par lasser."},
+    {"Lassitude", 0, 1, "Usée à force d'être écoutée : elle lasse maintenant."},
     {"Biais de récence", 0, 1,
-        "Part de l'appréciation due à la nouveauté, retombée depuis."}
+        "Surévaluée au début parce qu'elle était nouvelle, sans l'avoir usée."}
 };
 
 category_def_t const *category_def(int stat)

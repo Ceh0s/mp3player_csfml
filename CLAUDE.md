@@ -698,7 +698,11 @@ l'historique, alias compris). Seules les musiques présentes sont listées.
 ### Idées notées pour plus tard
 - Biais de récence calculé : Elo des 30 premiers jours après l'ajout à la playlist comparé
   à l'Elo actuel, quand les battles couvriront plusieurs mois ; la valeur réglée à la main
-  resterait prioritaire. Fidélité et Obsession pourraient aussi être mesurées dans
+  resterait prioritaire. Attention à la Lassitude, qui donne la même baisse : la séparer par
+  la cause. Une baisse avec peu d'écoutes au début (`listens.log`) = surévaluée parce que
+  nouvelle (récence) ; avec beaucoup d'écoutes (Obsession haute) = usée (lassitude, qui
+  peut aussi venir des années après). Écarter aussi les baisses dues à l'Elo instable des
+  10 premières battles (K = 40), à une playlist qui grossit et aux remises à zéro. Fidélité et Obsession pourraient aussi être mesurées dans
   `listens.log` (semaines avec écoute, plus forte semaine) quand il sera assez long.
 - Reconnaissance audio (AcoustID / MusicBrainz) pour identifier automatiquement artiste et
   titre : demande Internet et des bibliothèques en plus.

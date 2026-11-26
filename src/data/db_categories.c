@@ -9,6 +9,27 @@
 
 #include "mp3player.h"
 
+/*
+** descriptions given by default before: still the same in the file, they
+** were not written by the author and take the new default
+*/
+static char const *const old_defaults[][2] = {
+    {"Lassitude", "Moins aimée qu'au début : elle a fini par lasser."},
+    {"Biais de récence",
+        "Part de l'appréciation due à la nouveauté, retombée depuis."}
+};
+
+static int old_default(char const *name, char const *desc)
+{
+    int nb = sizeof(old_defaults) / sizeof(old_defaults[0]);
+
+    for (int i = 0; i < nb; i++)
+        if (strcmp(old_defaults[i][0], name) == 0
+            && strcmp(old_defaults[i][1], desc) == 0)
+            return 1;
+    return 0;
+}
+
 void db_parse_category(library_t *lib, char **fields, int nb)
 {
     int stat = 0;
@@ -21,7 +42,8 @@ void db_parse_category(library_t *lib, char **fields, int nb)
     lib->cats[stat].total = stat < NB_CATEGORIES && atoi(fields[1]) == 1;
     lib->cats[stat].shown = atoi(fields[2]) == 1;
     lib->cats[stat].flaw = strcmp(fields[3], "flaw") == 0;
-    category_set_desc(lib, stat, fields[4]);
+    if (!old_default(fields[0], fields[4]))
+        category_set_desc(lib, stat, fields[4]);
 }
 
 int db_save_categories(library_t *lib)
