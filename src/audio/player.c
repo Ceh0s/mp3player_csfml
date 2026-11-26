@@ -61,6 +61,19 @@ void player_play(app_t *app, int index)
 }
 
 /*
+** the song is looked for in the queue (in a random order, its place is
+** not the one of the list shown); nothing if it is not in it
+*/
+void player_play_song(app_t *app, song_t const *song)
+{
+    for (int i = 0; i < app->player->nb; i++)
+        if (app->player->queue[i] == song) {
+            player_play(app, i);
+            return;
+        }
+}
+
+/*
 ** during a battle preview, Space pauses the preview instead
 */
 void player_toggle(app_t *app)

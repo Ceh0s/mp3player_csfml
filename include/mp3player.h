@@ -597,6 +597,7 @@ void image_cache_clear(app_t *app);
 
 // src/audio
 void player_play(app_t *app, int index);
+void player_play_song(app_t *app, song_t const *song);
 void player_toggle(app_t *app);
 void player_skip(app_t *app, int direction);
 void player_stop(app_t *app, end_reason_t reason);

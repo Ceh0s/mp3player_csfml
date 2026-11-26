@@ -50,11 +50,7 @@ static void listen(app_t *app, song_t *song)
         return;
     }
     player_queue(app, 0, "");
-    for (int i = 0; i < player->nb; i++)
-        if (player->queue[i] == song) {
-            player_play(app, i);
-            return;
-        }
+    player_play_song(app, song);
 }
 
 /*

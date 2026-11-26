@@ -43,7 +43,7 @@ void list_play(app_t *app, int row)
     if (app->libscene->view[row] == app->player->song)
         player_toggle(app);
     else
-        player_play(app, row);
+        player_play_song(app, app->libscene->view[row]);
 }
 
 /*
