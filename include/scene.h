@@ -277,6 +277,8 @@ typedef struct edit_s {
     artist_t *renamed;
     scroll_t titles;
     statpanel_t stats;
+    int stat_values[NB_STATS];
+    scroll_t summary;
     notes_edit_t notes;
 } edit_t;
 

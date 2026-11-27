@@ -49,6 +49,7 @@ int edit_init(app_t *app)
     snprintf(app->edit->title, NAME_LEN, "%s", song_title(app->edit->song));
     for (int role = 0; role < NB_ROLES; role++)
         load_role(app, app->edit, role);
+    edit_summary_read(app);
     return 0;
 }
 
@@ -124,6 +125,9 @@ void edit_event(app_t *app, sfEvent *event)
     }
     if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_NOTES)
         edit_notes_scroll(app, event->mouseWheelScroll.delta);
+    if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_MAIN
+        && mouse_in_rect(app, edit->summary.area))
+        scroll_by(&edit->summary, -event->mouseWheelScroll.delta * 72);
     if (event->type == sfEvtMouseWheelScrolled && edit->mode == EDIT_ARTIST)
         scroll_by(&edit->titles, -event->mouseWheelScroll.delta * 80);
     if (event->type != sfEvtMouseButtonReleased
@@ -135,7 +139,8 @@ void edit_event(app_t *app, sfEvent *event)
 }
 
 /*
-** lists that scroll: the page "Découverte", the songs of the artist page
+** lists that scroll: the block under the artists, the page "Découverte",
+** the songs of the artist page
 */
 void edit_update(app_t *app)
 {
@@ -143,6 +148,10 @@ void edit_update(app_t *app)
         return;
     if (app->edit->mode == EDIT_NOTES)
         edit_notes_update(app);
+    if (app->edit->mode == EDIT_MAIN) {
+        scroll_grab(app, &app->edit->summary);
+        scroll_update(app, &app->edit->summary);
+    }
     if (app->edit->mode != EDIT_ARTIST)
         return;
     scroll_grab(app, &app->edit->titles);

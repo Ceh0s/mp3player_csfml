@@ -24,30 +24,38 @@ static float row_y(int row)
 }
 
 /*
-** values are read once, when the window opens
+** value of each stat of a song or an artist (resolved song): its rank in
+** the ranking of the arena, the value set by hand, -2 = not for it
 */
-void stat_panel_open(app_t *app, statpanel_t *panel, rank_t const *subject)
+void stat_values_read(app_t *app, rank_t const *subject, int *values)
 {
     library_t *lib = app->lib;
     arena_t arena = {subject->song ? KIND_SONG : KIND_ARTIST,
         app->arena.board, 0};
 
-    panel->open = 1;
-    panel->subject = *subject;
-    if (subject->song)
-        panel->subject.song = song_resolve(lib, subject->song);
     for (int i = 0; i < NB_STATS; i++) {
         arena.category = i;
         if (!stat_exists(lib, i))
-            panel->values[i] = -2;
+            values[i] = -2;
         else if (i < MAX_CATEGORIES)
-            panel->values[i] = elo_percent(lib, &arena,
-                rank_id(&panel->subject));
-        else if (panel->subject.song)
-            panel->values[i] = manual_get(lib, panel->subject.song, i);
+            values[i] = elo_percent(lib, &arena, rank_id(subject));
+        else if (subject->song)
+            values[i] = manual_get(lib, subject->song, i);
         else
-            panel->values[i] = -2;
+            values[i] = -2;
     }
+}
+
+/*
+** values are read once, when the window opens
+*/
+void stat_panel_open(app_t *app, statpanel_t *panel, rank_t const *subject)
+{
+    panel->open = 1;
+    panel->subject = *subject;
+    if (subject->song)
+        panel->subject.song = song_resolve(app->lib, subject->song);
+    stat_values_read(app, &panel->subject, panel->values);
 }
 
 /*
@@ -62,12 +70,16 @@ static sfColor bar_color(float good)
     return (sfColor){230 - 160 * up, 200 - 10 * up, 60 + 30 * up, 255};
 }
 
-static void draw_bar(app_t *app, int stat, int value, float y)
+/*
+** rect = {x, y, w, h} of the track, the value written at its right
+*/
+void stat_bar(app_t *app, int stat, int value, float const *rect)
 {
-    float track[4] = {BAR_X, y + 14, BAR_W, 18};
+    float track[4] = {rect[0], rect[1], rect[2], rect[3]};
     sfColor back = {255, 255, 255, 40};
     sfColor fill = {0};
     float good = value / 100.0;
+    float size = rect[3] + 8;
     char text[8];
 
     widget_rect(app, track, &back);
@@ -76,12 +88,17 @@ static void draw_bar(app_t *app, int stat, int value, float y)
         if (app->lib->cats[stat].flaw)
             good = 1 - good;
         fill = bar_color(good);
-        track[2] = BAR_W * value / 100.0;
+        track[2] = rect[2] * value / 100.0;
         widget_rect(app, track, &fill);
         snprintf(text, sizeof(text), "%d", value);
     }
-    widget_text(app, text, (float [3]){BAR_X + BAR_W + 24, y + 6, 26},
-        &sfWhite);
+    widget_text(app, text, (float [3]){rect[0] + rect[2] + 24, rect[1] - 8,
+        size}, &sfWhite);
+}
+
+static void draw_bar(app_t *app, int stat, int value, float y)
+{
+    stat_bar(app, stat, value, (float [4]){BAR_X, y + 14, BAR_W, 18});
 }
 
 /*

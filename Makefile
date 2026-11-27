@@ -58,6 +58,7 @@ SRC_SCENE	=	src/scene/scene_nav.c\
 		src/scene/edit/edit_input.c\
 		src/scene/edit/edit_main.c\
 		src/scene/edit/edit_notes.c\
+		src/scene/edit/edit_summary.c\
 		src/scene/edit/edit_periods.c\
 		src/scene/edit/edit_periods_save.c\
 		src/scene/edit/edit_remove.c\

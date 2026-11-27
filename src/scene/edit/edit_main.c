@@ -2,7 +2,8 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** main page of the edit screen: title, artists, aliases, buttons
+** main page of the edit screen: title, artists (stats and discovery
+** under them, edit_summary.c), aliases, buttons
 */
 
 #include "mp3player.h"
@@ -130,6 +131,7 @@ static void aliases(app_t *app, edit_t *edit)
         if (widget_button(app, (float [4]){1260, 805 + shown * 50, 520, 44},
                 label)) {
             song_split(app, s);
+            edit_summary_read(app);
             return;
         }
         shown++;
@@ -180,6 +182,7 @@ void edit_main(app_t *app)
     widget_text(app, "Artistes", (float [3]){130, 400, 26}, &sfWhite);
     for (int i = 0; i < edit->nb_artists; i++)
         edit_artist_row(app, edit, i);
+    edit_summary(app, edit);
     add_column(app, edit);
     aliases(app, edit);
     buttons(app, edit);

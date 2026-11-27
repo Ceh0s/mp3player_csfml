@@ -71,7 +71,8 @@ src/scene/             table des scènes
                        et slider (_scroll), place gardée au retour (_keep), avis (_likes),
                        mode sélection (_select, _select_view) et ses actions en lot
                        (_actions, _action_rows, _bulk, _insert)
-    edit/              écran d'édition (page principale, lignes d'artistes, recherche/fusion,
+    edit/              écran d'édition (page principale, lignes d'artistes, sous elles
+                       provenance et barres de stats qui défilent (edit_summary), recherche/fusion,
                        saisie, page des suggestions de titre, page artiste, page « Découverte » :
                          edit_notes, edit_periods, edit_periods_save)
     battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote,
@@ -465,6 +466,12 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.24 — Stats et Découverte sur la page d'une musique (faite)
+- Sous les artistes (`edit_summary.c`) : « Trouvée où » et « Découverte » s'ils sont remplis,
+  puis les barres des stats affichées (même choix que la fenêtre Stats, `stat_bar`,
+  `stat_values_read` de `stat_panel.c`), qui défilent si la place manque. Les boutons
+  « Stats » et « Découverte » restent pour modifier.
 
 ### Phase 4.23 — `Features_and_bugs.md` du 2026-11-27 (faite)
 - **Écoute en battle** sous chaque carte (bouton, barre, temps), hors de la zone de vote :
