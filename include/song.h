@@ -585,6 +585,8 @@ typedef struct library_s {
     settings_t settings;
     cat_opt_t cats[NB_STATS];
     int nb_cats;
+    int cat_order[MAX_CATEGORIES];
+    int cats_read;
     manual_t *manual;
     board_flaw_t *board_flaws;
     int envelopes_changed;

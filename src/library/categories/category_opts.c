@@ -18,6 +18,9 @@ void category_opts_default(library_t *lib)
 
     memset(lib->cats, 0, sizeof(lib->cats));
     lib->nb_cats = NB_BUILTIN;
+    lib->cats_read = 0;
+    for (int i = 0; i < MAX_CATEGORIES; i++)
+        lib->cat_order[i] = i;
     for (int i = 0; i < NB_STATS; i++) {
         def = category_def(i);
         if (!def)

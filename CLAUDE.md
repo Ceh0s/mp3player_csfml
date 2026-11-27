@@ -162,7 +162,8 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        l'auteur (category_custom.c : créer, renommer, supprimer),
                        stats réglées à la main (manual_stats.c), qualité / défaut
                        propre à un classement (board_flaws.c), anciennes catégories
-                       fusionnées (category_merge.c)
+                       fusionnées (category_merge.c), ordre d'affichage
+                       (category_order.c)
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
@@ -418,7 +419,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
-| `categories.tsv` | choix de l'auteur sur chaque stat (par nom) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description, `builtin` / `custom` (créée par l'auteur, dans l'ordre du fichier ; colonne absente des anciens fichiers) ; absente = valeurs par défaut, barres affichées = celles du total |
+| `categories.tsv` | choix de l'auteur sur chaque stat (par nom, dans l'ordre d'affichage) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description, `builtin` / `custom` (créée par l'auteur, dans l'ordre du fichier ; colonne absente des anciens fichiers) ; absente = valeurs par défaut, barres affichées = celles du total |
 | `board_flaws.tsv` | qualité / défaut d'une catégorie propre à un classement : id du classement, catégorie (par nom), `flaw` / `quality` ; seuls les classements qui diffèrent de la catégorie, ceux supprimés retirés à l'écriture |
 | `manual_stats.tsv` | stats réglées à la main (« Biais de récence ») : id brut, nom de la stat, valeur de 0 à 100 |
 | `song_notes.tsv` | où et quand une musique a été trouvée (id brut, deux textes libres) |
@@ -473,6 +474,13 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.27 — Ordre des catégories (faite)
+- Glisser une catégorie sur une autre ligne de la liste des catégories la place là
+  (trait jaune pendant le glisser ; relâcher sur la même ligne = clic). Ordre d'affichage
+  seulement (`lib->cat_order`, `category_order.c`, `stat_at`) : liste, fenêtre Stats,
+  barres de la page d'une musique ; les indices (Elo, `CAT_ALL`, valeurs par défaut) ne
+  bougent pas. Gardé comme ordre des lignes de `categories.tsv`.
 
 ### Phase 4.26 — Mélodie + Production fusionnées (faite)
 - Retirées du tableau (`NB_BUILTIN` 12), réunies dans une catégorie de l'auteur

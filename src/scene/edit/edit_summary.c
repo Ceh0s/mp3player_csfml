@@ -77,6 +77,7 @@ static void rows(app_t *app, edit_t *edit, note_t const *note)
 {
     scroll_t *s = &edit->summary;
     int row = 0;
+    int stat = 0;
     float y = 0;
 
     if (note && note->found[0]) {
@@ -89,8 +90,9 @@ static void rows(app_t *app, edit_t *edit, note_t const *note)
         if (scroll_seen(s, y, SUMMARY_ROW))
             note_line(app, "Découverte", note->date, y);
     }
-    for (int stat = 0; stat < NB_STATS; stat++) {
-        if (!stat_shown(app, edit, stat))
+    for (int i = 0; i < NB_STATS; i++) {
+        stat = stat_at(app->lib, i);
+        if (stat < 0 || !stat_shown(app, edit, stat))
             continue;
         y = scroll_y(s, row++ * SUMMARY_ROW);
         if (scroll_seen(s, y, SUMMARY_ROW))

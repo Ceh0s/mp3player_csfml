@@ -42,6 +42,7 @@ int category_add(library_t *lib, char const *name, char const *desc,
     opt->shown = 1;
     opt->flaw = flaw;
     category_set_desc(lib, lib->nb_cats, desc);
+    lib->cat_order[lib->nb_cats] = lib->nb_cats;
     lib->nb_cats++;
     return lib->nb_cats - 1;
 }
@@ -76,6 +77,7 @@ int category_remove(library_t *lib, int cat)
         lib->cats[i] = lib->cats[i + 1];
     lib->nb_cats--;
     board_flaws_remove_cat(lib, cat);
+    category_order_remove(lib, cat);
     memset(&lib->cats[lib->nb_cats], 0, sizeof(cat_opt_t));
     db_save_categories(lib);
     db_save_board_flaws(lib);

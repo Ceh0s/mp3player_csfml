@@ -6,7 +6,8 @@
 ** a click chooses one, its box counts it in TOTAL or not, the mouse
 ** over it shows its description, a right click opens the window of the
 ** category (category_edit.c, also opened from the stats of a page); its
-** last row creates a category. A second column when it is too long.
+** last row creates a category. A category dragged to another row takes
+** its place (category_order.c). A second column when it is too long.
 */
 
 #include "mp3player.h"
@@ -35,7 +36,7 @@ static int row_stat(app_t *app, int row)
     int nb = app->lib->nb_cats;
 
     if (row < nb)
-        return row;
+        return stat_at(app->lib, row);
     if (row == nb && app->catlist.total)
         return CAT_TOTAL;
     return ROW_NEW;
@@ -66,9 +67,32 @@ static int row_at(app_t *app)
 }
 
 /*
+** a category pressed then released on another row goes there; returns 1
+** if it moved (the release is not a click)
+*/
+static int drop(app_t *app, sfEvent *event)
+{
+    catlist_t *list = &app->catlist;
+    int from = list->drag - 1;
+    int to = row_at(app);
+
+    if (event->type == sfEvtMouseButtonPressed && !list->edit) {
+        list->drag = to >= 0 && to < app->lib->nb_cats ? to + 1 : 0;
+        return 0;
+    }
+    list->drag = 0;
+    if (from < 0 || to < 0 || to >= app->lib->nb_cats || to == from)
+        return 0;
+    category_place(app->lib, stat_at(app->lib, from), to);
+    db_save_categories(app->lib);
+    return 1;
+}
+
+/*
 ** while the list or the window is open, it takes the keys, the wheel and
 ** the right clicks (returns 1); the left clicks go through the view of
-** the scene, which gives them to the list first
+** the scene, which gives them to the list first, unless one dragged a
+** category
 */
 int catlist_event(app_t *app, sfEvent *event)
 {
@@ -77,6 +101,10 @@ int catlist_event(app_t *app, sfEvent *event)
 
     if (!list->open && !list->edit)
         return 0;
+    if ((event->type == sfEvtMouseButtonPressed
+        || event->type == sfEvtMouseButtonReleased)
+        && event->mouseButton.button == sfMouseLeft && drop(app, event))
+        return 1;
     if (event->type == sfEvtMouseButtonReleased
         && event->mouseButton.button == sfMouseLeft)
         return 0;
@@ -98,7 +126,7 @@ int catlist_event(app_t *app, sfEvent *event)
         && event->mouseButton.button == sfMouseRight) {
         row = row_at(app);
         if (row >= 0 && row < app->lib->nb_cats)
-            catdesc_open(app, row);
+            catdesc_open(app, stat_at(app->lib, row));
     }
     return 1;
 }
@@ -163,6 +191,28 @@ static int list_row(app_t *app, int row, int current)
 }
 
 /*
+** while a category is dragged over another row: a line where it will go
+*/
+static void drop_line(app_t *app)
+{
+    sfColor line = {255, 200, 60, 255};
+    int from = app->catlist.drag - 1;
+    int to = row_at(app);
+    float rect[4];
+
+    if (app->wg->mode != WG_DRAW || from < 0 || to < 0
+        || to >= app->lib->nb_cats || to == from
+        || !sfMouse_isButtonPressed(sfMouseLeft))
+        return;
+    row_rect(to, rect);
+    if (to > from)
+        rect[1] += rect[3];
+    rect[1] -= 2;
+    rect[3] = 4;
+    widget_rect(app, rect, &line);
+}
+
+/*
 ** returns 1 if the category changed, 2 if one was put in or out of
 ** TOTAL. A click anywhere else closes it; the boxes keep it open. Called
 ** first when clicking (it takes the click), last when drawing (it is
@@ -189,7 +239,8 @@ int category_list(app_t *app, int *category)
             *category = row_stat(app, row);
         result = got;
     }
-    widget_text(app, "Clic droit : modifier",
+    drop_line(app);
+    widget_text(app, "Clic droit : modifier    |    Glisser : déplacer",
         (float [3]){146, CAT_BAR_Y + 66 + high * LIST_ROW, 18}, &gray);
     if (app->wg->mode == WG_CLICK) {
         list->open = result == 2;

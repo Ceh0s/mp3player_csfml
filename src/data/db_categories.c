@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** mp3player
 ** File description:
-** reads and writes categories.tsv (name, counted in TOTAL, bar shown,
+** reads and writes categories.tsv (in the order shown; name, counted in TOTAL, bar shown,
 ** quality / flaw, description, builtin / custom: created by the author,
 ** column absent from the old files) and manual_stats.tsv (raw id of the
 ** song, name of the stat, value from 0 to 100)
@@ -44,9 +44,13 @@ void db_parse_category(library_t *lib, char **fields, int nb)
     if (stat < 0 && nb == 6 && strcmp(fields[5], "custom") == 0)
         stat = category_add(lib, fields[0], "", 0);
     if (stat < 0) {
-        category_merged(lib, fields, nb);
+        stat = category_merged(lib, fields, nb);
+        if (stat >= 0)
+            category_read_order(lib, stat);
         return;
     }
+    if (stat < lib->nb_cats)
+        category_read_order(lib, stat);
     lib->cats[stat].total = stat < lib->nb_cats && atoi(fields[1]) == 1;
     lib->cats[stat].shown = atoi(fields[2]) == 1;
     lib->cats[stat].flaw = strcmp(fields[3], "flaw") == 0;
@@ -62,9 +66,9 @@ int db_save_categories(library_t *lib)
     if (!file)
         return 84;
     for (int i = 0; i < NB_STATS; i++) {
-        if (!stat_exists(lib, i))
+        if (stat_at(lib, i) < 0)
             continue;
-        opt = &lib->cats[i];
+        opt = &lib->cats[stat_at(lib, i)];
         fprintf(file, "%s\t%d\t%d\t%s\t%s\t%s\n", opt->name, opt->total,
             opt->shown, opt->flaw ? "flaw" : "quality", opt->desc,
             opt->custom ? "custom" : "builtin");

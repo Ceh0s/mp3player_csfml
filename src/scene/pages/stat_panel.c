@@ -149,9 +149,12 @@ static void stat_row(app_t *app, statpanel_t *panel, int stat, float y)
 */
 static void rows(app_t *app, statpanel_t *panel)
 {
+    int stat = 0;
+
     panel->nb = 0;
-    for (int stat = 0; stat < NB_STATS; stat++) {
-        if (panel->values[stat] == -2
+    for (int i = 0; i < NB_STATS; i++) {
+        stat = stat_at(app->lib, i);
+        if (stat < 0 || panel->values[stat] == -2
             || (!panel->choose && !app->lib->cats[stat].shown))
             continue;
         stat_row(app, panel, stat, row_y(panel->nb));
