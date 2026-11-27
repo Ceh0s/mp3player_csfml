@@ -4,7 +4,8 @@
 ** File description:
 ** stats of a song or an artist in a window over its page: one bar from
 ** 0 to 100 per stat shown (its rank in the ranking chosen in the battle
-** and rankings screens, app->arena.board, elo_percent),
+** and rankings screens, app->arena.board, elo_percent, also chosen in
+** the header),
 ** red to green (the other way for a flaw); "Choisir les stats" shows them
 ** all with a box, choice saved for every page (categories.tsv). The stats
 ** set by hand (songs only) are set by a click on their bar.
@@ -166,17 +167,19 @@ static void rows(app_t *app, statpanel_t *panel)
             (float [3]){450, row_y(0) + 6, 24}, &gray);
 }
 
+/*
+** the name of the song or artist, then the ranking the bars are measured
+** in, changed there (values read again)
+*/
 static void header(app_t *app, statpanel_t *panel)
 {
     float choose[4] = {1440, 170, 48, 48};
 
-    board_t *board = board_by_id(app->lib, app->arena.board);
-    char line[NAME_LEN * 2 + 8];
-
-    snprintf(line, sizeof(line), "%s    |    %s", rank_name(&panel->subject),
-        board ? board->name : "?");
     widget_text(app, "Stats", (float [3]){400, 165, 36}, &sfWhite);
-    widget_fit(app, line, (float [4]){540, 178, 24, 860}, &gray);
+    widget_fit(app, rank_name(&panel->subject),
+        (float [4]){540, 178, 24, 440}, &gray);
+    if (board_picker(app, 1000, 174, (float [2]){24, 340}))
+        stat_values_read(app, &panel->subject, panel->values);
     widget_tip(app, choose, "Choisir les stats");
     if (widget_icon(app, choose, ICON_SLIDERS, panel->choose ? ICON_FILLED
             : ICON_OUTLINE))

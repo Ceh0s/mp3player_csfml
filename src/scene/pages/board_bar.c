@@ -4,7 +4,8 @@
 ** File description:
 ** choice of the ranking and of what is compared (songs or artists),
 ** shared by the battle and ranking screens, with the button opening
-** the management of the rankings
+** the management of the rankings; board_picker = the same choice of the
+** ranking in small, on the stats of a page
 */
 
 #include "mp3player.h"
@@ -38,6 +39,27 @@ static void kind_buttons(app_t *app, arena_t *arena)
     if (widget_button(app, (float [4]){900, BOARD_BAR_Y, 230, 56},
             songs ? "Artistes" : "> Artistes <"))
         arena->kind = KIND_ARTIST;
+}
+
+/*
+** "<" ">" then "Classement : name", text of the given height at (x, y),
+** width = room for the name; returns 1 if the ranking changed
+*/
+int board_picker(app_t *app, float x, float y, float const *size)
+{
+    board_t *board = board_by_id(app->lib, app->arena.board);
+    float side = size[0] + 8;
+    char line[NAME_LEN + 16];
+    int old = app->arena.board;
+
+    if (widget_button(app, (float [4]){x, y, side, side}, "<"))
+        app->arena.board = previous_board(app->lib, board);
+    if (widget_button(app, (float [4]){x + side + 6, y, side, side}, ">"))
+        app->arena.board = next_board(app->lib, board);
+    snprintf(line, sizeof(line), "Classement : %s", board ? board->name : "?");
+    widget_fit(app, line, (float [4]){x + side * 2 + 20, y + 4, size[0],
+        size[1]}, &sfWhite);
+    return app->arena.board != old;
 }
 
 /*

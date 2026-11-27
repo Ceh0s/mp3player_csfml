@@ -527,6 +527,7 @@ void stat_panel(app_t *app, statpanel_t *panel);
 void stat_panel_right(app_t *app, statpanel_t *panel);
 int catdesc_view(app_t *app);
 int board_bar(app_t *app, arena_t *arena);
+int board_picker(app_t *app, float x, float y, float const *size);
 int image_box(app_t *app, rank_t const *rank, image_input_t *input,
     float const *pos);
 int listen_mine(app_t *app, song_t const *song);

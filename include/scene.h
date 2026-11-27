@@ -278,6 +278,7 @@ typedef struct edit_s {
     scroll_t titles;
     statpanel_t stats;
     int stat_values[NB_STATS];
+    int stat_board;
     scroll_t summary;
     notes_edit_t notes;
 } edit_t;

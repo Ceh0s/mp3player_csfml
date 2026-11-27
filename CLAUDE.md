@@ -379,7 +379,10 @@ Principes en place :
   artiste) : rang en pourcentage (`elo_percent`) dans le classement de l'arène (celui
   choisi en battle et dans les classements), parmi les présents avec au moins une battle
   dans la catégorie ; rouge → jaune → vert, inversé pour un défaut ; « - » sans battle.
-  Valeurs lues à l'ouverture de la fenêtre.
+  Valeurs lues à l'ouverture de la fenêtre. Le classement est nommé au-dessus des barres
+  (page d'une musique) et dans l'en-tête de la fenêtre, avec « < » « > » pour en changer
+  (`board_picker`, `board_bar.c`) : c'est celui de l'arène, donc aussi de la battle et des
+  classements ; la page relit ses valeurs quand il change (`edit_t.stat_board`).
 
 ## Données (`data/`, format TSV v2)
 
@@ -474,6 +477,10 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.28 — Classement des barres de stats (faite)
+- « Classement : nom » au-dessus des barres de la page d'une musique et dans la fenêtre
+  Stats, changeable sur place (voir « Barres de stats »).
 
 ### Phase 4.27 — Ordre des catégories (faite)
 - Glisser une catégorie sur une autre ligne de la liste des catégories la place là
