@@ -1013,6 +1013,8 @@ int category_rename(library_t *lib, int cat, char const *name);
 int category_remove(library_t *lib, int cat);
 int category_after_remove(int category, int cat);
 void db_category_rename(char const *old, char const *name);
+int category_merged(library_t *lib, char **fields, int nb);
+void category_merge_logs(library_t *lib);
 void manual_set(library_t *lib, int song_id, int stat, int value);
 int manual_get(library_t *lib, song_t *song, int stat);
 void manual_forget(library_t *lib, int song_id);

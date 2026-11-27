@@ -199,6 +199,7 @@ SRC_LIBRARY	=	src/library/library.c\
 		src/library/categories/category_custom.c\
 		src/library/categories/manual_stats.c\
 		src/library/categories/board_flaws.c\
+		src/library/categories/category_merge.c\
 		src/library/images/cover_check.c\
 		src/library/images/image_path.c\
 		src/library/images/images.c\

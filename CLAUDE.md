@@ -161,7 +161,8 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        affichée, qualité / défaut, description), catégories de
                        l'auteur (category_custom.c : créer, renommer, supprimer),
                        stats réglées à la main (manual_stats.c), qualité / défaut
-                       propre à un classement (board_flaws.c)
+                       propre à un classement (board_flaws.c), anciennes catégories
+                       fusionnées (category_merge.c)
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
@@ -473,6 +474,14 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 
 ## Plan de développement
 
+### Phase 4.26 — Mélodie + Production fusionnées (faite)
+- Retirées du tableau (`NB_BUILTIN` 12), réunies dans une catégorie de l'auteur
+  « PLACEHOLDER » (à renommer), créée à la place de Mélodie avec ses choix et les deux
+  descriptions. Fait une fois au lancement par `category_merge.c` tant que
+  `categories.tsv` nomme encore une ancienne catégorie : battles des deux renommées dans
+  `battles.log` / `battles_undone.log` avant que les Elo soient rejoués (un titre voté
+  dans les deux a donc deux battles dans la nouvelle).
+
 ### Phase 4.25 — Qualité / défaut par classement (faite)
 - Une catégorie peut mesurer une qualité dans un classement et un défaut ailleurs (voir
   « Catégories », `board_flaws.tsv`) : le classement d'une playlist compte comme la
@@ -710,7 +719,7 @@ playlist (« Synchroniser », titres retirés), écran des doublons (métadonné
 
 ### Phase 4.5 — Playlists, classements personnalisés, battles d'artistes, images (faite)
 - Catégories : **Tout confondu** (jugement libre, indépendant, catégorie principale, jamais
-  tirée au hasard, exclue de TOTAL), Mélodie, Production, Émotion, Rejouabilité,
+  tirée au hasard, exclue de TOTAL), Mélodie, Production (fusionnées en 4.26), Émotion, Rejouabilité,
   Nostalgie, puis (4.7) Meme material et Agression auditive (hors TOTAL et hors aléatoire),
   puis (4.21) les autres, réglables. Mêmes catégories pour les artistes.
 

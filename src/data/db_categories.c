@@ -43,8 +43,10 @@ void db_parse_category(library_t *lib, char **fields, int nb)
     stat = stat_find(lib, fields[0]);
     if (stat < 0 && nb == 6 && strcmp(fields[5], "custom") == 0)
         stat = category_add(lib, fields[0], "", 0);
-    if (stat < 0)
+    if (stat < 0) {
+        category_merged(lib, fields, nb);
         return;
+    }
     lib->cats[stat].total = stat < lib->nb_cats && atoi(fields[1]) == 1;
     lib->cats[stat].shown = atoi(fields[2]) == 1;
     lib->cats[stat].flaw = strcmp(fields[3], "flaw") == 0;

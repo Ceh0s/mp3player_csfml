@@ -8,7 +8,7 @@
 #ifndef ELO_H_
     #define ELO_H_
 
-    #define NB_BUILTIN 14
+    #define NB_BUILTIN 12
     #define MAX_CATEGORIES 24
     #define NB_MANUAL 1
     #define NB_STATS (MAX_CATEGORIES + NB_MANUAL)

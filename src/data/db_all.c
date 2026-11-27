@@ -49,6 +49,7 @@ void db_load_all(library_t *lib)
     tsv_read(BOARDS_DB, &db_parse_board, lib);
     tsv_read(RULES_DB, &db_parse_rule, lib);
     load_more(lib);
+    category_merge_logs(lib);
     likes_sync(lib);
     boards_sync_playlists(lib);
     if (lib->migrated)

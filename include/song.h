@@ -595,6 +595,7 @@ typedef struct library_s {
     int next_playlist;
     int next_board;
     int migrated;
+    int cats_merged;
 } library_t;
 
 /*

@@ -15,8 +15,6 @@
 
 static const category_def_t defs[NB_BUILTIN] = {
     {"Tout confondu", 0, 0, "Jugement libre, sans critère précis."},
-    {"Mélodie", 1, 0, "Thèmes, lignes mélodiques, harmonie."},
-    {"Production", 1, 0, "Son, mixage, arrangement."},
     {"Émotion", 1, 0, "Ce qu'elle fait ressentir."},
     {"Rejouabilité", 1, 0, "Supporte d'être enchaînée sans lasser."},
     {"Mémorabilité", 1, 0, "Reste en tête, on s'en souvient longtemps."},
