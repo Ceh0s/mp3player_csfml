@@ -33,3 +33,20 @@ float widget_text_width(app_t *app, char const *str, unsigned int size)
     sfText_setCharacterSize(app->wg->text, size);
     return text_width(app, app->wg->text);
 }
+
+/*
+** a disc of this color centered on (x, y)
+*/
+void widget_dot(app_t *app, float x, float y, float radius,
+    sfColor const *color)
+{
+    sfCircleShape *circle = app->wg->circle;
+
+    if (app->wg->mode != WG_DRAW)
+        return;
+    sfCircleShape_setTexture(circle, NULL, sfFalse);
+    sfCircleShape_setFillColor(circle, dark_soften(app, *color));
+    sfCircleShape_setRadius(circle, radius);
+    sfCircleShape_setPosition(circle, (sfVector2f){x - radius, y - radius});
+    sfRenderWindow_drawCircleShape(app->window, circle, NULL);
+}

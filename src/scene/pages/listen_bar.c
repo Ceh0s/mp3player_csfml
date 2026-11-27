@@ -56,12 +56,49 @@ void listen_time(app_t *app, float const *pos)
 }
 
 /*
-** the bar is thin, the zone of the click is higher; returns 1 if clicked
+** position of the mouse on the bar, from 0 to 1
+*/
+static float mouse_ratio(app_t *app, float const *bar)
+{
+    float ratio = (app->mouse.x - bar[0]) / bar[2];
+
+    if (ratio < 0)
+        return 0;
+    return ratio > 1 ? 1 : ratio;
+}
+
+/*
+** a press on the bar holds its cursor, which follows the mouse; the song
+** moves there when it is released (not a click on what is under it:
+** app->scroll_held); returns the ratio drawn
+*/
+static float cursor_drag(app_t *app, float const *zone, float const *bar,
+    float ratio)
+{
+    player_t *player = app->player;
+    int down = sfMouse_isButtonPressed(sfMouseLeft);
+
+    if (down && !player->was_down && mouse_in_rect(app, zone))
+        player->drag = 1;
+    player->was_down = down;
+    if (!player->drag)
+        return ratio;
+    app->scroll_held = 1;
+    if (down)
+        return mouse_ratio(app, bar);
+    player->drag = 0;
+    preview_seek(app, mouse_ratio(app, bar));
+    return mouse_ratio(app, bar);
+}
+
+/*
+** the bar is thin, the zone of the click is higher; a click or a drag
+** moves in the song; returns 1 if clicked
 */
 int listen_bar(app_t *app, float const *bar)
 {
     sfMusic *preview = app->player->preview;
-    float zone[4] = {bar[0], bar[1] - 12, bar[2], 30};
+    float zone[4] = {bar[0] - 10, bar[1] - 14, bar[2] + 20, bar[3] + 28};
     float done[4] = {bar[0], bar[1], bar[2], bar[3]};
     sfColor back = {70, 70, 70, 255};
     float ratio = 0;
@@ -70,13 +107,18 @@ int listen_bar(app_t *app, float const *bar)
         return 0;
     if (app->wg->mode == WG_CLICK && mouse_in_rect(app, zone)) {
         app->wg->mode = WG_IDLE;
-        preview_seek(app, (app->mouse.x - bar[0]) / bar[2]);
+        preview_seek(app, mouse_ratio(app, bar));
         return 1;
     }
+    if (app->wg->mode != WG_DRAW)
+        return 0;
     ratio = sfTime_asSeconds(sfMusic_getPlayingOffset(preview))
         / sfTime_asSeconds(sfMusic_getDuration(preview));
+    ratio = cursor_drag(app, zone, bar, ratio > 0 ? ratio : 0);
     widget_rect(app, bar, &back);
-    done[2] *= ratio > 0 ? ratio : 0;
+    done[2] *= ratio;
     widget_rect(app, done, &yellow);
+    widget_dot(app, bar[0] + done[2], bar[1] + bar[3] / 2,
+        app->player->drag ? 11 : 8, &yellow);
     return 0;
 }

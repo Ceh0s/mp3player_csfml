@@ -22,7 +22,7 @@ static void card_stats(app_t *app, rank_t const *rank, float x)
     snprintf(line, sizeof(line), "Elo %.0f en %s   -   %d battle%s   -   "
         "%d %%", score.rating, category_name(app->arena.category),
         score.battles, score.battles > 1 ? "s" : "", percent);
-    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 356, 22}, &gray);
+    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 326, 22}, &gray);
 }
 
 /*
@@ -36,28 +36,29 @@ static void card_detail(app_t *app, rank_t const *rank, float x)
 
     if (rank->song) {
         widget_text(app, rank->song->artists ? rank->song->artists
-            : "Artiste inconnu", (float [3]){x, BATTLE_CARD_Y + 318, 24},
+            : "Artiste inconnu", (float [3]){x, BATTLE_CARD_Y + 288, 24},
             &gray);
         return;
     }
     ms = artist_listen_ms(app->lib, rank->artist->id);
     format_time(time, sizeof(time), ms);
     snprintf(line, sizeof(line), "%s d'écoute", time);
-    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 318, 24}, &gray);
+    widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 288, 24}, &gray);
 }
 
 /*
 ** the whole card is a button: a click on it is a vote (but not on its
-** "Écouter" or its progress bar, tested first); the big image is
+** likes, tested first; the listening is under it); the big image is
 ** centered at its top (round for an artist)
 */
 static int card(app_t *app, rank_t const *rank, float x)
 {
-    float picture[4] = {x + 255, BATTLE_CARD_Y + 16, 250, 250};
-    float name[4] = {x + 30, BATTLE_CARD_Y + 276, 32, 700};
+    float picture[4] = {x + 270, BATTLE_CARD_Y + 16, 220, 220};
+    float name[4] = {x + 30, BATTLE_CARD_Y + 246, 32, 700};
     int clicked = 0;
 
-    if (app->wg->mode == WG_CLICK && battle_listen(app, rank, x))
+    if (app->wg->mode == WG_CLICK && (battle_likes(app, rank, x)
+            || battle_listen(app, rank, x)))
         return 0;
     clicked = widget_button(app,
         (float [4]){x, BATTLE_CARD_Y, 760, BATTLE_CARD_H}, "");
@@ -65,8 +66,10 @@ static int card(app_t *app, rank_t const *rank, float x)
     widget_fit(app, rank_name(rank), name, &sfWhite);
     card_detail(app, rank, x + 30);
     card_stats(app, rank, x + 30);
-    if (app->wg->mode == WG_DRAW)
+    if (app->wg->mode == WG_DRAW) {
+        battle_likes(app, rank, x);
         battle_listen(app, rank, x);
+    }
     return clicked;
 }
 
@@ -97,14 +100,14 @@ static void category_shown(app_t *app)
     char const *name = category_name(category);
     char const *desc = category < NB_CATEGORIES
         ? app->lib->cats[category].desc : "Somme des catégories cochées.";
-    float y = BATTLE_CARD_Y + BATTLE_CARD_H + 10;
-    float width = widget_text_width(app, name, 34);
+    float y = BATTLE_LISTEN_Y + 52;
+    float width = widget_text_width(app, name, 30);
 
-    widget_text(app, name, (float [3]){960 - width / 2, y, 34}, &sfWhite);
+    widget_text(app, name, (float [3]){960 - width / 2, y, 30}, &sfWhite);
     width = widget_text_width(app, desc, 22);
     if (width > 1650)
         width = 1650;
-    widget_fit(app, desc, (float [4]){960 - width / 2, y + 48, 22, 1650},
+    widget_fit(app, desc, (float [4]){960 - width / 2, y + 40, 22, 1650},
         &gray);
 }
 

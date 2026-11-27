@@ -75,7 +75,8 @@ src/scene/             table des scènes
                        saisie, page des suggestions de titre, page artiste, page « Découverte » :
                          edit_notes, edit_periods, edit_periods_save)
     battle/            face-à-face de deux musiques ou deux artistes (scène, vue, vote,
-                       battle_listen : écoute, avis, cadre du choix au clavier)
+                       battle_listen : avis, écoute sous la carte
+                       pour ne jamais voter en la réglant, cadre du choix au clavier)
     ranking/           tier list (noms ou images : ranking_tiles.c ; clic sur un tier =
                        lui seul en grand), leaderboard (ex æquo « - », vue par défaut),
                        départage (ranking_ties, _drag, _order), reset (_reset),
@@ -105,7 +106,7 @@ src/scene/             table des scènes
     pages/             morceaux d'écran réutilisables (artist_page, category_bar,
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
-                       lecteur, search_field : champ de recherche,
+                       lecteur, curseur à glisser, search_field : champ de recherche,
                        category_list : liste des catégories et fenêtre de
                        description, stat_panel : barres de stats d'une page)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets, coupe d'une

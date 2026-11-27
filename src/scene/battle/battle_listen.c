@@ -3,8 +3,9 @@
 ** mp3player
 ** File description:
 ** buttons of a battle card: likes (information only, no effect on the
-** Elo) and listening (src/scene/pages/listen_bar.c), and the frame of
-** the card chosen with the arrows (confirmed with Enter)
+** Elo), listening under the card, out of the zone of the vote
+** (src/scene/pages/listen_bar.c), and the frame of the card chosen with
+** the arrows (confirmed with Enter)
 */
 
 #include "mp3player.h"
@@ -12,25 +13,31 @@
 static const sfColor yellow = {255, 200, 0, 255};
 
 /*
-** only for a song; returns 1 if a click was used here
+** likes on the card; returns 1 if a click was used here
+*/
+int battle_likes(app_t *app, rank_t const *rank, float x)
+{
+    return like_buttons(app, rank->song ? KIND_SONG : KIND_ARTIST,
+        rank_id(rank), (float [3]){x + 30, BATTLE_CARD_Y + 20, 1});
+}
+
+/*
+** listening to a song, under its card: a click or a drag there is never
+** a vote; returns 1 if a click was used here
 */
 int battle_listen(app_t *app, rank_t const *rank, float x)
 {
-    float bar[4] = {x + 30, BATTLE_CARD_Y + BATTLE_CARD_H - 14, 700, 6};
+    float y = BATTLE_LISTEN_Y;
 
-    if (like_buttons(app, rank->song ? KIND_SONG : KIND_ARTIST,
-            rank_id(rank), (float [3]){x + 30, BATTLE_CARD_Y + 120, 1}))
-        return 1;
     if (!rank->song)
         return 0;
-    if (listen_button(app, rank->song,
-            (float [4]){x + 30, BATTLE_CARD_Y + 20, 170, 50}))
+    if (listen_button(app, rank->song, (float [4]){x, y, 170, 44}))
         return 1;
     if (!listen_mine(app, rank->song))
         return 0;
-    if (listen_bar(app, bar))
+    if (listen_bar(app, (float [4]){x + 196, y + 19, 430, 6}))
         return 1;
-    listen_time(app, (float [3]){x + 30, BATTLE_CARD_Y + 80, 22});
+    listen_time(app, (float [3]){x + 648, y + 8, 22});
     return 0;
 }
 

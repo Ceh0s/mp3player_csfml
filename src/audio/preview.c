@@ -18,6 +18,7 @@ static void preview_close(player_t *player)
     }
     player->preview = NULL;
     player->preview_song = NULL;
+    player->drag = 0;
 }
 
 /*

@@ -24,6 +24,8 @@ typedef enum end_reason_e {
 ** index : position of the current song in the queue (-1 if none)
 ** preview / preview_song : song listened to in a battle (counts nothing)
 ** resume : 1 if the music was playing before the preview (goes on after)
+** drag : 1 while the cursor of its bar is held (listen_bar.c), was_down :
+** the left button at the last drawing (to see it being pressed)
 */
 typedef struct player_s {
     sfMusic *music;
@@ -38,6 +40,8 @@ typedef struct player_s {
     sfMusic *preview;
     song_t *preview_song;
     int resume;
+    int drag;
+    int was_down;
 } player_t;
 
 #endif

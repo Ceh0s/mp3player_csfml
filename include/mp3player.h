@@ -159,7 +159,8 @@
     #define CAT_BAR_Y 260
     #define CONTENT_Y 350
     #define BATTLE_CARD_Y 340
-    #define BATTLE_CARD_H 400
+    #define BATTLE_CARD_H 360
+    #define BATTLE_LISTEN_Y (BATTLE_CARD_Y + BATTLE_CARD_H + 12)
     #define FIELD_SHOWN 400
     #define STATS_Y 330
     #define CONTENT_BOTTOM 820
@@ -325,6 +326,7 @@ void battle_destroy(app_t *app);
 void battle_view(app_t *app);
 void battle_next(app_t *app);
 void battle_vote(app_t *app, int side);
+int battle_likes(app_t *app, rank_t const *rank, float x);
 int battle_listen(app_t *app, rank_t const *rank, float x);
 void battle_frame(app_t *app, float x);
 void battle_reload(app_t *app);
@@ -573,6 +575,8 @@ void widget_place(app_t *app, float const *rect);
 void clip_begin(app_t *app, float const *rect);
 void clip_end(app_t *app);
 void widget_rect(app_t *app, float const *rect, sfColor const *color);
+void widget_dot(app_t *app, float x, float y, float radius,
+    sfColor const *color);
 float widget_text_width(app_t *app, char const *str, unsigned int size);
 void widget_image(app_t *app, sfTexture *texture, float const *rect,
     int round);
