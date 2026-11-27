@@ -9,13 +9,21 @@
 
 #include "mp3player.h"
 
+/*
+** the places left to the categories of the author stay empty
+*/
 void category_opts_default(library_t *lib)
 {
     category_def_t const *def = NULL;
 
+    memset(lib->cats, 0, sizeof(lib->cats));
+    lib->nb_cats = NB_BUILTIN;
     for (int i = 0; i < NB_STATS; i++) {
         def = category_def(i);
-        lib->cats[i].total = i < NB_CATEGORIES && def->total;
+        if (!def)
+            continue;
+        snprintf(lib->cats[i].name, CAT_NAME_LEN, "%s", def->name);
+        lib->cats[i].total = i < NB_BUILTIN && def->total;
         lib->cats[i].shown = def->total;
         lib->cats[i].flaw = def->flaw;
         snprintf(lib->cats[i].desc, DESC_LEN, "%s", def->desc);

@@ -49,11 +49,16 @@ static void elo_button(app_t *app, float y)
     char label[64];
 
     snprintf(label, sizeof(label), "Elo : %s", opt->elo == 0 ? "aucun"
-        : category_name(opt->elo - 1));
+        : category_name(app->lib, opt->elo - 1));
     widget_help(app, rect, "Elo du classement Général");
     if (!widget_button(app, rect, label))
         return;
-    opt->elo = (opt->elo + 1) % (CAT_TOTAL + 2);
+    if (opt->elo == CAT_TOTAL + 1)
+        opt->elo = 0;
+    else if (opt->elo == app->lib->nb_cats)
+        opt->elo = CAT_TOTAL + 1;
+    else
+        opt->elo++;
     app->stats->dirty = 1;
 }
 

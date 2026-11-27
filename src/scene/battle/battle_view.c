@@ -20,7 +20,7 @@ static void card_stats(app_t *app, rank_t const *rank, float x)
     if (score.battles > 0)
         percent = score.wins * 100 / score.battles;
     snprintf(line, sizeof(line), "Elo %.0f en %s   -   %d battle%s   -   "
-        "%d %%", score.rating, category_name(app->arena.category),
+        "%d %%", score.rating, category_name(app->lib, app->arena.category),
         score.battles, score.battles > 1 ? "s" : "", percent);
     widget_text(app, line, (float [3]){x, BATTLE_CARD_Y + 326, 22}, &gray);
 }
@@ -97,8 +97,8 @@ static void cards(app_t *app, battle_t *battle)
 static void category_shown(app_t *app)
 {
     int category = app->arena.category;
-    char const *name = category_name(category);
-    char const *desc = category < NB_CATEGORIES
+    char const *name = category_name(app->lib, category);
+    char const *desc = category < CAT_TOTAL
         ? app->lib->cats[category].desc : "Somme des catégories cochées.";
     float y = BATTLE_LISTEN_Y + 52;
     float width = widget_text_width(app, name, 30);
@@ -149,11 +149,15 @@ void battle_view(app_t *app)
 {
     battle_t *battle = app->battle;
     int *category = &app->arena.category;
+    int chosen = 0;
 
-    if (app->wg->mode == WG_CLICK
-        && category_overlay(app, category, NB_CATEGORIES) == 1) {
+    if (app->wg->mode == WG_CLICK)
+        chosen = category_overlay(app, category, 0);
+    if (chosen == 1) {
         app->lib->settings.battle_random = 0;
         db_save_settings(app->lib);
+    }
+    if (chosen == 1 || chosen == 3) {
         battle_next(app);
         return;
     }
@@ -172,5 +176,5 @@ void battle_view(app_t *app)
             (float [3]){130, CONTENT_Y, 30}, &sfWhite);
     bottom(app, battle);
     if (app->wg->mode == WG_DRAW)
-        category_overlay(app, category, NB_CATEGORIES);
+        category_overlay(app, category, 0);
 }

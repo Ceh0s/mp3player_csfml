@@ -38,7 +38,9 @@ void stat_panel_open(app_t *app, statpanel_t *panel, rank_t const *subject)
         panel->subject.song = song_resolve(lib, subject->song);
     for (int i = 0; i < NB_STATS; i++) {
         arena.category = i;
-        if (i < NB_CATEGORIES)
+        if (!stat_exists(lib, i))
+            panel->values[i] = -2;
+        else if (i < MAX_CATEGORIES)
             panel->values[i] = elo_percent(lib, &arena,
                 rank_id(&panel->subject));
         else if (panel->subject.song)
@@ -117,10 +119,10 @@ static void stat_row(app_t *app, statpanel_t *panel, int stat, float y)
         db_save_categories(app->lib);
     }
     widget_tip(app, name, opt->desc);
-    widget_fit(app, stat_name(stat), (float [4]){450, y + 6, 24, 320},
+    widget_fit(app, stat_name(app->lib, stat), (float [4]){450, y + 6, 24, 320},
         &sfWhite);
     draw_bar(app, stat, panel->values[stat], y);
-    if (stat >= NB_CATEGORIES)
+    if (stat >= MAX_CATEGORIES)
         manual_row(app, panel, stat, y);
 }
 

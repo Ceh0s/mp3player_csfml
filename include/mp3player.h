@@ -103,7 +103,7 @@
     #define BATTLES_COLUMNS BATTLES_COLS_1 "\twinner_before\tloser_before"
     #define PLAYLISTS_COLUMNS "id\tname\tauto"
     #define LIKES_COLUMNS "kind\tid\tvalue"
-    #define CATEGORIES_COLUMNS "name\ttotal\tshown\tmeasure\tdescription"
+    #define CATEGORIES_COLUMNS "name\ttotal\tshown\tmeasure\tdescription\torigin"
     #define MANUAL_COLUMNS "song_id\tstat\tvalue"
     #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle\tarchived"
     #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason\tarchived"
@@ -160,6 +160,7 @@
     #define CONTENT_Y 350
     #define BATTLE_CARD_Y 340
     #define BATTLE_CARD_H 360
+    #define CAT_NEW (NB_STATS + 1)
     #define BATTLE_LISTEN_Y (BATTLE_CARD_Y + BATTLE_CARD_H + 12)
     #define FIELD_SHOWN 400
     #define STATS_Y 330
@@ -509,10 +510,11 @@ void artist_page(app_t *app, artist_t *artist, scroll_t *titles,
 int like_row(app_t *app, song_t const *song, float const *rect, float x);
 int like_buttons(app_t *app, elo_kind_t kind, int id, float const *pos);
 int category_bar(app_t *app, int *category, int random);
-int category_list(app_t *app, int *category, int nb);
-int category_overlay(app_t *app, int *category, int nb);
+int category_list(app_t *app, int *category);
+int category_overlay(app_t *app, int *category, int total);
 int catlist_event(app_t *app, sfEvent *event);
 void catdesc_open(app_t *app, int stat);
+int catdesc_save(app_t *app);
 int elo_percent(library_t *lib, arena_t const *arena, int subject);
 void stat_panel_open(app_t *app, statpanel_t *panel, rank_t const *subject);
 void stat_panel(app_t *app, statpanel_t *panel);
@@ -917,10 +919,11 @@ int suggest_first(library_t *lib, song_t *song, char const *title,
 int suggest_apply_song(library_t *lib, song_t *song);
 
 // src/elo : ratings, without any display
-int category_find(char const *name);
-int stat_find(char const *name);
-char const *category_name(int category);
-char const *stat_name(int stat);
+int stat_exists(library_t const *lib, int stat);
+int category_find(library_t const *lib, char const *name);
+int stat_find(library_t const *lib, char const *name);
+char const *category_name(library_t const *lib, int category);
+char const *stat_name(library_t const *lib, int stat);
 int category_rated(library_t const *lib, int category);
 int category_random(library_t const *lib, int current);
 category_def_t const *category_def(int stat);
@@ -995,6 +998,13 @@ void db_parse_manual(library_t *lib, char **fields, int nb);
 int db_save_manual(library_t *lib);
 void category_opts_default(library_t *lib);
 void category_set_desc(library_t *lib, int stat, char const *text);
+int category_name_free(library_t const *lib, char const *name, int except);
+int category_add(library_t *lib, char const *name, char const *desc,
+    int flaw);
+int category_rename(library_t *lib, int cat, char const *name);
+int category_remove(library_t *lib, int cat);
+int category_after_remove(int category, int cat);
+void db_category_rename(char const *old, char const *name);
 void manual_set(library_t *lib, int song_id, int stat, int value);
 int manual_get(library_t *lib, song_t *song, int stat);
 void manual_forget(library_t *lib, int song_id);

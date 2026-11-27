@@ -98,7 +98,7 @@ void ranking_view(app_t *app)
         return;
     }
     if (app->wg->mode == WG_CLICK && category_overlay(app,
-            &app->arena.category, NB_CATEGORIES + 1)) {
+            &app->arena.category, 1)) {
         ranking_build(app);
         return;
     }
@@ -112,7 +112,7 @@ void ranking_view(app_t *app)
     content(app, ranking);
     bottom(app, ranking);
     if (app->wg->mode == WG_DRAW && category_overlay(app,
-            &app->arena.category, NB_CATEGORIES + 1))
+            &app->arena.category, 1))
         ranking_build(app);
     if (ranking->reset)
         ranking_reset_view(app);

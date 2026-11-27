@@ -58,9 +58,13 @@ int edit_init(app_t *app)
 */
 static void overlays(app_t *app)
 {
-    if (app->catlist.edit)
-        catdesc_view(app);
-    else
+    statpanel_t *panel = &app->edit->stats;
+    rank_t subject = panel->subject;
+
+    if (app->catlist.edit) {
+        if (catdesc_view(app) == 3)
+            stat_panel_open(app, panel, &subject);
+    } else
         stat_panel(app, &app->edit->stats);
 }
 

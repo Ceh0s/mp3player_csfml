@@ -107,8 +107,8 @@ src/scene/             table des scènes
                        board_bar : classement + musiques/artistes, image_box : import,
                        like_buttons : J'aime / Je n'aime pas, listen_bar : écoute hors
                        lecteur, curseur à glisser, search_field : champ de recherche,
-                       category_list : liste des catégories et fenêtre de
-                       description, stat_panel : barres de stats d'une page)
+                       category_list : liste des catégories, category_edit :
+                       fenêtre d'une catégorie, stat_panel : barres de stats d'une page)
 src/ui/                tables d'éléments (atlas), collisions, formes, widgets, coupe d'une
                        zone de l'écran (clip.c), défilement commun des
                        listes (scroll.c : calcul ; scroll_bar.c : coupe
@@ -157,8 +157,9 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
                        résumé (periods_sum.c), import Takeout (takeout.c, _songs)
     likes/             avis (+1/-1) et playlists auto « Titres likés / dislikés »
     categories/        réglages des catégories (category_opts.c : total,
-                       affichée, qualité / défaut, description), stats réglées à
-                       la main (manual_stats.c)
+                       affichée, qualité / défaut, description), catégories de
+                       l'auteur (category_custom.c : créer, renommer, supprimer),
+                       stats réglées à la main (manual_stats.c)
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
@@ -345,15 +346,25 @@ Principes en place :
   d'abord. Le glisser-déposer est coupé pendant une recherche.
 - **Arène** (`app->arena`) : type (musiques/artistes) + classement + catégorie, partagée par
   les scènes battle et classements.
-- **Catégories** : le tableau `const` de `elo_categories.c` donne les noms et les valeurs par
-  défaut ; `lib->cats` (`categories.tsv`) garde les choix de l'auteur : compté dans TOTAL
+- **Catégories** : le tableau `const` de `elo_categories.c` donne les `NB_BUILTIN` catégories
+  d'origine et leurs valeurs par défaut, copiées dans `lib->cats` (nom compris) ; les
+  catégories créées par l'auteur suivent (`custom`, `lib->nb_cats` en tout, au plus
+  `MAX_CATEGORIES`) : seules elles se renomment (colonne catégorie de `battles.log` et
+  `battles_undone.log` réécrite, `db_category_rename.c`) ou se suppriment (deux clics ; les
+  suivantes reculent d'un cran, Elo rejoués, ses battles restent dans le log et sont
+  ignorées : la recréer au même nom les retrouve). Noms toujours lus par
+  `category_name(lib, cat)` / `stat_name(lib, stat)`. `lib->cats` (`categories.tsv`) garde
+  aussi les choix de l'auteur : compté dans TOTAL
   (et tiré par « Catégorie aléatoire », `category_rated(lib, cat)`), barre affichée,
   qualité ou défaut (un défaut compté dans TOTAL compte à l'envers, `2 * 1500 - R`),
   description. Les stats réglées à la main (« Biais de récence ») suivent les catégories
-  dans `lib->cats` (indices `NB_CATEGORIES` et plus) : leur nom est donné par `stat_name`,
-  car `category_name(CAT_TOTAL)` vaut « TOTAL ». Le bouton de catégorie (`category_bar`)
-  ouvre une liste par-dessus (`category_list`, état dans `app->catlist`) : clic = choisir,
-  case = total, survol = description, clic droit = fenêtre de description. La liste prend
+  dans `lib->cats` (indices `MAX_CATEGORIES` et plus, places libres entre les deux,
+  `stat_exists`) : leur nom est donné par `stat_name`, car `category_name(CAT_TOTAL)` vaut
+  « TOTAL ». Le bouton de catégorie (`category_bar`) ouvre une liste par-dessus
+  (`category_list`, état dans `app->catlist`, deuxième colonne au-delà de 16 lignes) :
+  clic = choisir, case = total, survol = description, clic droit = fenêtre de la catégorie
+  (`category_edit.c` : nom pour celles de l'auteur, description, qualité / défaut,
+  « Supprimer »), dernière ligne « Nouvelle catégorie ». La liste prend
   les clics avant l'écran (`category_overlay` en tête de la vue au clic, en fin au dessin)
   et ses touches par `catlist_event`, appelé en premier par les scènes.
 - **Barres de stats** (`stat_panel.c`, bouton « Stats » de la page d'une musique ou d'un
@@ -400,7 +411,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `not_duplicates.tsv` | paires marquées « Pas un doublon » (ids bruts) |
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
-| `categories.tsv` | choix de l'auteur sur chaque stat (par nom) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description ; absente = valeurs par défaut, barres affichées = celles du total |
+| `categories.tsv` | choix de l'auteur sur chaque stat (par nom) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description, `builtin` / `custom` (créée par l'auteur, dans l'ordre du fichier ; colonne absente des anciens fichiers) ; absente = valeurs par défaut, barres affichées = celles du total |
 | `manual_stats.tsv` | stats réglées à la main (« Biais de récence ») : id brut, nom de la stat, valeur de 0 à 100 |
 | `song_notes.tsv` | où et quand une musique a été trouvée (id brut, deux textes libres) |
 | `playlist_history.tsv` | périodes d'une musique dans une playlist : playlist, id brut, début (0 = inconnu), fin (0 = en cours, -1 = inconnue), origine du début (unknown/auto/import/hand), « depuis le début » (auto/yes/no) |
@@ -454,6 +465,14 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.23 — `Features_and_bugs.md` du 2026-11-27 (faite)
+- **Écoute en battle** sous chaque carte (bouton, barre, temps), hors de la zone de vote :
+  le vote part au relâchement, régler la barre votait. Curseur à glisser (`listen_bar`,
+  aussi dans les doublons) : son relâchement n'est jamais un clic (`app->scroll_held`).
+- **Catégories de l'auteur** : créer, renommer, supprimer (voir « Catégories »).
+- **Peak** (qualité, dans le total) : « le passage le plus saisissant de la musique »,
+  refusée en 4.21, redemandée.
 
 ### Phase 4.22 — Catégorie aléatoire à chaque battle (faite)
 - « Catégorie aléatoire : oui / non » est une bascule (`battle_random`) : à oui, chaque

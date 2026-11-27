@@ -73,7 +73,7 @@ void elo_score(library_t *lib, arena_t const *arena, rank_t *out)
         add_category(lib, arena, arena->category, out);
         return;
     }
-    for (int i = 0; i < NB_CATEGORIES; i++)
+    for (int i = 0; i < lib->nb_cats; i++)
         if (category_rated(lib, i))
             add_category(lib, arena, i, out);
 }

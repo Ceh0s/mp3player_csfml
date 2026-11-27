@@ -3,7 +3,8 @@
 ** mp3player
 ** File description:
 ** reads and writes categories.tsv (name, counted in TOTAL, bar shown,
-** quality / flaw, description) and manual_stats.tsv (raw id of the
+** quality / flaw, description, builtin / custom: created by the author,
+** column absent from the old files) and manual_stats.tsv (raw id of the
 ** song, name of the stat, value from 0 to 100)
 */
 
@@ -30,16 +31,21 @@ static int old_default(char const *name, char const *desc)
     return 0;
 }
 
+/*
+** a category of the author is created in the order of the file
+*/
 void db_parse_category(library_t *lib, char **fields, int nb)
 {
     int stat = 0;
 
-    if (nb != 5)
+    if (nb != 5 && nb != 6)
         return;
-    stat = stat_find(fields[0]);
+    stat = stat_find(lib, fields[0]);
+    if (stat < 0 && nb == 6 && strcmp(fields[5], "custom") == 0)
+        stat = category_add(lib, fields[0], "", 0);
     if (stat < 0)
         return;
-    lib->cats[stat].total = stat < NB_CATEGORIES && atoi(fields[1]) == 1;
+    lib->cats[stat].total = stat < lib->nb_cats && atoi(fields[1]) == 1;
     lib->cats[stat].shown = atoi(fields[2]) == 1;
     lib->cats[stat].flaw = strcmp(fields[3], "flaw") == 0;
     if (!old_default(fields[0], fields[4]))
@@ -54,9 +60,12 @@ int db_save_categories(library_t *lib)
     if (!file)
         return 84;
     for (int i = 0; i < NB_STATS; i++) {
+        if (!stat_exists(lib, i))
+            continue;
         opt = &lib->cats[i];
-        fprintf(file, "%s\t%d\t%d\t%s\t%s\n", stat_name(i), opt->total,
-            opt->shown, opt->flaw ? "flaw" : "quality", opt->desc);
+        fprintf(file, "%s\t%d\t%d\t%s\t%s\t%s\n", opt->name, opt->total,
+            opt->shown, opt->flaw ? "flaw" : "quality", opt->desc,
+            opt->custom ? "custom" : "builtin");
     }
     return tsv_commit(file, CATEGORIES_DB);
 }
@@ -67,8 +76,8 @@ void db_parse_manual(library_t *lib, char **fields, int nb)
 
     if (nb != 3 || atoi(fields[0]) <= 0)
         return;
-    stat = stat_find(fields[1]);
-    if (stat < NB_CATEGORIES)
+    stat = stat_find(lib, fields[1]);
+    if (stat < MAX_CATEGORIES)
         return;
     manual_set(lib, atoi(fields[0]), stat, atoi(fields[2]));
 }
@@ -80,7 +89,7 @@ int db_save_manual(library_t *lib)
     if (!file)
         return 84;
     for (manual_t *m = lib->manual; m; m = m->next)
-        fprintf(file, "%d\t%s\t%d\n", m->song_id, stat_name(m->stat),
+        fprintf(file, "%d\t%s\t%d\n", m->song_id, stat_name(lib, m->stat),
             m->value);
     return tsv_commit(file, MANUAL_DB);
 }

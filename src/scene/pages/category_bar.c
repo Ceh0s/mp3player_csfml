@@ -38,11 +38,11 @@ int category_bar(app_t *app, int *category, int random)
 {
     int old = *category;
     float button[4] = {130, CAT_BAR_Y, 490, 56};
-    char const *desc = *category < NB_CATEGORIES
+    char const *desc = *category < CAT_TOTAL
         ? app->lib->cats[*category].desc : "Somme des catégories cochées.";
 
     widget_tip(app, button, desc);
-    if (widget_icon_button(app, button, ICON_LIST, category_name(*category)))
+    if (widget_icon_button(app, button, ICON_LIST, category_name(app->lib, *category)))
         app->catlist.open = !app->catlist.open;
     if (random)
         random_toggle(app, category);

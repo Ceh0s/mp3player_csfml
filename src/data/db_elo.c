@@ -29,7 +29,7 @@ static void parse_battle(library_t *lib, char **fields, int nb)
     arena.kind = kind;
     arena.board = atoi(fields[2]);
     board_seen_id(lib, arena.board);
-    arena.category = category_find(fields[3]);
+    arena.category = category_find(lib, fields[3]);
     if (kind < 0 || arena.category < 0 || !board_by_id(lib, arena.board))
         return;
     winner = subject_resolve(lib, arena.kind, atoi(fields[4]));
@@ -53,7 +53,7 @@ int db_save_elo(library_t *lib)
         return 84;
     for (elo_t *elo = lib->elo; elo; elo = elo->next)
         fprintf(file, "%s\t%d\t%d\t%s\t%.1f\t%d\t%d\n", kind_name(elo->kind),
-            elo->board, elo->subject, category_name(elo->category),
+            elo->board, elo->subject, category_name(lib, elo->category),
             elo->rating, elo->battles, elo->wins);
     return tsv_commit(file, ELO_DB);
 }
@@ -72,7 +72,7 @@ void battle_record(library_t *lib, arena_t const *arena,
     elo_score(lib, arena, &before[1]);
     snprintf(line, sizeof(line), "%s\t%d\t%s\t%d\t%d\t%.1f\t%.1f",
         kind_name(arena->kind), arena->board,
-        category_name(arena->category), rank_id(winner), rank_id(loser),
+        category_name(lib, arena->category), rank_id(winner), rank_id(loser),
         before[0].rating, before[1].rating);
     log_line(BATTLES_LOG, BATTLES_COLUMNS, line);
     elo_battle(lib, arena, rank_id(winner), rank_id(loser));

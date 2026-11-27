@@ -66,7 +66,7 @@ static int is_battle(library_t *lib, arena_t const *arena, char const *line,
         return 0;
     ok = in_arena(arena, fields, split_tab(copy, fields, TSV_MAX_FIELDS))
         && atol(fields[0]) == item->date
-        && category_find(fields[3]) == item->category
+        && category_find(lib, fields[3]) == item->category
         && subject_resolve(lib, arena->kind, atoi(fields[4]))
         == item->ids[0]
         && subject_resolve(lib, arena->kind, atoi(fields[5]))

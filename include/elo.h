@@ -8,13 +8,15 @@
 #ifndef ELO_H_
     #define ELO_H_
 
-    #define NB_CATEGORIES 13
+    #define NB_BUILTIN 14
+    #define MAX_CATEGORIES 24
     #define NB_MANUAL 1
-    #define NB_STATS (NB_CATEGORIES + NB_MANUAL)
-    #define STAT_RECENCY NB_CATEGORIES
+    #define NB_STATS (MAX_CATEGORIES + NB_MANUAL)
+    #define STAT_RECENCY MAX_CATEGORIES
     #define DESC_LEN 160
+    #define CAT_NAME_LEN 32
     #define CAT_ALL 0
-    #define CAT_TOTAL NB_CATEGORIES
+    #define CAT_TOTAL MAX_CATEGORIES
     #define BOARD_GENERAL 0
     #define ELO_START 1500.0
     #define ELO_K_NEW 40.0
@@ -25,8 +27,10 @@
     #define TIER_UNRANKED NB_TIERS
 
 /*
-** a stat of the songs: the battle categories (NB_CATEGORIES), then those
-** set by hand (NB_MANUAL, not Elo); default values (elo_categories.c),
+** a stat of the songs: the battle categories (lib->nb_cats of the
+** MAX_CATEGORIES places: the NB_BUILTIN ones, then those created by the
+** author), then those set by hand (from MAX_CATEGORIES, NB_MANUAL, not
+** Elo); default values (elo_categories.c),
 ** changed by the author in data/categories.tsv: total : counted in TOTAL
 ** (and drawn by "Catégorie aléatoire"), flaw : 1 if it measures a flaw
 ** (its bar is red when high, it lowers TOTAL)
@@ -40,9 +44,12 @@ typedef struct category_def_s {
 
 /*
 ** the same, as the author set them; shown : its bar is drawn on the pages
-** of the songs and artists
+** of the songs and artists; custom : created by the author (he can rename
+** or remove it)
 */
 typedef struct cat_opt_s {
+    char name[CAT_NAME_LEN];
+    int custom;
     int total;
     int shown;
     int flaw;
@@ -51,7 +58,7 @@ typedef struct cat_opt_s {
 
 /*
 ** a stat set by hand: raw id of the song, index of the stat (>=
-** NB_CATEGORIES), value from 0 to 100
+** MAX_CATEGORIES), value from 0 to 100
 */
 typedef struct manual_s {
     int song_id;

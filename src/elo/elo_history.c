@@ -23,8 +23,8 @@ typedef struct replay_s {
     library_t *lib;
     arena_t arena;
     int max_id;
-    double *ratings[NB_CATEGORIES];
-    int *battles[NB_CATEGORIES];
+    double *ratings[MAX_CATEGORIES];
+    int *battles[MAX_CATEGORIES];
     int *pool;
     int nb_pool;
     int line;
@@ -33,7 +33,7 @@ typedef struct replay_s {
 
 static void ratings_reset(replay_t *replay)
 {
-    for (int cat = 0; cat < NB_CATEGORIES; cat++)
+    for (int cat = 0; cat < replay->lib->nb_cats; cat++)
         for (int id = 0; id <= replay->max_id; id++) {
             replay->ratings[cat][id] = ELO_START;
             replay->battles[cat][id] = 0;
@@ -161,8 +161,8 @@ static void read_line(replay_t *replay, char **fields, int nb)
     if (kind_find(fields[1]) != (int)replay->arena.kind
         || atoi(fields[2]) != replay->arena.board)
         return;
-    cat = category_find(fields[3]);
-    if (cat < 0 || cat >= NB_CATEGORIES)
+    cat = category_find(replay->lib, fields[3]);
+    if (cat < 0)
         return;
     ids[0] = subject_resolve(replay->lib, replay->arena.kind,
         atoi(fields[4]));
@@ -200,7 +200,7 @@ static int replay_create(replay_t *replay)
 
     replay->max_id = replay->arena.kind == KIND_SONG
         ? replay->lib->next_song : replay->lib->next_artist;
-    for (int cat = 0; cat < NB_CATEGORIES; cat++) {
+    for (int cat = 0; cat < replay->lib->nb_cats; cat++) {
         replay->ratings[cat] = malloc(sizeof(double) * (replay->max_id + 1));
         replay->battles[cat] = malloc(sizeof(int) * (replay->max_id + 1));
         if (!replay->ratings[cat] || !replay->battles[cat])
@@ -222,7 +222,7 @@ static int replay_create(replay_t *replay)
 
 static void replay_destroy(replay_t *replay)
 {
-    for (int cat = 0; cat < NB_CATEGORIES; cat++) {
+    for (int cat = 0; cat < replay->lib->nb_cats; cat++) {
         free(replay->ratings[cat]);
         free(replay->battles[cat]);
     }

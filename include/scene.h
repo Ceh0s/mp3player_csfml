@@ -347,16 +347,24 @@ typedef struct ranking_s {
 /*
 ** list of the categories opened by the category bar (category_list.c),
 ** shared by the battle and ranking screens: open : 1 while it is shown,
-** nb : its rows at the last drawing; edit : stat + 1 whose description
-** is being typed (0 if none, also from the stats of a page), text / flaw :
-** its working copy
+** nb : its rows at the last drawing, total : 1 if TOTAL is one of them;
+** edit : stat + 1 shown in the window of a category (category_edit.c; 0
+** if none, CAT_NEW for a new one, also opened from the stats of a page),
+** name / text / flaw : its working copy, field : 1 if the name gets the
+** keys (else the description), confirm : 1 once "Supprimer" was clicked,
+** refused : 1 if the name typed is empty or taken
 */
 typedef struct catlist_s {
     int open;
     int nb;
+    int total;
     int edit;
+    char name[CAT_NAME_LEN];
     char text[DESC_LEN];
     int flaw;
+    int field;
+    int confirm;
+    int refused;
 } catlist_t;
 
 typedef struct ranking_keep_s {

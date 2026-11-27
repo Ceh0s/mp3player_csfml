@@ -3,22 +3,24 @@
 ** mp3player
 ** File description:
 ** categories of the battles: "Tout confondu" (free judgement, independent)
-** + the others, then the stats set by hand (not Elo, see manual_stats.c).
-** Default values here, changed by the author in data/categories.tsv
+** + the others, those created by the author (category_custom.c), then the
+** stats set by hand (not Elo, see manual_stats.c). Default values here,
+** copied in lib->cats and changed by the author in data/categories.tsv
 ** (category_opts.c). To add one, append it to the table and increase
-** NB_CATEGORIES (or NB_MANUAL) in elo.h; files store the names, so the
+** NB_BUILTIN (or NB_MANUAL) in elo.h; files store the names, so the
 ** order can change without breaking them. Also the names of the kinds.
 */
 
 #include "mp3player.h"
 
-static const category_def_t defs[NB_STATS] = {
+static const category_def_t defs[NB_BUILTIN] = {
     {"Tout confondu", 0, 0, "Jugement libre, sans critère précis."},
     {"Mélodie", 1, 0, "Thèmes, lignes mélodiques, harmonie."},
     {"Production", 1, 0, "Son, mixage, arrangement."},
     {"Émotion", 1, 0, "Ce qu'elle fait ressentir."},
     {"Rejouabilité", 1, 0, "Supporte d'être enchaînée sans lasser."},
     {"Mémorabilité", 1, 0, "Reste en tête, on s'en souvient longtemps."},
+    {"Peak", 1, 0, "Le passage le plus saisissant de la musique."},
     {"Fidélité", 1, 0,
         "Revient dans les écoutes au fil des mois et des années."},
     {"Nostalgie", 1, 0, "Rappelle une époque, un souvenir."},
@@ -27,26 +29,45 @@ static const category_def_t defs[NB_STATS] = {
     {"Agression auditive", 0, 0, "Intensité, violence du son."},
     {"Entêtement", 0, 1,
         "Colle à la tête sans qu'on le veuille, finit par agacer."},
-    {"Lassitude", 0, 1, "Usée à force d'être écoutée : elle lasse maintenant."},
+    {"Lassitude", 0, 1, "Usée à force d'être écoutée : elle lasse maintenant."}
+};
+
+static const category_def_t manual_defs[NB_MANUAL] = {
     {"Biais de récence", 0, 1,
         "Surévaluée au début parce qu'elle était nouvelle, sans l'avoir usée."}
 };
 
+/*
+** default values of a stat, NULL for a place left to the categories of
+** the author
+*/
 category_def_t const *category_def(int stat)
 {
-    if (stat < 0 || stat >= NB_STATS)
-        return NULL;
-    return &defs[stat];
+    if (stat >= 0 && stat < NB_BUILTIN)
+        return &defs[stat];
+    if (stat >= MAX_CATEGORIES && stat < NB_STATS)
+        return &manual_defs[stat - MAX_CATEGORIES];
+    return NULL;
+}
+
+/*
+** 1 if the stat is a category in use or a stat set by hand
+*/
+int stat_exists(library_t const *lib, int stat)
+{
+    if (stat >= 0 && stat < lib->nb_cats)
+        return 1;
+    return stat >= MAX_CATEGORIES && stat < NB_STATS;
 }
 
 /*
 ** returns the index of the battle category, -1 if it does not exist
 ** anymore
 */
-int category_find(char const *name)
+int category_find(library_t const *lib, char const *name)
 {
-    for (int i = 0; i < NB_CATEGORIES; i++)
-        if (strcmp(defs[i].name, name) == 0)
+    for (int i = 0; i < lib->nb_cats; i++)
+        if (strcmp(lib->cats[i].name, name) == 0)
             return i;
     return -1;
 }
@@ -54,10 +75,10 @@ int category_find(char const *name)
 /*
 ** the same among all the stats (those set by hand too)
 */
-int stat_find(char const *name)
+int stat_find(library_t const *lib, char const *name)
 {
     for (int i = 0; i < NB_STATS; i++)
-        if (strcmp(defs[i].name, name) == 0)
+        if (stat_exists(lib, i) && strcmp(lib->cats[i].name, name) == 0)
             return i;
     return -1;
 }
@@ -66,23 +87,23 @@ int stat_find(char const *name)
 ** TOTAL is virtual: the sum of the categories counted in it, never stored
 ** (its index is the one of the first stat set by hand: see stat_name)
 */
-char const *category_name(int category)
+char const *category_name(library_t const *lib, int category)
 {
     if (category == CAT_TOTAL)
         return "TOTAL";
-    if (category < 0 || category > CAT_TOTAL)
+    if (category < 0 || category >= lib->nb_cats)
         return "?";
-    return defs[category].name;
+    return lib->cats[category].name;
 }
 
 /*
 ** name of any stat, those set by hand included
 */
-char const *stat_name(int stat)
+char const *stat_name(library_t const *lib, int stat)
 {
-    if (stat < 0 || stat >= NB_STATS)
+    if (!stat_exists(lib, stat))
         return "?";
-    return defs[stat].name;
+    return lib->cats[stat].name;
 }
 
 /*
@@ -91,7 +112,7 @@ char const *stat_name(int stat)
 */
 int category_rated(library_t const *lib, int category)
 {
-    if (category < 0 || category >= NB_CATEGORIES)
+    if (category < 0 || category >= lib->nb_cats)
         return 0;
     return lib->cats[category].total;
 }
@@ -102,10 +123,10 @@ int category_rated(library_t const *lib, int category)
 */
 int category_random(library_t const *lib, int current)
 {
-    int choices[NB_CATEGORIES];
+    int choices[MAX_CATEGORIES];
     int nb = 0;
 
-    for (int i = 0; i < NB_CATEGORIES; i++)
+    for (int i = 0; i < lib->nb_cats; i++)
         if (category_rated(lib, i) && i != current) {
             choices[nb] = i;
             nb++;
