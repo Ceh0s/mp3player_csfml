@@ -93,3 +93,36 @@ int db_save_manual(library_t *lib)
             m->value);
     return tsv_commit(file, MANUAL_DB);
 }
+
+/*
+** quality or flaw of a category in one ranking (board_flaws.c); read
+** after the categories
+*/
+void db_parse_board_flaw(library_t *lib, char **fields, int nb)
+{
+    int stat = 0;
+
+    if (nb != 3 || atoi(fields[0]) == 0)
+        return;
+    stat = stat_find(lib, fields[1]);
+    if (stat < 0 || stat >= lib->nb_cats)
+        return;
+    board_flaw_set(lib, atoi(fields[0]), stat,
+        strcmp(fields[2], "flaw") == 0);
+}
+
+/*
+** the rankings removed since are left out
+*/
+int db_save_board_flaws(library_t *lib)
+{
+    FILE *file = tsv_create(BOARD_FLAWS_DB, BOARD_FLAWS_COLUMNS);
+
+    if (!file)
+        return 84;
+    for (board_flaw_t *f = lib->board_flaws; f; f = f->next)
+        if (board_by_id(lib, f->board))
+            fprintf(file, "%d\t%s\t%s\n", f->board,
+                category_name(lib, f->stat), f->flaw ? "flaw" : "quality");
+    return tsv_commit(file, BOARD_FLAWS_DB);
+}

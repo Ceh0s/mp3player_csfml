@@ -586,6 +586,7 @@ typedef struct library_s {
     cat_opt_t cats[NB_STATS];
     int nb_cats;
     manual_t *manual;
+    board_flaw_t *board_flaws;
     int envelopes_changed;
     song_t **present;
     int nb;

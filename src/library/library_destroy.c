@@ -84,6 +84,7 @@ void library_destroy(library_t *lib)
     periods_forget(lib, 0, 0);
     video_aliases_free(lib);
     manual_forget(lib, -1);
+    board_flaws_free(lib);
     free(lib->present);
     free(lib);
 }

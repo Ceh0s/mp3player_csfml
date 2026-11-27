@@ -85,7 +85,7 @@ void stat_bar(app_t *app, int stat, int value, float const *rect)
     widget_rect(app, track, &back);
     snprintf(text, sizeof(text), "-");
     if (value >= 0) {
-        if (app->lib->cats[stat].flaw)
+        if (category_flaw(app->lib, app->arena.board, stat))
             good = 1 - good;
         fill = bar_color(good);
         track[2] = rect[2] * value / 100.0;

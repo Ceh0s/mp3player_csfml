@@ -31,6 +31,7 @@ static void load_more(library_t *lib)
     category_opts_default(lib);
     tsv_read(CATEGORIES_DB, &db_parse_category, lib);
     tsv_read(MANUAL_DB, &db_parse_manual, lib);
+    tsv_read(BOARD_FLAWS_DB, &db_parse_board_flaw, lib);
 }
 
 void db_load_all(library_t *lib)

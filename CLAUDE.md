@@ -160,7 +160,8 @@ src/library/           chargement / rafraîchissement / destruction de la biblio
     categories/        réglages des catégories (category_opts.c : total,
                        affichée, qualité / défaut, description), catégories de
                        l'auteur (category_custom.c : créer, renommer, supprimer),
-                       stats réglées à la main (manual_stats.c)
+                       stats réglées à la main (manual_stats.c), qualité / défaut
+                       propre à un classement (board_flaws.c)
     suggest/           suggestions de titre (règles indépendantes, sûres seulement),
                        états cacher/supprimer, application (titre + artistes)
     songs/             chansons, empreintes connues, résolution des alias, édition, fusion,
@@ -358,7 +359,11 @@ Principes en place :
   aussi les choix de l'auteur : compté dans TOTAL
   (et tiré par « Catégorie aléatoire », `category_rated(lib, cat)`), barre affichée,
   qualité ou défaut (un défaut compté dans TOTAL compte à l'envers, `2 * 1500 - R`),
-  description. Les stats réglées à la main (« Biais de récence ») suivent les catégories
+  description. Qualité / défaut peut aussi être réglé **par classement** (fenêtre de la
+  catégorie, second bouton quand l'arène n'est pas sur « Général » ; `board_flaws.c`,
+  `category_flaw(lib, board, cat)` : TOTAL et couleur des barres), par exemple
+  « Agression auditive » en qualité dans le classement d'une playlist de titres
+  désagréables exprès. Les stats réglées à la main (« Biais de récence ») suivent les catégories
   dans `lib->cats` (indices `MAX_CATEGORIES` et plus, places libres entre les deux,
   `stat_exists`) : leur nom est donné par `stat_name`, car `category_name(CAT_TOTAL)` vaut
   « TOTAL ». Le bouton de catégorie (`category_bar`) ouvre une liste par-dessus
@@ -413,6 +418,7 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 | `tie_orders.tsv` | ordre de départage des ex æquo par classement et type (ids bruts, position) |
 | `likes.tsv` | avis : type, id brut, like/dislike (titres seulement pour l'instant) |
 | `categories.tsv` | choix de l'auteur sur chaque stat (par nom) : compté dans TOTAL, barre affichée, `quality` / `flaw`, description, `builtin` / `custom` (créée par l'auteur, dans l'ordre du fichier ; colonne absente des anciens fichiers) ; absente = valeurs par défaut, barres affichées = celles du total |
+| `board_flaws.tsv` | qualité / défaut d'une catégorie propre à un classement : id du classement, catégorie (par nom), `flaw` / `quality` ; seuls les classements qui diffèrent de la catégorie, ceux supprimés retirés à l'écriture |
 | `manual_stats.tsv` | stats réglées à la main (« Biais de récence ») : id brut, nom de la stat, valeur de 0 à 100 |
 | `song_notes.tsv` | où et quand une musique a été trouvée (id brut, deux textes libres) |
 | `playlist_history.tsv` | périodes d'une musique dans une playlist : playlist, id brut, début (0 = inconnu), fin (0 = en cours, -1 = inconnue), origine du début (unknown/auto/import/hand), « depuis le début » (auto/yes/no) |
@@ -466,6 +472,11 @@ d'autres musiques y sont fusionnées. Son id n'est jamais redonné (`next_song` 
 - L'ancien format v1 est converti automatiquement (originaux gardés en `*.v1.bak`).
 
 ## Plan de développement
+
+### Phase 4.25 — Qualité / défaut par classement (faite)
+- Une catégorie peut mesurer une qualité dans un classement et un défaut ailleurs (voir
+  « Catégories », `board_flaws.tsv`) : le classement d'une playlist compte comme la
+  playlist. Changer le réglage global entraîne les classements qui le suivaient.
 
 ### Phase 4.24 — Stats et Découverte sur la page d'une musique (faite)
 - Sous les artistes (`edit_summary.c`) : « Trouvée où » et « Découverte » s'ils sont remplis,

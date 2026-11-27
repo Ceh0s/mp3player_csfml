@@ -75,8 +75,10 @@ int category_remove(library_t *lib, int cat)
     for (int i = cat; i + 1 < lib->nb_cats; i++)
         lib->cats[i] = lib->cats[i + 1];
     lib->nb_cats--;
+    board_flaws_remove_cat(lib, cat);
     memset(&lib->cats[lib->nb_cats], 0, sizeof(cat_opt_t));
     db_save_categories(lib);
+    db_save_board_flaws(lib);
     db_load_elo(lib);
     return 0;
 }

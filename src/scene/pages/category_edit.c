@@ -27,12 +27,14 @@ void catdesc_open(app_t *app, int stat)
         list->name[0] = '\0';
         list->text[0] = '\0';
         list->flaw = 0;
+        list->board_flaw = 0;
         list->field = 1;
         return;
     }
     snprintf(list->name, CAT_NAME_LEN, "%s", app->lib->cats[stat].name);
     snprintf(list->text, DESC_LEN, "%s", app->lib->cats[stat].desc);
     list->flaw = app->lib->cats[stat].flaw;
+    list->board_flaw = category_flaw(app->lib, app->arena.board, stat);
     list->field = 0;
 }
 
@@ -77,7 +79,9 @@ int catdesc_save(app_t *app)
     }
     category_set_desc(app->lib, stat, list->text);
     app->lib->cats[stat].flaw = list->flaw;
+    board_flaw_set(app->lib, app->arena.board, stat, list->board_flaw);
     db_save_categories(app->lib);
+    db_save_board_flaws(app->lib);
     list->edit = 0;
     return 2;
 }
@@ -104,14 +108,47 @@ static int remove_category(app_t *app)
     return 3;
 }
 
+/*
+** the ranking that follows the category follows it here too
+*/
 static void measure_button(app_t *app, float x, float y)
 {
     float rect[4] = {x, y, 380, 52};
     catlist_t *list = &app->catlist;
 
-    if (widget_button(app, rect, list->flaw ? "Mesure : un défaut"
+    if (!widget_button(app, rect, list->flaw ? "Mesure : un défaut"
             : "Mesure : une qualité"))
-        list->flaw = !list->flaw;
+        return;
+    if (list->board_flaw == list->flaw)
+        list->board_flaw = !list->board_flaw;
+    list->flaw = !list->flaw;
+}
+
+/*
+** what it measures in the ranking of the battles and rankings screens
+** (the one of a playlist, or a custom one); none for "Général"
+*/
+static void board_button(app_t *app, float x, float y)
+{
+    catlist_t *list = &app->catlist;
+    board_t *board = board_by_id(app->lib, app->arena.board);
+    char label[NAME_LEN + 48];
+
+    if (!board || board->id == 0)
+        return;
+    snprintf(label, sizeof(label), "Dans « %s » : %s", board->name,
+        list->board_flaw ? "un défaut" : "une qualité");
+    if (widget_button(app, (float [4]){x, y, 740, 52}, label))
+        list->board_flaw = !list->board_flaw;
+}
+
+/*
+** 60 more pixels when a ranking other than "Général" is chosen
+*/
+static float board_row(app_t *app)
+{
+    return app->arena.board != 0
+        && board_by_id(app->lib, app->arena.board) ? 60 : 0;
 }
 
 /*
@@ -145,10 +182,13 @@ static void fields(app_t *app)
 static int buttons(app_t *app)
 {
     catlist_t *list = &app->catlist;
-    float trash[4] = {870, 570, 360, 56};
+    float row = board_row(app);
+    float trash[4] = {870, 570 + row, 360, 56};
 
     measure_button(app, 590, 486);
-    if (widget_icon_button(app, (float [4]){590, 570, 260, 56}, ICON_SAVE,
+    board_button(app, 590, 546);
+    if (widget_icon_button(app, (float [4]){590, 570 + row, 260, 56},
+            ICON_SAVE,
             "Enregistrer"))
         return catdesc_save(app);
     if (list->edit != CAT_NEW && named(app)
@@ -167,7 +207,7 @@ int catdesc_view(app_t *app)
 {
     catlist_t *list = &app->catlist;
     sfFloatRect view = app->view_rect;
-    float win[4] = {560, 290, 800, 370};
+    float win[4] = {560, 290, 800, 370 + board_row(app)};
     sfColor shade = {0, 0, 0, 170};
     sfColor back = {30, 30, 30, 245};
     int result = 0;

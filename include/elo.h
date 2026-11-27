@@ -67,6 +67,18 @@ typedef struct manual_s {
     struct manual_s *next;
 } manual_t;
 
+/*
+** quality or flaw of a category in one ranking only (board_flaws.c):
+** board id, index of the category, 1 = a flaw there; the other rankings
+** follow the choice of the category (cat_opt_t.flaw)
+*/
+typedef struct board_flaw_s {
+    int board;
+    int stat;
+    int flaw;
+    struct board_flaw_s *next;
+} board_flaw_t;
+
 typedef enum elo_kind_e {
     KIND_SONG,
     KIND_ARTIST,

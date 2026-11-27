@@ -67,6 +67,7 @@
     #define NOTES_DB "data/song_notes.tsv"
     #define CATEGORIES_DB "data/categories.tsv"
     #define MANUAL_DB "data/manual_stats.tsv"
+    #define BOARD_FLAWS_DB "data/board_flaws.tsv"
     #define NOTES_COLUMNS "song_id\tfound\tdate"
     #define PERIODS_DB "data/playlist_history.tsv"
     #define PERIODS_COLS_1 "playlist_id\tsong_id\tstart\tend"
@@ -105,6 +106,7 @@
     #define LIKES_COLUMNS "kind\tid\tvalue"
     #define CATEGORIES_COLUMNS "name\ttotal\tshown\tmeasure\tdescription\torigin"
     #define MANUAL_COLUMNS "song_id\tstat\tvalue"
+    #define BOARD_FLAWS_COLUMNS "board\tcategory\tmeasure"
     #define EXCLUDED_COLUMNS "video_id\ttimestamp\ttitle\tarchived"
     #define UNAVAILABLE_COLUMNS "video_id\ttimestamp\ttitle\treason\tarchived"
     #define SUGGEST_COLUMNS "song_id\trule\tremoved\tstate"
@@ -999,6 +1001,8 @@ int db_save_likes(library_t *lib);
 void db_parse_category(library_t *lib, char **fields, int nb);
 int db_save_categories(library_t *lib);
 void db_parse_manual(library_t *lib, char **fields, int nb);
+void db_parse_board_flaw(library_t *lib, char **fields, int nb);
+int db_save_board_flaws(library_t *lib);
 int db_save_manual(library_t *lib);
 void category_opts_default(library_t *lib);
 void category_set_desc(library_t *lib, int stat, char const *text);
@@ -1012,6 +1016,10 @@ void db_category_rename(char const *old, char const *name);
 void manual_set(library_t *lib, int song_id, int stat, int value);
 int manual_get(library_t *lib, song_t *song, int stat);
 void manual_forget(library_t *lib, int song_id);
+int category_flaw(library_t *lib, int board, int stat);
+void board_flaw_set(library_t *lib, int board, int stat, int flaw);
+void board_flaws_remove_cat(library_t *lib, int stat);
+void board_flaws_free(library_t *lib);
 void db_parse_excluded(library_t *lib, char **fields, int nb);
 int db_save_excluded(library_t *lib);
 void db_parse_unavailable(library_t *lib, char **fields, int nb);

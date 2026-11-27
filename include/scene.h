@@ -364,6 +364,7 @@ typedef struct catlist_s {
     char name[CAT_NAME_LEN];
     char text[DESC_LEN];
     int flaw;
+    int board_flaw;
     int field;
     int confirm;
     int refused;

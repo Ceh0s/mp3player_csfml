@@ -42,15 +42,16 @@ int subject_resolve(library_t *lib, elo_kind_t kind, int id)
 }
 
 /*
-** in TOTAL, a category measuring a flaw counts the other way (flipped
-** around ELO_START): it lowers the total
+** in TOTAL, a category measuring a flaw (in this ranking) counts the
+** other way (flipped around ELO_START): it lowers the total
 */
 static void add_category(library_t *lib, arena_t const *arena,
     int category, rank_t *out)
 {
     arena_t one = {arena->kind, arena->board, category};
     elo_t *elo = elo_find(lib, &one, rank_id(out));
-    int flip = arena->category == CAT_TOTAL && lib->cats[category].flaw;
+    int flip = arena->category == CAT_TOTAL
+        && category_flaw(lib, arena->board, category);
 
     if (!elo) {
         out->rating += ELO_START;
